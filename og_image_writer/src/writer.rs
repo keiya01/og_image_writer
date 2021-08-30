@@ -1,6 +1,6 @@
-use cairo::{ImageSurface, Context};
+use cairo::{ImageSurface, Context, Format};
 use std::{fs::File, io, ops::Range, str};
-use super::style::{WordBreak, Style};
+use super::style::{WordBreak, Style, WindowStyle};
 
 struct LineBreaker<'a> {
     title: &'a str,
@@ -81,44 +81,113 @@ impl<'a> LineBreaker<'a> {
     }
 }
 
+#[derive(Default)]
+struct StyleSheet<'a> {
+    window: WindowStyle<'a>,
+    text: Style<'a>,
+    img: Style<'a>,
+}
+
+#[derive(Default)]
 pub struct OGImageWriter<'a> {
-    title: &'a str,
-    style: Style<'a>,
+    text: &'a str,
+    img: Option<&'a str>,
+    style: StyleSheet<'a>,
 }
 
 impl<'a> OGImageWriter<'a> {
-    pub fn new(title: &'a str, style: Style<'a>) -> Self {
+    pub fn new() -> Self {
         OGImageWriter {
-            title,
-            style,
+            text: "",
+            img: None,
+            style: StyleSheet {
+                window: WindowStyle::default(),
+                text: Style::default(),
+                img: Style::default(),
+            },
         }
     }
 
-    pub fn generate(&mut self, src: &str, dest: &str) -> io::Result<()> {
-        let surface = {
-            let mut file = File::open(src)?;
-            ImageSurface::create_from_png(&mut file).expect("Could not create data from specified png file")
-        };
+    pub fn set_text(&mut self, text: &'a str) {
+        self.text = text;
+    }
+
+    pub fn set_img(&mut self, img: &'a str) {
+        self.img = Some(img);
+    }
+
+    pub fn set_window_style(&mut self, style: WindowStyle<'a>)  {
+        self.style.window = style;
+    }
+
+    pub fn set_text_style(&mut self, style: Style<'a>)  {
+        self.style.text = style;
+    }
+
+    pub fn set_img_style(&mut self, style: Style<'a>)  {
+        self.style.text = style;
+    }
+
+    pub fn generate(&mut self, dest: &str) -> io::Result<()> {
+        let surface = self.create_surface()?;
+        let context = Context::new(&surface).expect("Could not initialize Context");
 
         let window_height = surface.height() as f64;
         let window_width = surface.width() as f64;
 
-        let text_area_width = window_width - self.style.padding_inline * 2.;
+        self.process_background(&context);
 
-        let context = Context::new(&surface).expect("Could not initialize Context");
+        self.process_text(&context, window_width, window_height);
+
+        let mut file = File::create(dest)
+            .expect("Couldn’t create file");
+        surface.write_to_png(&mut file)
+            .expect("Couldn’t write to png");
+
+        Ok(())
+    }
+
+    fn create_surface(&self) -> io::Result<ImageSurface> {
+        let window = &self.style.window;
+        match window.background_image {
+            Some(src) => {
+                let mut file = File::open(src)?;
+                Ok(ImageSurface::create_from_png(&mut file).expect("Could not create data from specified png file"))
+            },
+            None => {
+                Ok(ImageSurface::create(Format::ARgb32, window.width, window.height).expect("Could not create surface"))
+            }
+        }
+    }
+
+    fn process_background(&self, context: &Context) {
+        let window = &self.style.window;
+        let background_color = match &window.background_color {
+            None => return,
+            Some(color) => color,
+        };
+
+        context.set_source_rgb(background_color.0, background_color.1, background_color.2);
+        context.paint().expect("Could not paint specified background_color");
+    }
+
+    fn process_text(&self, context: &Context, window_width: f64, window_height: f64) {
+        let style = &self.style.text;
+
+        let text_area_width = window_width - style.margin_inline * 2.;
 
         // Initialize font metrics for line breaking.
-        set_font(&context, &self.style);
+        set_font(&context, style);
 
-        let mut line_breaker = LineBreaker::new(self.title);
-        match &self.style.word_break {
+        let mut line_breaker = LineBreaker::new(self.text);
+        match style.word_break {
             WordBreak::Normal => line_breaker.break_text_with_whitespace(&context, text_area_width),
             WordBreak::BreakAll => line_breaker.break_text_with_char(&context, text_area_width),
         }
 
         let mut total_height = 0.;
         for line in &line_breaker.lines {
-            let extents = context.text_extents(&self.title[line.clone()]).unwrap();
+            let extents = context.text_extents(&self.text[line.clone()]).unwrap();
             total_height += extents.height;
         }
 
@@ -127,14 +196,14 @@ impl<'a> OGImageWriter<'a> {
         for (i, line) in line_breaker.lines.into_iter().enumerate() {
             let is_first_line = i == 0;
 
-            set_font(&context, &self.style);
+            set_font(&context, style);
 
-            let text = &self.title[line.clone()];
+            let text = &self.text[line.clone()];
 
             let extents = context.text_extents(text).unwrap();
             let text_height = extents.height;
 
-            let line_height = text_height * self.style.line_height / 2.;
+            let line_height = text_height * style.line_height / 2.;
 
             let pos_y = ((window_height - total_height) / 2.) - text_height / 2. + prev_extents_height;
             let pos_y = if !is_first_line {
@@ -155,17 +224,9 @@ impl<'a> OGImageWriter<'a> {
                 break;
             }
 
-            context.move_to(self.style.padding_inline, pos_y);
+            context.move_to(style.margin_inline, pos_y);
             context.show_text(text).unwrap();
         }
-    
-    
-        let mut file = File::create(dest)
-            .expect("Couldn’t create file");
-        surface.write_to_png(&mut file)
-            .expect("Couldn’t write to png");
-    
-        Ok(())
     }
 }
 fn set_font(context: &Context, style: &Style) {
