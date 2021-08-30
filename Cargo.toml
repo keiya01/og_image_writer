@@ -1,10 +1,5 @@
-[package]
-name = "png_writer"
-version = "0.0.1"
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-png = "0.17.0"
-cairo-rs = { version = "0.14.3",  features = ["png"]}
+[workspace]
+members = [
+  "og_image_writer",
+  "examples",
+]

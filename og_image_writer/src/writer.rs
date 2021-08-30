@@ -1,4 +1,4 @@
-use cairo::{ ImageSurface, Context };
+use cairo::{ImageSurface, Context};
 use std::{fs::File, io, ops::Range, str};
 use super::style::{WordBreak, Style};
 
@@ -81,14 +81,14 @@ impl<'a> LineBreaker<'a> {
     }
 }
 
-pub struct PngWriter<'a> {
+pub struct OGImageWriter<'a> {
     title: &'a str,
     style: Style<'a>,
 }
 
-impl<'a> PngWriter<'a> {
+impl<'a> OGImageWriter<'a> {
     pub fn new(title: &'a str, style: Style<'a>) -> Self {
-        PngWriter {
+        OGImageWriter {
             title,
             style,
         }
