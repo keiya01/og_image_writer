@@ -10,5 +10,9 @@ publish = false
 og_image_writer = { path = "../og_image_writer" }
 
 [[example]]
-name = "simple"
-path = "simple.rs"
+name = "background_image"
+path = "background_image.rs"
+
+[[example]]
+name = "background_color"
+path = "background_color.rs"
