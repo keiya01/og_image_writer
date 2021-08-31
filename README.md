@@ -2,7 +2,7 @@
 
 You can generate Open Graphic Image dynamically.
 
-- API like CSS.
+- API looks like CSS.
 - You can generate image by using template image.
 
 **NOTE: Currently, this package only support PNG format.**
