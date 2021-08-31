@@ -51,10 +51,14 @@ fn main() -> io::Result<()> {
 }
 ```
 
-When you pass the following template image,
+When you pass the following the template image,
 
 ![example template image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/og_template.png)
 
 this code generate the following image.
 
 ![example output image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/output.png)
+
+And you can also set `background-color` instead of passing the template image.
+
+See more information in [/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
