@@ -2,10 +2,14 @@
 
 You can generate Open Graphic Image dynamically.
 
-- Styling API like CSS.
+- API like CSS.
 - You can generate image by using template image.
 
 **NOTE: Currently, this package only support PNG format.**
+
+## Example
+
+See more information in [/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
 
 ```rs
 use og_image_writer::{writer::OGImageWriter, style};
@@ -20,6 +24,8 @@ fn main() -> io::Result<()> {
         width: 1024,
         height: 512,
         background_image: Some("./examples/assets/og_template.png"),
+        align_items: style::AlignItems::Center,
+        justify_content: style::JustifyContent::Center,
         ..style::WindowStyle::default()
     });
 
@@ -33,10 +39,18 @@ fn main() -> io::Result<()> {
         font_weight: style::FontWeight::Bold,
         word_break: style::WordBreak::Normal,
         color: style::RGB(1., 1., 1.),
+        text_align: style::TextAlign::Start,
     });
 
-    writer.generate("./examples/dist/output.png")?;
+    let out_dir = "./examples/assets";
+    let out_filename = "output.png";
+
+    writer.generate(&format!("{}/{}", out_dir, out_filename))?;
 
     Ok(())
 }
 ```
+
+This code generate the following image.
+
+![example output image](https://github.com/keiya01/og_image_writer/tree/main/examples/assets/output.png)

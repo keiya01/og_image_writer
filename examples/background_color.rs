@@ -1,5 +1,5 @@
 use og_image_writer::{writer::OGImageWriter, style};
-use std::{io::{self, ErrorKind}, fs::create_dir};
+use std::io;
 
 fn main() -> io::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
@@ -28,16 +28,10 @@ fn main() -> io::Result<()> {
         text_align: style::TextAlign::Center,
     });
 
-    let out_dir = "./examples/dist";
+    let out_dir = "./examples/assets";
+    let out_filename = "output.png";
 
-    if let Result::Err(err) = create_dir(out_dir) {
-        match err.kind() {
-            ErrorKind::AlreadyExists => {},
-            _ => return Err(err),
-        }
-    }
-
-    writer.generate(&format!("{}/{}", out_dir, "output.png"))?;
+    writer.generate(&format!("{}/{}", out_dir, out_filename))?;
 
     Ok(())
 }
