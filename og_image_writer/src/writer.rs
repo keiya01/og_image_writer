@@ -1,7 +1,7 @@
-use cairo::{ImageSurface, Context, Format};
+use super::line_breaker::LineBreaker;
+use super::style::{AlignItems, JustifyContent, Margin, Style, TextAlign, WindowStyle, WordBreak};
+use cairo::{Context, Format, ImageSurface};
 use std::{fs::File, io, str};
-use super::style::{WordBreak, Style, WindowStyle, Margin, AlignItems, JustifyContent, TextAlign};
-use super::line_breaker::{LineBreaker};
 
 #[derive(Default)]
 struct StyleSheet<'a> {
@@ -10,9 +10,14 @@ struct StyleSheet<'a> {
     img: Style<'a>,
 }
 
+/// This struct write text to PNG.
+/// You can set text or img with `set_*` method.
+/// And you can set style with `set_*_style` method.
 #[derive(Default)]
 pub struct OGImageWriter<'a> {
+    /// Write this text to specified image.
     text: &'a str,
+    /// TODO: Support img element
     img: Option<&'a str>,
     style: StyleSheet<'a>,
 }
@@ -30,26 +35,32 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 
+    /// Set text you want to write to image.
     pub fn set_text(&mut self, text: &'a str) {
         self.text = text;
     }
 
+    /// TODO: Support img element.
     pub fn set_img(&mut self, img: &'a str) {
         self.img = Some(img);
     }
 
-    pub fn set_window_style(&mut self, style: WindowStyle<'a>)  {
+    /// Set window style. Window act like CSS `flexbox`.
+    pub fn set_window_style(&mut self, style: WindowStyle<'a>) {
         self.style.window = style;
     }
 
-    pub fn set_text_style(&mut self, style: Style<'a>)  {
+    /// Set text element style. Text element act like CSS `inline-block`.
+    pub fn set_text_style(&mut self, style: Style<'a>) {
         self.style.text = style;
     }
 
-    pub fn set_img_style(&mut self, style: Style<'a>)  {
+    /// TODO: Support img element.
+    pub fn set_img_style(&mut self, style: Style<'a>) {
         self.style.text = style;
     }
 
+    /// Generate your image.
     pub fn generate(&mut self, dest: &str) -> io::Result<()> {
         let surface = self.create_surface()?;
         let context = Context::new(&surface).expect("Could not initialize Context");
@@ -61,9 +72,9 @@ impl<'a> OGImageWriter<'a> {
 
         self.process_text(&context, window_width, window_height);
 
-        let mut file = File::create(dest)
-            .expect("Couldn’t create file");
-        surface.write_to_png(&mut file)
+        let mut file = File::create(dest).expect("Couldn’t create file");
+        surface
+            .write_to_png(&mut file)
             .expect("Couldn’t write to png");
 
         Ok(())
@@ -74,11 +85,13 @@ impl<'a> OGImageWriter<'a> {
         match window.background_image {
             Some(src) => {
                 let mut file = File::open(src)?;
-                Ok(ImageSurface::create_from_png(&mut file).expect("Could not create data from specified png file"))
-            },
-            None => {
-                Ok(ImageSurface::create(Format::ARgb32, window.width, window.height).expect("Could not create surface"))
+                Ok(ImageSurface::create_from_png(&mut file)
+                    .expect("Could not create data from specified png file"))
             }
+            None => Ok(
+                ImageSurface::create(Format::ARgb32, window.width, window.height)
+                    .expect("Could not create surface"),
+            ),
         }
     }
 
@@ -90,7 +103,9 @@ impl<'a> OGImageWriter<'a> {
         };
 
         context.set_source_rgb(background_color.0, background_color.1, background_color.2);
-        context.paint().expect("Could not paint specified background_color");
+        context
+            .paint()
+            .expect("Could not paint specified background_color");
     }
 
     fn process_text(&self, context: &Context, window_width: f64, window_height: f64) {
@@ -167,7 +182,7 @@ impl<'a> OGImageWriter<'a> {
                 pos_y
             };
 
-            prev_extents_height += if !is_first_line  {
+            prev_extents_height += if !is_first_line {
                 text_height + line_height
             } else {
                 text_height
@@ -178,6 +193,7 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 }
+
 fn set_font(context: &Context, style: &Style) {
     context.select_font_face(style.font_family, style.font_style, style.font_weight);
     context.set_font_size(style.font_size);

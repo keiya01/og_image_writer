@@ -1,4 +1,4 @@
-use og_image_writer::{writer::OGImageWriter, style};
+use og_image_writer::{style, writer::OGImageWriter};
 use std::io;
 
 fn main() -> io::Result<()> {
