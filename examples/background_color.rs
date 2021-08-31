@@ -10,12 +10,14 @@ fn main() -> io::Result<()> {
         width: 1024,
         height: 512,
         background_color: Some(style::RGB(0.7, 0.4, 0.9)),
+        align_items: style::AlignItems::End,
+        justify_content: style::JustifyContent::End,
         ..style::WindowStyle::default()
     });
 
     writer.set_text(text);
     writer.set_text_style(style::Style {
-        margin_inline: 20.,
+        margin: style::Margin(0., 20., 100., 20.),
         line_height: 1.8,
         font_family: "YuGothic",
         font_size: 50.,

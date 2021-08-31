@@ -7,8 +7,23 @@ pub enum WordBreak {
 
 pub struct RGB(pub f64, pub f64, pub f64);
 
+#[derive(Default)]
+pub struct Margin(pub f64, pub f64, pub f64, pub f64);
+
+pub enum AlignItems {
+  Start,
+  Center,
+  End,
+}
+
+pub enum JustifyContent {
+  Start,
+  Center,
+  End,
+}
+
 pub struct Style<'a> {
-  pub margin_inline: f64,
+  pub margin: Margin,
   pub line_height: f64,
   pub font_size: f64,
   pub font_family: &'a str,
@@ -21,7 +36,7 @@ pub struct Style<'a> {
 impl<'a> Default for Style<'a> {
   fn default() -> Self {
       Style {
-          margin_inline: 0.,
+          margin: Margin::default(),
           line_height: 1.5,
           font_size: 30.,
           font_family: "",
@@ -38,6 +53,8 @@ pub struct WindowStyle<'a> {
   pub width: i32,
   pub background_image: Option<&'a str>,
   pub background_color: Option<RGB>,
+  pub align_items: AlignItems,
+  pub justify_content: JustifyContent,
 }
 
 impl<'a> Default for WindowStyle<'a> {
@@ -47,6 +64,8 @@ impl<'a> Default for WindowStyle<'a> {
           width: 0,
           background_image: None,
           background_color: None,
+          align_items: AlignItems::Start,
+          justify_content: JustifyContent::Start,
       }
   }
 }
