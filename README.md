@@ -51,6 +51,10 @@ fn main() -> io::Result<()> {
 }
 ```
 
-This code generate the following image.
+When you pass the following template image,
+
+![example template image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/og_template.png)
+
+this code generate the following image.
 
 ![example output image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/output.png)
