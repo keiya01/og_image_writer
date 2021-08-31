@@ -25,7 +25,7 @@ fn main() -> io::Result<()> {
 
     writer.set_text(text);
     writer.set_text_style(style::Style {
-        margin_inline: 20.,
+        margin: style::Margin(0., 20., 0., 20.),
         line_height: 1.8,
         font_family: "YuGothic",
         font_size: 50.,
@@ -35,6 +35,8 @@ fn main() -> io::Result<()> {
         color: style::RGB(1., 1., 1.),
     });
 
-    writer.generate("./examples/dist/output.png")
+    writer.generate("./examples/dist/output.png")?;
+
+    Ok(())
 }
 ```
