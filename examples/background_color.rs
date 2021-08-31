@@ -1,5 +1,5 @@
 use og_image_writer::{writer::OGImageWriter, style};
-use std::io;
+use std::{io, fs::create_dir};
 
 fn main() -> io::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
@@ -27,7 +27,11 @@ fn main() -> io::Result<()> {
         color: style::RGB(1., 1., 1.),
     });
 
-    writer.generate("./examples/dist/output.png")?;
+    let out_dir = "./examples/dist";
+
+    create_dir(out_dir)?;
+
+    writer.generate(format!("{}/{}", out_dir, "output.png"))?;
 
     Ok(())
 }
