@@ -1,4 +1,4 @@
-# Open graphic Image Writer
+# Open Graphic Image Writer
 
 You can generate Open Graphic Image dynamically.
 
