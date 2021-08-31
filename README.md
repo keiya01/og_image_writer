@@ -53,4 +53,4 @@ fn main() -> io::Result<()> {
 
 This code generate the following image.
 
-![example output image](https://github.com/keiya01/og_image_writer/tree/main/examples/assets/output.png)
+![example output image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/output.png)
