@@ -1,6 +1,6 @@
 use cairo::{ImageSurface, Context, Format};
 use std::{fs::File, io, str};
-use super::style::{WordBreak, Style, WindowStyle, Margin, AlignItems, JustifyContent};
+use super::style::{WordBreak, Style, WindowStyle, Margin, AlignItems, JustifyContent, TextAlign};
 use super::line_breaker::{LineBreaker};
 
 #[derive(Default)]
@@ -116,6 +116,7 @@ impl<'a> OGImageWriter<'a> {
         }
 
         let mut prev_extents_height = 0.;
+        let mut max_line_width = 0.;
         let lines_len = line_breaker.lines.len();
         for (i, line) in line_breaker.lines.into_iter().enumerate() {
             let is_first_line = i == 0;
@@ -127,6 +128,12 @@ impl<'a> OGImageWriter<'a> {
             let extents = context.text_extents(text).unwrap();
             let text_height = extents.height;
 
+            max_line_width = if extents.x_advance > max_line_width {
+                extents.x_advance
+            } else {
+                max_line_width
+            };
+
             let logical_block = match &self.style.window.justify_content {
                 JustifyContent::Start => text_height + margin_top,
                 JustifyContent::Center => (window_height - total_height) / 2. + margin_top,
@@ -134,19 +141,24 @@ impl<'a> OGImageWriter<'a> {
             };
 
             let logical_inline = match &self.style.window.align_items {
-                AlignItems::Start => 0. + margin_left,
-                AlignItems::Center => (window_width / 2. - extents.x_advance / 2.),
-                AlignItems::End => window_width - extents.x_advance - margin_right,
+                AlignItems::Start => margin_left,
+                AlignItems::Center => window_width / 2. - max_line_width / 2.,
+                AlignItems::End => window_width - max_line_width - margin_right,
             };
 
+            let text_box_inline = match style.text_align {
+                TextAlign::Start => 0.,
+                TextAlign::Center => max_line_width / 2. - extents.x_advance / 2.,
+                TextAlign::End => max_line_width - extents.x_advance,
+            } + logical_inline;
+
             if lines_len == 1 {
-                context.move_to(logical_inline, logical_block);
+                context.move_to(text_box_inline, logical_block);
                 context.show_text(text).unwrap();
                 break;
             }
 
             let line_height = text_height * style.line_height / 2.;
-
 
             let pos_y = logical_block + prev_extents_height;
             let pos_y = if !is_first_line {
@@ -161,7 +173,7 @@ impl<'a> OGImageWriter<'a> {
                 text_height
             };
 
-            context.move_to(logical_inline, pos_y);
+            context.move_to(text_box_inline, pos_y);
             context.show_text(text).unwrap();
         }
     }

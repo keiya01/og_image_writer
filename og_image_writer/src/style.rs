@@ -22,6 +22,12 @@ pub enum JustifyContent {
   End,
 }
 
+pub enum TextAlign {
+  Start,
+  Center,
+  End,
+}
+
 pub struct Style<'a> {
   pub margin: Margin,
   pub line_height: f64,
@@ -31,6 +37,7 @@ pub struct Style<'a> {
   pub font_weight: FontWeight,
   pub word_break: WordBreak,
   pub color: RGB,
+  pub text_align: TextAlign,
 }
 
 impl<'a> Default for Style<'a> {
@@ -44,6 +51,7 @@ impl<'a> Default for Style<'a> {
           font_weight: FontWeight::Bold,
           word_break: WordBreak::Normal,
           color: RGB(0., 0., 0.),
+          text_align: TextAlign::Start
       }
   }
 }

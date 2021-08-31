@@ -25,6 +25,7 @@ fn main() -> io::Result<()> {
         font_weight: style::FontWeight::Bold,
         word_break: style::WordBreak::Normal,
         color: style::RGB(1., 1., 1.),
+        text_align: style::TextAlign::Center,
     });
 
     let out_dir = "./examples/dist";
