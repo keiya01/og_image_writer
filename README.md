@@ -9,7 +9,7 @@ You can generate Open Graphic Image dynamically.
 
 ## Example
 
-See more information in [/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
+For more examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
 
 ```rs
 use og_image_writer::{writer::OGImageWriter, style};
@@ -61,4 +61,4 @@ this code generate the following image.
 
 And you can also set `background-color` instead of passing the template image.
 
-See more information in [/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
+For more examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
