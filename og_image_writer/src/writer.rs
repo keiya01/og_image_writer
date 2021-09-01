@@ -124,14 +124,21 @@ impl<'a> OGImageWriter<'a> {
             WordBreak::BreakAll => line_breaker.break_text_with_char(context, text_area_width),
         }
 
+        let mut max_line_width = 0.;
         let mut total_height = 0.;
         for line in &line_breaker.lines {
             let extents = context.text_extents(&self.text[line.clone()]).unwrap();
+
             total_height += extents.height;
+
+            max_line_width = if extents.x_advance > max_line_width {
+                extents.x_advance
+            } else {
+                max_line_width
+            };
         }
 
         let mut prev_extents_height = 0.;
-        let mut max_line_width = 0.;
         let lines_len = line_breaker.lines.len();
         for (i, line) in line_breaker.lines.into_iter().enumerate() {
             let is_first_line = i == 0;
