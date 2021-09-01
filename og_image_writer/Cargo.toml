@@ -6,6 +6,7 @@ license-file = "LICENSE"
 keywords = ["open graphic", "image", "og", "canvas"]
 categories = ["web-programming", "no-standard-library"]
 readme = "README.md"
+description = "Generate an Open Graphic Image using a CSS-like API."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

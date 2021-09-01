@@ -1,4 +1,4 @@
-//! This crate provide generating Open Graphic Image by using API looks like CSS.
+//! This crate provide generating Open Graphic Image using a CSS-like API.
 //!
 //! And You can generate Open Graphic Image dynamically.
 //!
@@ -17,7 +17,7 @@
 //!     let mut writer = OGImageWriter::new();
 //!
 //!     // Set window style.
-//!     // Window act like CSS `flexbox`. And it is specified column direction.
+//!     // Window acts like CSS `flexbox`. And it is specified column direction.
 //!     writer.set_window_style(style::WindowStyle {
 //!         width: 1024,
 //!         height: 512,
@@ -32,7 +32,7 @@
 //!     writer.set_text(text);
 //!
 //!     // Set text style.
-//!     // Text element act like CSS `inline-block`.
+//!     // Text element acts like CSS `inline-block`.
 //!     writer.set_text_style(style::Style {
 //!         margin: style::Margin(0., 20., 0., 20.),
 //!         line_height: 1.8,
