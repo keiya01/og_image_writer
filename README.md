@@ -1,5 +1,7 @@
 # Open Graphic Image Writer
 
+[Documentation](https://crates.io/crates/og_image_writer)
+
 You can generate Open Graphic Image dynamically.
 
 - A CSS-like API.
@@ -11,7 +13,7 @@ You can generate Open Graphic Image dynamically.
 
 For more examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
 
-```rs
+```rust
 use og_image_writer::{writer::OGImageWriter, style};
 use std::io;
 
