@@ -2,10 +2,10 @@
 name = "og_image_writer"
 version = "0.0.1"
 edition = "2018"
-license = "MIT"
+license = "../LICENSE"
 keywords = ["open graphic", "image", "og", "canvas"]
 categories = ["web-programming", "no-standard-library"]
-readme = "https://github.com/keiya01/og_image_writer#readme"
+readme = "../README.md"
 repository="https://github.com/keiya01/og_image_writer"
 description = "Generate an Open Graphic Image using a CSS-like API."
 
