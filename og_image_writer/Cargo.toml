@@ -12,5 +12,5 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-png = "0.17.0"
+image = "0.23.14"
 cairo-rs = { version = "0.14.3",  features = ["png"]}

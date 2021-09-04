@@ -1,93 +1,47 @@
-use super::line_breaker::LineBreaker;
-use super::style::{AlignItems, JustifyContent, Margin, Style, TextAlign, WindowStyle, WordBreak};
+use super::element::{Element, Img, Text};
+use super::style::{Style, WindowStyle};
 use cairo::{Context, Format, ImageSurface};
 use std::{fs::File, io, str};
 
 #[derive(Default)]
-struct StyleSheet<'a> {
-    window: WindowStyle<'a>,
-    text: Style<'a>,
-    img: Style<'a>,
+pub(super) struct Content {
+    pub(super) height: u32,
+    pub(super) width: u32,
 }
 
 /// This struct write text to PNG.
 /// You can set text or img with `set_*` method.
 /// And you can set style with `set_*_style` method.
-#[derive(Default)]
 pub struct OGImageWriter<'a> {
-    /// Write this text to specified image.
-    text: &'a str,
-    /// TODO: Support img element
-    img: Option<&'a str>,
-    style: StyleSheet<'a>,
+    pub(super) context: Context,
+    surface: ImageSurface,
+    pub(super) tree: Vec<Element<'a>>,
+    pub(super) window: WindowStyle<'a>,
+    pub(super) content: Content,
 }
 
 impl<'a> OGImageWriter<'a> {
-    pub fn new() -> Self {
-        OGImageWriter {
-            text: "",
-            img: None,
-            style: StyleSheet {
-                window: WindowStyle::default(),
-                text: Style::default(),
-                img: Style::default(),
-            },
-        }
-    }
-
-    /// Set text you want to write to image.
-    pub fn set_text(&mut self, text: &'a str) {
-        self.text = text;
-    }
-
-    /// TODO: Support img element.
-    pub fn set_img(&mut self, img: &'a str) {
-        self.img = Some(img);
-    }
-
     /// Set window style. Window act like CSS `flexbox`.
-    pub fn set_window_style(&mut self, style: WindowStyle<'a>) {
-        self.style.window = style;
-    }
-
-    /// Set text element style. Text element act like CSS `inline-block`.
-    pub fn set_text_style(&mut self, style: Style<'a>) {
-        self.style.text = style;
-    }
-
-    /// TODO: Support img element.
-    pub fn set_img_style(&mut self, style: Style<'a>) {
-        self.style.text = style;
-    }
-
-    /// Generate your image.
-    pub fn generate(&mut self, dest: &str) -> io::Result<()> {
-        let surface = self.create_surface()?;
+    pub fn new(window: WindowStyle<'a>) -> Self {
+        let surface = Self::create_surface(&window).expect("Could not create surface");
         let context = Context::new(&surface).expect("Could not initialize Context");
 
-        let window_height = surface.height() as f64;
-        let window_width = surface.width() as f64;
+        let this = OGImageWriter {
+            context,
+            surface,
+            tree: Vec::with_capacity(2),
+            window,
+            content: Content::default(),
+        };
 
-        self.process_background(&context);
+        this.process_background();
 
-        self.process_text(&context, window_width, window_height);
-
-        let mut file = File::create(dest).expect("Couldn’t create file");
-        surface
-            .write_to_png(&mut file)
-            .expect("Couldn’t write to png");
-
-        Ok(())
+        this
     }
 
-    fn create_surface(&self) -> io::Result<ImageSurface> {
-        let window = &self.style.window;
+    fn create_surface(window: &WindowStyle<'a>) -> io::Result<ImageSurface> {
         match window.background_image {
-            Some(src) => {
-                let mut file = File::open(src)?;
-                Ok(ImageSurface::create_from_png(&mut file)
-                    .expect("Could not create data from specified png file"))
-            }
+            Some(src) => create_surface_from_src(src),
             None => Ok(
                 ImageSurface::create(Format::ARgb32, window.width, window.height)
                     .expect("Could not create surface"),
@@ -95,113 +49,71 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 
-    fn process_background(&self, context: &Context) {
-        let window = &self.style.window;
-        let background_color = match &window.background_color {
-            None => return,
-            Some(color) => color,
-        };
-
-        context.set_source_rgb(background_color.0, background_color.1, background_color.2);
-        context
-            .paint()
-            .expect("Could not paint specified background_color");
+    /// Set text you want to write to image.
+    /// And set the text element style. Text element act like CSS `inline-block`.
+    pub fn set_text(&mut self, text: &'a str, style: Style<'a>) {
+        self.process_text(text, style);
     }
 
-    fn process_text(&self, context: &Context, window_width: f64, window_height: f64) {
-        let style = &self.style.text;
+    /// Set image you want to write to image. And set the image element style.
+    pub fn set_img(&mut self, src: &'a str, width: u32, height: u32, style: Style<'a>) {
+        self.process_img(src, width, height, style)
+            .expect("Could not process img");
+    }
 
-        let Margin(margin_top, margin_left, margin_bottom, margin_right) = style.margin;
+    /// Generate your image.
+    pub fn generate(&mut self, dest: &str) -> io::Result<()> {
+        self.process_flexbox();
 
-        let text_area_width = window_width - margin_left - margin_right;
-
-        // Initialize font metrics for line breaking.
-        set_font(context, style);
-
-        let mut line_breaker = LineBreaker::new(self.text);
-        match style.word_break {
-            WordBreak::Normal => line_breaker.break_text_with_whitespace(context, text_area_width),
-            WordBreak::BreakAll => line_breaker.break_text_with_char(context, text_area_width),
-        }
-
-        let mut max_line_width = 0.;
-        let mut total_height = 0.;
-        for line in &line_breaker.lines {
-            let extents = context.text_extents(&self.text[line.clone()]).unwrap();
-
-            total_height += extents.height;
-
-            max_line_width = if extents.x_advance > max_line_width {
-                extents.x_advance
-            } else {
-                max_line_width
-            };
-        }
-
-        let mut prev_extents_height = 0.;
-        let lines_len = line_breaker.lines.len();
-        for (i, line) in line_breaker.lines.into_iter().enumerate() {
-            let is_first_line = i == 0;
-
-            set_font(context, style);
-
-            let text = &self.text[line.clone()];
-
-            let extents = context.text_extents(text).unwrap();
-            let text_height = extents.height;
-
-            max_line_width = if extents.x_advance > max_line_width {
-                extents.x_advance
-            } else {
-                max_line_width
-            };
-
-            let logical_block = match &self.style.window.justify_content {
-                JustifyContent::Start => text_height + margin_top,
-                JustifyContent::Center => (window_height - total_height) / 2. + margin_top,
-                JustifyContent::End => window_height - total_height - margin_bottom,
-            };
-
-            let logical_inline = match &self.style.window.align_items {
-                AlignItems::Start => margin_left,
-                AlignItems::Center => window_width / 2. - max_line_width / 2.,
-                AlignItems::End => window_width - max_line_width - margin_right,
-            };
-
-            let text_box_inline = match style.text_align {
-                TextAlign::Start => 0.,
-                TextAlign::Center => max_line_width / 2. - extents.x_advance / 2.,
-                TextAlign::End => max_line_width - extents.x_advance,
-            } + logical_inline;
-
-            if lines_len == 1 {
-                context.move_to(text_box_inline, logical_block);
-                context.show_text(text).unwrap();
-                break;
+        while let Some(elm) = self.tree.pop() {
+            match elm {
+                Element::Img(mut img) => self.paint_img(img.take().unwrap()),
+                Element::Text(mut text) => self.paint_text(text.take().unwrap()),
             }
+        }
 
-            let line_height = text_height * style.line_height / 2.;
+        let mut file = File::create(dest).expect("Couldn’t create file");
+        self.surface
+            .write_to_png(&mut file)
+            .expect("Couldn’t write to png");
 
-            let pos_y = logical_block + prev_extents_height;
-            let pos_y = if !is_first_line {
-                pos_y + line_height
-            } else {
-                pos_y
-            };
+        Ok(())
+    }
 
-            prev_extents_height += if !is_first_line {
-                text_height + line_height
-            } else {
-                text_height
-            };
+    fn paint_img(&mut self, img: Img) {
+        let stride = (img.width * 4) as i32;
+        let surface = ImageSurface::create_for_data(
+            img.data,
+            Format::ARgb32,
+            img.width as i32,
+            img.height as i32,
+            stride,
+        )
+        .expect("Could not create surface");
+        self.context
+            .set_source_surface(&surface, img.rect.x, img.rect.y)
+            .unwrap_or_else(|_| panic!("Could not set specified image"));
+        self.context.paint().expect("Could not paint image.");
+    }
 
-            context.move_to(text_box_inline, pos_y);
-            context.show_text(text).unwrap();
+    fn paint_text(&self, text_elm: Text<'a>) {
+        for line in &text_elm.lines {
+            set_font(&self.context, &text_elm.style);
+            self.context.move_to(line.rect.x, line.rect.y);
+            self.context
+                .show_text(&text_elm.text[line.range.clone()])
+                .unwrap();
         }
     }
 }
 
-fn set_font(context: &Context, style: &Style) {
+fn create_surface_from_src(src: &str) -> io::Result<ImageSurface> {
+    let mut file = File::open(src)?;
+    Ok(ImageSurface::create_from_png(&mut file)
+        .expect("Could not create data from specified png file"))
+}
+
+pub(super) fn set_font(context: &Context, style: &Style) {
     context.select_font_face(style.font_family, style.font_style, style.font_weight);
     context.set_font_size(style.font_size);
     context.set_source_rgb(style.color.0, style.color.1, style.color.2);

@@ -59,7 +59,10 @@
 //! For more examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
 //!
 
+pub mod element;
 pub mod style;
 pub mod writer;
 
+mod image;
+mod layout;
 mod line_breaker;
