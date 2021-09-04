@@ -25,6 +25,7 @@ fn main() -> io::Result<()> {
             word_break: style::WordBreak::Normal,
             color: style::RGB(1., 1., 1.),
             text_align: style::TextAlign::Start,
+            ..style::Style::default()
         },
     );
 

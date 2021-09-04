@@ -2,7 +2,7 @@ use og_image_writer::{style, writer::OGImageWriter};
 use std::io;
 
 fn main() -> io::Result<()> {
-    let text = "This is Open Graphic Image Writer for Web Developer.";
+    let text = "This is Open Graphic Image Writer for Web Developer. aaa AAA BBB CCC DDD EEE FFF GGG";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
         width: 1024,
@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
     writer.set_text(
         text,
         style::Style {
-            margin: style::Margin(0., 20., 100., 20.),
+            margin: style::Margin(0., 20., 0., 20.),
             line_height: 1.8,
             font_family: "YuGothic",
             font_size: 50.,
@@ -25,17 +25,10 @@ fn main() -> io::Result<()> {
             word_break: style::WordBreak::Normal,
             color: style::RGB(1., 1., 1.),
             text_align: style::TextAlign::Start,
-        },
-    );
-
-    writer.set_img(
-        "./examples/assets/figure_money_satsutaba_binta.png",
-        100,
-        100,
-        style::Style {
-            text_align: style::TextAlign::End,
+            max_height: Some(150.),
+            text_overflow: style::TextOverflow::Ellipsis,
             ..style::Style::default()
-        }
+        },
     );
 
     let out_dir = "./examples/assets";

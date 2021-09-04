@@ -1,7 +1,7 @@
 use super::element::{Element, Img, Line, Rect, Text};
 use super::image::open_and_resize;
 use super::line_breaker::LineBreaker;
-use super::style::{AlignItems, JustifyContent, Margin, Style, TextAlign, WordBreak};
+use super::style::{AlignItems, JustifyContent, Margin, Style, TextAlign, WordBreak, TextOverflow};
 use super::writer::{set_font, OGImageWriter};
 use std::{io, str};
 
@@ -27,16 +27,6 @@ impl<'a> OGImageWriter<'a> {
         height: u32,
         style: Style<'a>,
     ) -> io::Result<()> {
-        // 基本的にtreeにはその要素の Height + margin のみを入れる
-        // flexbox によるスタイリングは別のprocessを作り(process_flexboxなど)そこで全体の高さを含めたレイアウトを完成させる
-        // Text要素には高さを設定できるようにする
-        // Heightを設定されないとTextは無限に高さを取る仕様で良さそう
-        // 現状のprocessの処理自体はそのままで問題ないはず
-        // `total_height = Text.height + Img.height`
-        // center_height = total_height / 2
-        // rest_height = total_height - center_height;
-        // 全部引けば良い
-
         let Margin(margin_top, _, margin_bottom, _) = style.margin;
 
         let (bytes, size) = open_and_resize(src, width, height)?;
@@ -109,8 +99,22 @@ impl<'a> OGImageWriter<'a> {
         let mut total_height = 0.;
         let line_height = max_line_height * style.line_height / 2. - max_line_height / 2.;
         let lines_len = line_breaker.lines.len();
+        let mut is_overflow = false;
         for (i, line) in line_breaker.lines.into_iter().enumerate() {
             let is_first_line = i == 0;
+            let next_height = if is_first_line {
+              total_height + max_line_height
+            } else {
+              total_height + max_line_height + line_height
+            };
+
+            match style.max_height {
+              Some(max_height) if next_height > max_height => {
+                is_overflow = true;
+                break;
+              }
+              _ => {},
+            }
 
             set_font(&self.context, &style);
 
@@ -130,8 +134,8 @@ impl<'a> OGImageWriter<'a> {
             };
 
             if lines_len == 1 {
-                total_height += max_line_height;
-                lines.push(Line::new(line, Rect::new(0., logical_block), max_line_height));
+                total_height = next_height;
+                lines.push(Line::new(line, Rect::new(0., logical_block)));
                 break;
             }
 
@@ -142,14 +146,15 @@ impl<'a> OGImageWriter<'a> {
                 pos_y
             };
 
-            total_height += if !is_first_line {
-                max_line_height + line_height
-            } else {
-                max_line_height
-            };
-
-            lines.push(Line::new(line, Rect::new(0., pos_y), max_line_height + line_height));
+            total_height = next_height;
+            lines.push(Line::new(line, Rect::new(0., pos_y)));
         }
+
+        let text = if is_overflow {
+          self.set_ellipsis(&text[0..lines.last().unwrap().range.end], &mut lines, &style)
+        } else {
+          text.to_string()
+        };
 
         self.content.height += total_height as u32;
         self.content.width = if self.content.width > max_line_width as u32 {
@@ -161,10 +166,39 @@ impl<'a> OGImageWriter<'a> {
         self.tree.push(Element::Text(Some(Text::new(
             text,
             lines,
-            max_line_width,
             total_height,
             style,
         ))));
+    }
+
+    fn set_ellipsis(&mut self, text: &str, lines: &mut Vec<Line>, style: &Style) -> String {
+      let ellipsis = match style.text_overflow {
+        TextOverflow::Ellipsis => "...",
+        TextOverflow::Content(s) => s,
+        TextOverflow::Clip => return text.to_string(),
+      };
+
+      let ellipsis_width = self.context.text_extents(ellipsis).unwrap().x_advance;
+
+      let mut total_char_width = 0.;
+      let mut split_index = 0;
+      for (i, ch) in text.char_indices().rev() {
+        total_char_width += self.context.text_extents(&ch.to_string()).unwrap().x_advance;
+        if total_char_width > ellipsis_width {
+          break;
+        }
+        split_index = i;
+      }
+
+      if let Some(line) = lines.last_mut() {
+        let next_range = line.range.start..split_index + ellipsis.len();
+        line.range = next_range.clone();
+        let mut next_text = text[0..split_index].to_string().clone();
+        next_text.push_str(ellipsis);
+        return next_text;
+      }
+
+      text.to_string()
     }
 
     pub(super) fn process_flexbox(&mut self) {
