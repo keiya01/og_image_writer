@@ -14,7 +14,7 @@ fn main() -> io::Result<()> {
     });
 
     writer.set_img(
-        "./examples/assets/figure_money_satsutaba_binta.png",
+        "./examples/assets/food_sakana_hone.png",
         100,
         100,
         style::Style {
@@ -34,9 +34,7 @@ fn main() -> io::Result<()> {
             line_height: 1.8,
             font_family: "YuGothic",
             font_size: 50.,
-            font_style: style::FontStyle::Normal,
             font_weight: style::FontWeight::Bold,
-            word_break: style::WordBreak::Normal,
             color: style::RGB(1., 1., 1.),
             text_align: style::TextAlign::End,
             max_height: Some(150.),
@@ -49,7 +47,7 @@ fn main() -> io::Result<()> {
     );
 
     let out_dir = "./examples/assets";
-    let out_filename = "output.png";
+    let out_filename = "output_absolute.png";
 
     writer.generate(&format!("{}/{}", out_dir, out_filename))?;
 
