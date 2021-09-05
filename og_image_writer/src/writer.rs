@@ -29,7 +29,7 @@ impl<'a> OGImageWriter<'a> {
         let this = OGImageWriter {
             context,
             surface,
-            tree: Vec::with_capacity(2),
+            tree: OGImageWriter::create_tree(),
             window,
             content: Content::default(),
         };
@@ -37,6 +37,10 @@ impl<'a> OGImageWriter<'a> {
         this.process_background();
 
         this
+    }
+
+    pub(super) fn create_tree() -> Vec<Element<'a>> {
+        Vec::with_capacity(2)
     }
 
     fn create_surface(window: &WindowStyle<'a>) -> io::Result<ImageSurface> {
@@ -63,7 +67,7 @@ impl<'a> OGImageWriter<'a> {
 
     /// Generate your image.
     pub fn generate(&mut self, dest: &str) -> io::Result<()> {
-        self.process_flexbox();
+        self.process();
 
         while let Some(elm) = self.tree.pop() {
             match elm {

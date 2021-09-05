@@ -32,14 +32,14 @@ pub enum TextAlign {
 }
 
 pub enum TextOverflow<'a> {
-  Clip,
-  Ellipsis,
-  Content(&'a str),
+    Clip,
+    Ellipsis,
+    Content(&'a str),
 }
 
 pub enum Position {
-  Static,
-  Absolute
+    Static,
+    Absolute,
 }
 
 /// Style is used by `text` or `img` element.
@@ -65,7 +65,11 @@ pub struct Style<'a> {
     pub max_height: Option<f64>,
     /// For Text element
     pub text_overflow: TextOverflow<'a>,
-    pub position: Position
+    pub position: Position,
+    pub top: Option<f64>,
+    pub right: Option<f64>,
+    pub bottom: Option<f64>,
+    pub left: Option<f64>,
 }
 
 impl<'a> Default for Style<'a> {
@@ -83,6 +87,10 @@ impl<'a> Default for Style<'a> {
             max_height: None,
             text_overflow: TextOverflow::Clip,
             position: Position::Static,
+            top: None,
+            right: None,
+            bottom: None,
+            left: None,
         }
     }
 }

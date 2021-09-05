@@ -1,9 +1,19 @@
-use super::style::Style;
+use super::style::{Position, Style};
 use std::ops::Range;
 
 pub(super) enum Element<'a> {
     Img(Option<Img<'a>>),
     Text(Option<Text<'a>>),
+}
+
+impl<'a> Element<'a> {
+    pub(super) fn is_absolute(&self) -> bool {
+        match self {
+            Element::Img(Some(img)) => matches!(img.style.position, Position::Absolute),
+            Element::Text(Some(text)) => matches!(text.style.position, Position::Absolute),
+            _ => false,
+        }
+    }
 }
 
 #[derive(Default)]

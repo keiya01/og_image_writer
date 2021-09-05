@@ -16,3 +16,7 @@ path = "background_image.rs"
 [[example]]
 name = "background_color"
 path = "background_color.rs"
+
+[[example]]
+name = "absolute"
+path = "absolute.rs"
