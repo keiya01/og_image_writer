@@ -64,6 +64,7 @@ pub struct Style<'a> {
     /// For Text element
     pub max_height: Option<f64>,
     /// For Text element
+    /// This property support multiline.
     pub text_overflow: TextOverflow<'a>,
     pub position: Position,
     pub top: Option<f64>,
