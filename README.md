@@ -7,7 +7,11 @@ You can generate Open Graphic Image dynamically.
 - A CSS-like API.
 - You can generate image by using template image.
 
-**NOTE: Currently, this package only support PNG format.**
+## Problem
+
+Currently, when you want to create OGP image dynamically, you may use canvas. But to use canvas, you need to open a browser and run some script.
+This is overhead, especially if you are using feature like the SSG.
+Therefore this lib is targeting a high performance API for all platform by using wasm.
 
 ## Example
 
