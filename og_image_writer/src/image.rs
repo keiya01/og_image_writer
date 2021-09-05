@@ -1,4 +1,3 @@
-use image::imageops::FilterType;
 use image::{open, DynamicImage};
 use std::io;
 
@@ -12,7 +11,7 @@ pub(super) fn open_and_resize(src: &str, w: u32, h: u32) -> io::Result<(Vec<u8>,
         .expect("Could not load specified image.")
         .into_bgra8();
     let buffer = DynamicImage::ImageBgra8(rgba)
-        .resize(w, h, FilterType::Triangle)
+        .thumbnail(w, h)
         .into_bgra8();
     let height = buffer.height();
     let width = buffer.width();
