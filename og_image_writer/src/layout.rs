@@ -1,12 +1,12 @@
 use super::element::{Element, Img, Line, Rect, Text};
-use super::img::open_and_resize;
+use super::img::{open_and_resize, open_and_resize_with_data};
 use super::line_breaker::LineBreaker;
 use super::style::{
     AlignItems, JustifyContent, Margin, Position, Style, TextAlign, TextOverflow, WordBreak,
 };
 use super::writer::OGImageWriter;
 use rusttype::Font;
-use std::{io, str};
+use std::str;
 
 impl<'a> OGImageWriter<'a> {
     pub(super) fn process(&mut self) {
@@ -173,13 +173,31 @@ impl<'a> OGImageWriter<'a> {
         self.context.draw_background_color(*background_color);
     }
 
-    pub(super) fn process_img(
+    fn process_img(
+        &mut self,
+        img: Element<'a>,
+        width: u32,
+        height: u32,
+    ) {
+        if !img.is_absolute() {
+            self.content.height += height;
+            self.content.width = if self.content.width > width {
+                self.content.width
+            } else {
+                width
+            };
+        }
+
+        self.tree.push(img);
+    }
+
+    pub(super) fn process_img_with_src(
         &mut self,
         src: &'a str,
         width: u32,
         height: u32,
         style: Style<'a>,
-    ) -> io::Result<()> {
+    ) {
         let (buf, size) = open_and_resize(src, width, height);
 
         let img = Element::Img(Some(Img::new(
@@ -190,18 +208,27 @@ impl<'a> OGImageWriter<'a> {
             style,
         )));
 
-        if !img.is_absolute() {
-            self.content.height += size.height;
-            self.content.width = if self.content.width > size.width {
-                self.content.width
-            } else {
-                size.width
-            };
-        }
+        self.process_img(img, size.width, size.height);
+    }
 
-        self.tree.push(img);
+    pub(super) fn process_img_with_data(
+        &mut self,
+        data: &[u8],
+        width: u32,
+        height: u32,
+        style: Style<'a>,
+    ) {
+        let (buf, size) = open_and_resize_with_data(data, width, height);
 
-        Ok(())
+        let img = Element::Img(Some(Img::new(
+            buf,
+            size.width,
+            size.height,
+            Rect::new(0, 0),
+            style,
+        )));
+
+        self.process_img(img, size.width, size.height);
     }
 
     pub(super) fn process_text(&mut self, text: &'a str, style: Style<'a>, font: Vec<u8>) {

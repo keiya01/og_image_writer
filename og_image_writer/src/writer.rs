@@ -48,8 +48,12 @@ impl<'a> OGImageWriter<'a> {
 
     /// Set image you want to write to image. And set the image element style.
     pub fn set_img(&mut self, src: &'a str, width: u32, height: u32, style: Style<'a>) {
-        self.process_img(src, width, height, style)
-            .expect("Could not process img");
+        self.process_img_with_src(src, width, height, style);
+    }
+
+    /// Set image you want to write to image. And set the image element style.
+    pub fn set_img_with_data(&mut self, data: &[u8], width: u32, height: u32, style: Style<'a>) {
+        self.process_img_with_data(data, width, height, style);
     }
 
     /// Generate your image.
