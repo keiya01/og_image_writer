@@ -91,21 +91,19 @@ impl<'a> Default for Style<'a> {
 /// Window is act like flexbox. And default direction is `column`.
 /// You can adjust position with `align_item` and `justify_content`.
 /// You must pass `background_image` or `background_color` for constructing surface.
-pub struct WindowStyle<'a> {
+pub struct WindowStyle {
     pub height: u32,
     pub width: u32,
-    pub background_image: Option<&'a str>,
     pub background_color: Option<Rgba<u8>>,
     pub align_items: AlignItems,
     pub justify_content: JustifyContent,
 }
 
-impl<'a> Default for WindowStyle<'a> {
+impl Default for WindowStyle {
     fn default() -> Self {
         WindowStyle {
             height: 0,
             width: 0,
-            background_image: None,
             background_color: None,
             align_items: AlignItems::Start,
             justify_content: JustifyContent::Start,

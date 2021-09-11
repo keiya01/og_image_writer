@@ -15,13 +15,13 @@ pub(super) struct Content {
 pub struct OGImageWriter<'a> {
     pub(super) context: Context,
     pub(super) tree: Vec<Element<'a>>,
-    pub(super) window: WindowStyle<'a>,
+    pub(super) window: WindowStyle,
     pub(super) content: Content,
 }
 
 impl<'a> OGImageWriter<'a> {
     /// Set window style. Window act like CSS `flexbox`.
-    pub fn new(window: WindowStyle<'a>) -> Self {
+    pub fn new(window: WindowStyle) -> Self {
         let context = Context::new(window.width, window.height);
 
         let mut this = OGImageWriter {
@@ -34,6 +34,25 @@ impl<'a> OGImageWriter<'a> {
         this.process_background();
 
         this
+    }
+
+    /// Set window style. Window act like CSS `flexbox`.
+    /// Height and width are set by specified image.
+    pub fn from_data(window: WindowStyle, data: &[u8]) -> Self {
+        let context = Context::from_data(data);
+
+        let width = context.image.width();
+        let height = context.image.height();
+        OGImageWriter {
+            context,
+            tree: OGImageWriter::create_tree(),
+            window: WindowStyle {
+                width,
+                height,
+                ..window
+            },
+            content: Content::default(),
+        }
     }
 
     pub(super) fn create_tree() -> Vec<Element<'a>> {

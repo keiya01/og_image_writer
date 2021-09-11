@@ -1,5 +1,5 @@
 use image::imageops::overlay;
-use image::{ImageBuffer, Rgba, RgbaImage};
+use image::{ImageBuffer, Rgba, RgbaImage, load_from_memory};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
 use rusttype::{Font, Scale};
@@ -18,6 +18,11 @@ impl Context {
     pub fn new(w: u32, h: u32) -> Self {
         let image = RgbaImage::new(w, h);
         Self { image }
+    }
+
+    pub fn from_data(data: &[u8]) -> Self {
+        let image = load_from_memory(data).expect("Could not load image");
+        Self { image: image.into_rgba8() }
     }
 
     pub fn text_extents(&self, text: &str, size: f32, font: &Font) -> FontMetrics {

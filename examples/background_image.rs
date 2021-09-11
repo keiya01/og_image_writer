@@ -4,14 +4,11 @@ use std::{io, path::Path};
 fn main() -> io::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
 
-    let mut writer = OGImageWriter::new(style::WindowStyle {
-        width: 1024,
-        height: 512,
-        background_image: Some("./examples/assets/og_template.png"),
+    let mut writer = OGImageWriter::from_data(style::WindowStyle {
         align_items: style::AlignItems::Center,
         justify_content: style::JustifyContent::Center,
         ..style::WindowStyle::default()
-    });
+    }, include_bytes!("./assets/og_template.png"));
 
     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 
