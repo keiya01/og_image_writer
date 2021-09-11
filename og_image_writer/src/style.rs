@@ -1,14 +1,12 @@
-pub use cairo::{FontSlant as FontStyle, FontWeight};
+pub use image::{Rgb, Rgba};
 
 pub enum WordBreak {
     Normal,
     BreakAll,
 }
 
-pub struct RGB(pub f64, pub f64, pub f64);
-
 #[derive(Default)]
-pub struct Margin(pub f64, pub f64, pub f64, pub f64);
+pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
 /// Adjust the horizontal position.
 pub enum AlignItems {
@@ -47,30 +45,26 @@ pub enum Position {
 pub struct Style<'a> {
     pub margin: Margin,
     /// For Text element
-    pub line_height: f64,
+    pub line_height: f32,
     /// For Text element
-    pub font_size: f64,
+    pub font_size: f32,
     /// For Text element
-    pub font_family: &'a str,
-    /// For Text element
-    pub font_style: FontStyle,
-    /// For Text element
-    pub font_weight: FontWeight,
+    pub font_family: Option<Vec<u8>>,
     /// For Text element
     pub word_break: WordBreak,
     /// For Text element
-    pub color: RGB,
+    pub color: Rgba<u8>,
     pub text_align: TextAlign,
     /// For Text element
-    pub max_height: Option<f64>,
+    pub max_height: Option<u32>,
     /// For Text element
     /// This property support multiline.
     pub text_overflow: TextOverflow<'a>,
     pub position: Position,
-    pub top: Option<f64>,
-    pub right: Option<f64>,
-    pub bottom: Option<f64>,
-    pub left: Option<f64>,
+    pub top: Option<i32>,
+    pub right: Option<i32>,
+    pub bottom: Option<i32>,
+    pub left: Option<i32>,
 }
 
 impl<'a> Default for Style<'a> {
@@ -79,11 +73,9 @@ impl<'a> Default for Style<'a> {
             margin: Margin::default(),
             line_height: 1.5,
             font_size: 30.,
-            font_family: "",
-            font_style: FontStyle::Normal,
-            font_weight: FontWeight::Bold,
+            font_family: None,
             word_break: WordBreak::Normal,
-            color: RGB(0., 0., 0.),
+            color: Rgba([0, 0, 0, 100]),
             text_align: TextAlign::Start,
             max_height: None,
             text_overflow: TextOverflow::Clip,
@@ -100,10 +92,10 @@ impl<'a> Default for Style<'a> {
 /// You can adjust position with `align_item` and `justify_content`.
 /// You must pass `background_image` or `background_color` for constructing surface.
 pub struct WindowStyle<'a> {
-    pub height: i32,
-    pub width: i32,
+    pub height: u32,
+    pub width: u32,
     pub background_image: Option<&'a str>,
-    pub background_color: Option<RGB>,
+    pub background_color: Option<Rgba<u8>>,
     pub align_items: AlignItems,
     pub justify_content: JustifyContent,
 }

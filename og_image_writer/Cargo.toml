@@ -12,5 +12,6 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-image = "0.23.14"
-cairo-rs = { version = "0.14.3",  features = ["png"]}
+image = "0.23"
+imageproc = "0.22"
+rusttype = "0.9"

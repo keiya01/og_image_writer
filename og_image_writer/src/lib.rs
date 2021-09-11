@@ -60,9 +60,10 @@
 //!
 
 pub mod element;
+pub mod img;
 pub mod style;
 pub mod writer;
 
-mod image;
+mod context;
 mod layout;
 mod line_breaker;

@@ -1,4 +1,6 @@
 use super::style::{Position, Style};
+use image::{ImageBuffer, Rgba};
+use rusttype::Font;
 use std::ops::Range;
 
 pub(super) enum Element<'a> {
@@ -18,18 +20,18 @@ impl<'a> Element<'a> {
 
 #[derive(Default)]
 pub struct Rect {
-    pub(super) x: f64,
-    pub(super) y: f64,
+    pub(super) x: u32,
+    pub(super) y: u32,
 }
 
 impl Rect {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub fn new(x: u32, y: u32) -> Self {
         Rect { x, y }
     }
 }
 
 pub struct Img<'a> {
-    pub(super) data: Vec<u8>,
+    pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
     pub(super) width: u32,
     pub(super) height: u32,
     pub(super) rect: Rect,
@@ -37,9 +39,15 @@ pub struct Img<'a> {
 }
 
 impl<'a> Img<'a> {
-    pub fn new(data: Vec<u8>, width: u32, height: u32, rect: Rect, style: Style<'a>) -> Self {
+    pub fn new(
+        buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
+        width: u32,
+        height: u32,
+        rect: Rect,
+        style: Style<'a>,
+    ) -> Self {
         Img {
-            data,
+            buf,
             width,
             height,
             rect,
@@ -61,23 +69,29 @@ impl Line {
 
 pub struct Text<'a> {
     pub(super) text: String,
-    pub(super) total_height: f64,
+    pub(super) total_height: u32,
     pub(super) lines: Vec<Line>,
     pub(super) style: Style<'a>,
+    pub(super) font: Font<'a>,
+    pub(super) max_line_height: f32,
 }
 
 impl<'a> Text<'a> {
     pub fn new(
         text: String,
         lines: Vec<Line>,
-        total_height: f64,
+        total_height: u32,
         style: Style<'a>,
+        font: Font<'a>,
+        max_line_height: f32,
     ) -> Self {
         Text {
             text,
             lines,
             total_height,
             style,
+            font,
+            max_line_height,
         }
     }
 }

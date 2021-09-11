@@ -1,4 +1,5 @@
-use cairo::Context;
+use super::context::Context;
+use rusttype::Font;
 use std::ops::Range;
 
 pub struct LineBreaker<'a> {
@@ -16,22 +17,28 @@ impl<'a> LineBreaker<'a> {
     }
 
     // TODO: support hyphenation
-    pub(super) fn break_text_with_whitespace(&mut self, context: &Context, width: f64) {
+    pub(super) fn break_text_with_whitespace(
+        &mut self,
+        context: &Context,
+        width: f32,
+        font_size: f32,
+        font: &Font,
+    ) {
         let text_arr: Vec<&str> = self.title.split_whitespace().collect();
 
         let text_arr_len = text_arr.len();
 
-        let whitespace_width = context.text_extents(" ").unwrap().x_advance;
+        let whitespace_width = context.text_extents(" ", font_size, font).width;
         let whitespace_idx = 1;
 
         let mut line = 0..0;
         let mut line_width = 0.;
         for (i, text) in text_arr.into_iter().enumerate() {
-            let extents = context.text_extents(text).unwrap();
+            let extents = context.text_extents(text, font_size, font);
 
             let is_last = text_arr_len - 1 == i;
 
-            let text_width = extents.x_advance;
+            let text_width = extents.width;
             let text_width = if is_last {
                 text_width
             } else {
@@ -55,15 +62,21 @@ impl<'a> LineBreaker<'a> {
         self.lines.push(line);
     }
 
-    pub(super) fn break_text_with_char(&mut self, context: &Context, width: f64) {
+    pub(super) fn break_text_with_char(
+        &mut self,
+        context: &Context,
+        width: f32,
+        font_size: f32,
+        font: &Font,
+    ) {
         let chars = self.title.char_indices();
 
         let mut line = 0..0;
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
-            let extents = context.text_extents(&ch.to_string()).unwrap();
+            let extents = context.text_extents(&ch.to_string(), font_size, font);
 
-            let ch_width = extents.x_advance;
+            let ch_width = extents.width;
 
             if width <= line_width + ch_width {
                 let start = line.end;
