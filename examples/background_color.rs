@@ -16,17 +16,6 @@ fn main() -> io::Result<()> {
 
     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 
-    writer.set_img(
-        "./examples/assets/food_sakana_hone.png",
-        100,
-        100,
-        style::Style {
-            margin: style::Margin(0, 20, 0, 20),
-            text_align: style::TextAlign::End,
-            ..style::Style::default()
-        },
-    );
-
     writer.set_text(
         text,
         style::Style {
