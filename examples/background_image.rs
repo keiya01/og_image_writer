@@ -19,7 +19,7 @@ fn main() -> io::Result<()> {
             line_height: 1.8,
             font_size: 100.,
             word_break: style::WordBreak::Normal,
-            color: style::Rgba([255, 255, 255, 100]),
+            color: style::Rgba([255, 255, 255, 255]),
             text_align: style::TextAlign::Start,
             ..style::Style::default()
         },

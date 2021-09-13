@@ -75,7 +75,7 @@ impl<'a> Default for Style<'a> {
             font_size: 30.,
             font_family: None,
             word_break: WordBreak::Normal,
-            color: Rgba([0, 0, 0, 100]),
+            color: Rgba([0, 0, 0, 255]),
             text_align: TextAlign::Start,
             max_height: None,
             text_overflow: TextOverflow::Clip,

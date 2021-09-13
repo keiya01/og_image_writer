@@ -7,7 +7,7 @@ fn main() -> io::Result<()> {
     let mut writer = OGImageWriter::new(style::WindowStyle {
         width: 1024,
         height: 512,
-        background_color: Some(style::Rgba([70, 40, 90, 100])),
+        background_color: Some(style::Rgba([70, 40, 90, 255])),
         align_items: style::AlignItems::Center,
         justify_content: style::JustifyContent::Center,
         ..style::WindowStyle::default()
@@ -21,7 +21,7 @@ fn main() -> io::Result<()> {
             margin: style::Margin(0, 20, 0, 20),
             line_height: 1.8,
             font_size: 100.,
-            color: style::Rgba([255, 255, 255, 100]),
+            color: style::Rgba([255, 255, 255, 255]),
             text_align: style::TextAlign::Start,
             max_height: Some(150),
             text_overflow: style::TextOverflow::Ellipsis,
