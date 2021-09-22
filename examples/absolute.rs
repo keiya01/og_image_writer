@@ -14,7 +14,7 @@ fn main() -> io::Result<()> {
     });
 
     writer.set_img(
-        "./examples/assets/food_sakana_hone.png",
+        "./examples/assets/thumbnail_circle.png",
         100,
         100,
         style::Style {
@@ -23,6 +23,7 @@ fn main() -> io::Result<()> {
             text_align: style::TextAlign::End,
             top: Some(20),
             left: Some(0),
+            border_radius: style::BorderRadius(50, 50, 50, 50),
             ..style::Style::default()
         },
     );
