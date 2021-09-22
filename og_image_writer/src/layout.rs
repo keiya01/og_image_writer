@@ -1,5 +1,5 @@
 use super::element::{Element, Img, Line, Rect, Text};
-use super::img::{open_and_resize, open_and_resize_with_data};
+use super::img::{open_and_resize, open_and_resize_with_data, round};
 use super::line_breaker::LineBreaker;
 use super::style::{
     AlignItems, JustifyContent, Margin, Position, Style, TextAlign, TextOverflow, WordBreak,
@@ -198,7 +198,10 @@ impl<'a> OGImageWriter<'a> {
         height: u32,
         style: Style<'a>,
     ) {
-        let (buf, size) = open_and_resize(src, width, height);
+        let (mut buf, size) = open_and_resize(src, width, height);
+
+        // TODO: support border for image
+        round(&mut buf, &mut style.border_radius.clone(), 0.);
 
         let img = Element::Img(Some(Img::new(
             buf,
@@ -218,7 +221,10 @@ impl<'a> OGImageWriter<'a> {
         height: u32,
         style: Style<'a>,
     ) {
-        let (buf, size) = open_and_resize_with_data(data, width, height);
+        let (mut buf, size) = open_and_resize_with_data(data, width, height);
+
+        // TODO: support border for image
+        round(&mut buf, &mut style.border_radius.clone(), 0.);
 
         let img = Element::Img(Some(Img::new(
             buf,

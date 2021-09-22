@@ -8,6 +8,9 @@ pub enum WordBreak {
 #[derive(Default)]
 pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
+#[derive(Default, Clone, Debug)]
+pub struct BorderRadius(pub u32, pub u32, pub u32, pub u32);
+
 /// Adjust the horizontal position.
 pub enum AlignItems {
     Start,
@@ -65,6 +68,8 @@ pub struct Style<'a> {
     pub right: Option<i32>,
     pub bottom: Option<i32>,
     pub left: Option<i32>,
+    /// For Img element
+    pub border_radius: BorderRadius,
 }
 
 impl<'a> Default for Style<'a> {
@@ -84,6 +89,7 @@ impl<'a> Default for Style<'a> {
             right: None,
             bottom: None,
             left: None,
+            border_radius: BorderRadius::default(),
         }
     }
 }
