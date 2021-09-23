@@ -1,6 +1,5 @@
-use image::{open, DynamicImage, ImageBuffer, Rgba, load_from_memory, Pixel};
+use image::{open, DynamicImage, ImageBuffer, Rgba, load_from_memory};
 use imageproc::drawing::draw_line_segment_mut;
-use std::cmp;
 use super::style::BorderRadius;
 
 pub(super) struct Size {
@@ -44,29 +43,30 @@ pub(super) fn open_and_resize_with_data(data: &[u8], w: u32, h: u32) -> (ImageBu
 fn while_radius<F>(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32, size: (i32, i32), draw: F)
     where F: Fn(&mut ImageBuffer<Rgba<u8>, Vec<u8>>, (i32, i32), (i32, i32), Rgba<u8>)
 {
-    let mut x = r;
-    let mut y = 0i32;
+    let r = (r as f32 / 1.25) as i32;
+    let mut x = 0i32;
+    let mut y = r;
 
     let color = Rgba([0, 0, 0, 0]);
     let mut p = 1 - r;
 
     let (x0, y0) = size;
 
-    while x >= y {
+    while x <= y {
         draw(img, (x0, y0), (x, y), color);
 
-        y += 1;
+        x += 1;
         if p < 0 {
             p += 2 * x + 1;
         } else {
-            x -= 1;
+            y -= 1;
             p += 2 * (x - y) + 1;
         }
     }
 }
 
 fn border_top_left_radius(buf: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
-    while_radius(buf, r, (0, 0), |img, (x0, y0), (x, y), color| {
+    while_radius(buf, r - 1, (0, 0), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 + x) as f32, (y0) as f32),
@@ -106,7 +106,7 @@ fn border_top_right_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
 fn border_bottom_left_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
     let height = img.height() as i32;
 
-    while_radius(img, r, (0, height - 1), |img, (x0, y0), (x, y), color| {
+    while_radius(img, r - 1, (0, height - 1), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 + x) as f32, (y0) as f32),
