@@ -107,10 +107,3 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 }
-
-// TODO: Support background_image process
-// fn create_surface_from_src(src: &str) -> io::Result<ImageSurface> {
-//     let mut file = File::open(src)?;
-//     Ok(ImageSurface::create_from_png(&mut file)
-//         .expect("Could not create data from specified png file"))
-// }
