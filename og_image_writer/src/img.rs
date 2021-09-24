@@ -43,6 +43,10 @@ pub(super) fn open_and_resize_with_data(data: &[u8], w: u32, h: u32) -> (ImageBu
 fn while_radius<F>(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32, size: (i32, i32), draw: F)
     where F: Fn(&mut ImageBuffer<Rgba<u8>, Vec<u8>>, (i32, i32), (i32, i32), Rgba<u8>)
 {
+    if r <= 0 {
+        return;
+    }
+
     let r = (r as f32 / 1.25) as i32;
     let mut x = 0i32;
     let mut y = r;
@@ -66,7 +70,7 @@ fn while_radius<F>(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32, size: (i32,
 }
 
 fn border_top_left_radius(buf: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
-    while_radius(buf, r - 1, (0, 0), |img, (x0, y0), (x, y), color| {
+    while_radius(buf, r - 2, (0, 0), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 + x) as f32, (y0) as f32),
@@ -127,7 +131,7 @@ fn border_bottom_right_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) 
     let width = img.width() as i32;
     let height = img.height() as i32;
 
-    while_radius(img, r, (width - 1, height - 1), |img, (x0, y0), (x, y), color| {
+    while_radius(img, r - 1, (width - 1, height - 1), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 - x) as f32, (y0) as f32),
@@ -148,6 +152,6 @@ fn border_bottom_right_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) 
 pub(super) fn round(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, radius: &mut BorderRadius, _border_width: f32) {
     border_top_left_radius(img, radius.0 as i32);
     border_top_right_radius(img, radius.1 as i32);
-    border_bottom_left_radius(img, radius.2 as i32);
-    border_bottom_right_radius(img, radius.3 as i32);
+    border_bottom_right_radius(img, radius.2 as i32);
+    border_bottom_left_radius(img, radius.3 as i32);
 }
