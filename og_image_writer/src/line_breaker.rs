@@ -107,19 +107,20 @@ mod tests {
 
         let text = "Hello World, Hello World";
         let mut line_breaker = LineBreaker::new(text);
-        line_breaker.break_text_with_whitespace(&context, width as f32, 16., &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap());
+        line_breaker.break_text_with_whitespace(
+            &context,
+            width as f32,
+            16.,
+            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+        );
 
-        let expects = [
-            "Hello World, ",
-            "Hello World",
-        ];
+        let expects = ["Hello World, ", "Hello World"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.clone()] {
                 panic!("expect '{}', but got '{}'", expects[i], &text[line.clone()]);
             }
         }
-
     }
 
     #[test]
@@ -130,12 +131,14 @@ mod tests {
 
         let text = "こんにちは世界、こんにちは世界";
         let mut line_breaker = LineBreaker::new(text);
-        line_breaker.break_text_with_char(&context, width as f32, 16., &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap());
+        line_breaker.break_text_with_char(
+            &context,
+            width as f32,
+            16.,
+            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+        );
 
-        let expects = [
-            "こんにちは世界、",
-            "こんにちは世界",
-        ];
+        let expects = ["こんにちは世界、", "こんにちは世界"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.clone()] {

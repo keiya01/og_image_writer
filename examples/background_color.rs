@@ -2,8 +2,7 @@ use og_image_writer::{style, writer::OGImageWriter};
 use std::{io, path::Path};
 
 fn main() -> io::Result<()> {
-    let text =
-        "This is Open Graphic Image Writer for Web Developer.";
+    let text = "This is Open Graphic Image Writer for Web Developer.";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
         width: 1024,
