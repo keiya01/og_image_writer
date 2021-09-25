@@ -8,49 +8,42 @@
 //! The following example generate Open Graphic Image from template PNG image.
 //!
 //! ```rust
-//! use og_image_writer::{writer::OGImageWriter, style};
-//! use std::io;
+//! use og_image_writer::{style, writer::OGImageWriter};
+//! use std::{io, path::Path};
 //!
 //! fn main() -> io::Result<()> {
-//!     let text = "This is Open Graphic Image Writer for Web Developer.";
+//!     let text =
+//!         "This is Open Graphic Image Writer for Web Developer.";
 //!
-//!     let mut writer = OGImageWriter::new();
-//!
-//!     // Set window style.
-//!     // Window acts like CSS `flexbox`. And it is specified column direction.
-//!     writer.set_window_style(style::WindowStyle {
+//!     let mut writer = OGImageWriter::new(style::WindowStyle {
 //!         width: 1024,
 //!         height: 512,
-//!         background_image: Some("./examples/assets/og_template.png"),
+//!         background_color: Some(style::Rgba([70, 40, 90, 255])),
 //!         align_items: style::AlignItems::Center,
 //!         justify_content: style::JustifyContent::Center,
 //!         ..style::WindowStyle::default()
 //!     });
 //!
-//!     // Set text.
-//!     // This text will be written into the generated Open Graphic Image.
-//!     writer.set_text(text);
+//!     let font = Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]);
 //!
-//!     // Set text style.
-//!     // Text element acts like CSS `inline-block`.
-//!     writer.set_text_style(style::Style {
-//!         margin: style::Margin(0., 20., 0., 20.),
-//!         line_height: 1.8,
-//!         font_family: "YuGothic",
-//!         font_size: 50.,
-//!         font_style: style::FontStyle::Normal,
-//!         font_weight: style::FontWeight::Bold,
-//!         word_break: style::WordBreak::Normal,
-//!         color: style::RGB(1., 1., 1.),
-//!         // `text_align` adjust text element position in `inline-block`
-//!         text_align: style::TextAlign::Start,
-//!     });
+//!     writer.set_text(
+//!         text,
+//!         style::Style {
+//!             margin: style::Margin(0, 20, 0, 20),
+//!             line_height: 1.8,
+//!             font_size: 100.,
+//!             word_break: style::WordBreak::Normal,
+//!             color: style::Rgba([255, 255, 255, 255]),
+//!             text_align: style::TextAlign::Start,
+//!             ..style::Style::default()
+//!         },
+//!         font,
+//!     );
 //!
-//!     let out_dir = "./examples/assets";
-//!     let out_filename = "output.png";
+//!     let out_dir = "../examples/assets";
+//!     let out_filename = "output_background_color.png";
 //!
-//!     // Generate Open Graphic Image!
-//!     writer.generate(&format!("{}/{}", out_dir, out_filename))?;
+//!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)));
 //!
 //!     Ok(())
 //! }
