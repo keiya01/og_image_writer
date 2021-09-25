@@ -85,10 +85,62 @@ impl<'a> LineBreaker<'a> {
                 line_width = 0.;
             }
 
-            line.end = i;
+            line.end = i + ch.to_string().len();
             line_width += ch_width;
         }
 
         self.lines.push(line);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::context::Context;
+    use rusttype::Font;
+
+    #[test]
+    fn test_break_test_with_whitespace() {
+        let width = 80u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "Hello World, Hello World";
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker.break_text_with_whitespace(&context, width as f32, 16., &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap());
+
+        let expects = [
+            "Hello World, ",
+            "Hello World",
+        ];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.clone()] {
+                panic!("expect '{}', but got '{}'", expects[i], &text[line.clone()]);
+            }
+        }
+
+    }
+
+    #[test]
+    fn test_break_test_with_char() {
+        let width = 90u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "こんにちは世界、こんにちは世界";
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker.break_text_with_char(&context, width as f32, 16., &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap());
+
+        let expects = [
+            "こんにちは世界、",
+            "こんにちは世界",
+        ];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.clone()] {
+                panic!("expect '{}', but got '{}'", expects[i], &text[line.clone()]);
+            }
+        }
     }
 }
