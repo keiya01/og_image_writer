@@ -3,7 +3,7 @@ use std::{io, path::Path};
 
 fn main() -> io::Result<()> {
     let text =
-        "This is Open Graphic Image Writer for Web Developer. Image Writer for Web Developer.";
+        "This is Open Graphic Image Writer for Web Developer.";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
         width: 1024,
