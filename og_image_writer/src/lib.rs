@@ -9,22 +9,21 @@
 //!
 //! ```rust
 //! use og_image_writer::{style, writer::OGImageWriter};
-//! use std::{io, path::Path};
+//! use std::path::Path;
 //!
-//! fn main() -> io::Result<()> {
-//!     let text =
-//!         "This is Open Graphic Image Writer for Web Developer.";
+//! fn main() -> anyhow::Result<()> {
+//!     let text = "This is Open Graphic Image Writer for Web Developer.";
 //!
-//!     let mut writer = OGImageWriter::new(style::WindowStyle {
-//!         width: 1024,
-//!         height: 512,
-//!         background_color: Some(style::Rgba([70, 40, 90, 255])),
-//!         align_items: style::AlignItems::Center,
-//!         justify_content: style::JustifyContent::Center,
-//!         ..style::WindowStyle::default()
-//!     });
+//!     let mut writer = OGImageWriter::from_data(
+//!         style::WindowStyle {
+//!             align_items: style::AlignItems::Center,
+//!             justify_content: style::JustifyContent::Center,
+//!             ..style::WindowStyle::default()
+//!         },
+//!         include_bytes!("./assets/og_template.png"),
+//!     )?;
 //!
-//!     let font = Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]);
+//!     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 //!
 //!     writer.set_text(
 //!         text,
@@ -38,12 +37,12 @@
 //!             ..style::Style::default()
 //!         },
 //!         font,
-//!     );
+//!     )?;
 //!
-//!     let out_dir = "../examples/assets";
-//!     let out_filename = "output_background_color.png";
+//!     let out_dir = "./examples/assets";
+//!     let out_filename = "output_background_image.png";
 //!
-//!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)));
+//!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
 //!
 //!     Ok(())
 //! }
@@ -56,7 +55,9 @@ pub mod element;
 pub mod img;
 pub mod style;
 pub mod writer;
+pub use error::Error;
 
 mod context;
+mod error;
 mod layout;
 mod line_breaker;

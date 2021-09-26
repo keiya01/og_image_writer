@@ -1,5 +1,7 @@
+use crate::Error;
+
 use super::style::BorderRadius;
-use image::{load_from_memory, open, DynamicImage, ImageBuffer, Rgba};
+use image::{load_from_memory, open, DynamicImage, ImageBuffer, ImageError, Rgba};
 use imageproc::drawing::draw_line_segment_mut;
 
 pub(super) struct Size {
@@ -7,28 +9,28 @@ pub(super) struct Size {
     pub(super) width: u32,
 }
 
-pub(super) fn open_and_resize(src: &str, w: u32, h: u32) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
-    let rgba = open(src)
-        .expect("Could not load specified image.")
-        .into_rgba8();
+pub(super) fn open_and_resize(
+    src: &str,
+    w: u32,
+    h: u32,
+) -> Result<(ImageBuffer<Rgba<u8>, Vec<u8>>, Size), Error> {
+    let rgba = open(src)?.into_rgba8();
     let buffer = DynamicImage::ImageRgba8(rgba).thumbnail(w, h).into_rgba8();
     let height = buffer.height();
     let width = buffer.width();
-    (buffer, Size { height, width })
+    Ok((buffer, Size { height, width }))
 }
 
 pub(super) fn open_and_resize_with_data(
     data: &[u8],
     w: u32,
     h: u32,
-) -> (ImageBuffer<Rgba<u8>, Vec<u8>>, Size) {
-    let rgba = load_from_memory(data)
-        .expect("Could not load specified image")
-        .into_rgba8();
+) -> Result<(ImageBuffer<Rgba<u8>, Vec<u8>>, Size), ImageError> {
+    let rgba = load_from_memory(data)?.into_rgba8();
     let buffer = DynamicImage::ImageRgba8(rgba).thumbnail(w, h).into_rgba8();
     let height = buffer.height();
     let width = buffer.width();
-    (buffer, Size { height, width })
+    Ok((buffer, Size { height, width }))
 }
 
 // see: https://stackoverflow.com/questions/48478497/javascript-gecko-border-radius-adaptation-on-html-canvas-css-border-radius

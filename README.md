@@ -20,9 +20,8 @@ For more examples, see [keiya01/og_image_writer/examples](https://github.com/kei
 
 ```rust
 use og_image_writer::{style, writer::OGImageWriter};
-use std::io;
 
-fn main() -> io::Result<()> {
+fn main() -> anyhow::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
@@ -48,7 +47,7 @@ fn main() -> io::Result<()> {
             text_align: style::TextAlign::Start,
             ..style::Style::default()
         },
-    );
+    )?;
 
     let out_dir = "./examples/assets";
     let out_filename = "output_background_image.png";

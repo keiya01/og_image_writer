@@ -6,7 +6,7 @@ license = "MIT"
 keywords = ["open-graphic", "image", "og", "canvas"]
 categories = ["web-programming", "rendering", "graphics"]
 readme = "../README.md"
-repository="https://github.com/keiya01/og_image_writer"
+repository = "https://github.com/keiya01/og_image_writer"
 description = "Generate an Open Graphic Image using a CSS-like API."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,3 +15,4 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 image = "0.23"
 imageproc = "0.22"
 rusttype = "0.9"
+thiserror = "1.0"

@@ -1,17 +1,19 @@
 pub use image::{Rgb, Rgba};
 
+#[derive(Debug)]
 pub enum WordBreak {
     Normal,
     BreakAll,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
-#[derive(Default, Clone, Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct BorderRadius(pub u32, pub u32, pub u32, pub u32);
 
 /// Adjust the horizontal position.
+#[derive(Debug)]
 pub enum AlignItems {
     Start,
     Center,
@@ -19,6 +21,7 @@ pub enum AlignItems {
 }
 
 /// Adjust the vertical position.
+#[derive(Debug)]
 pub enum JustifyContent {
     Start,
     Center,
@@ -26,18 +29,21 @@ pub enum JustifyContent {
 }
 
 /// Adjust the text horizontal position.
+#[derive(Debug)]
 pub enum TextAlign {
     Start,
     Center,
     End,
 }
 
+#[derive(Debug)]
 pub enum TextOverflow<'a> {
     Clip,
     Ellipsis,
     Content(&'a str),
 }
 
+#[derive(Debug)]
 pub enum Position {
     Static,
     Absolute,
@@ -45,6 +51,7 @@ pub enum Position {
 
 /// Style is used by `text` or `img` element.
 /// Text element is `inline-block`, so you can adjust text position by using `text_align`.
+#[derive(Debug)]
 pub struct Style<'a> {
     pub margin: Margin,
     /// For Text element
@@ -97,6 +104,7 @@ impl<'a> Default for Style<'a> {
 /// Window is act like flexbox. And default direction is `column`.
 /// You can adjust position with `align_item` and `justify_content`.
 /// You must pass `background_image` or `background_color` for constructing surface.
+#[derive(Debug)]
 pub struct WindowStyle {
     pub height: u32,
     pub width: u32,

@@ -1,9 +1,11 @@
 use image::imageops::overlay;
-use image::{load_from_memory, ImageBuffer, Rgba, RgbaImage};
+use image::{load_from_memory, ImageBuffer, ImageError, Rgba, RgbaImage};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
 use rusttype::{Font, Scale};
 use std::path::Path;
+
+use crate::Error;
 
 pub(super) struct FontMetrics {
     pub height: f32,
@@ -20,11 +22,11 @@ impl Context {
         Self { image }
     }
 
-    pub fn from_data(data: &[u8]) -> Self {
-        let image = load_from_memory(data).expect("Could not load image");
-        Self {
+    pub fn from_data(data: &[u8]) -> Result<Self, Error> {
+        let image = load_from_memory(data)?;
+        Ok(Self {
             image: image.into_rgba8(),
-        }
+        })
     }
 
     pub fn text_extents(&self, text: &str, size: f32, font: &Font) -> FontMetrics {
@@ -73,7 +75,7 @@ impl Context {
         );
     }
 
-    pub fn save(&self, path: &Path) {
-        let _ = self.image.save(path).expect("Could not save image");
+    pub fn save(&self, path: &Path) -> Result<(), ImageError> {
+        self.image.save(path)
     }
 }
