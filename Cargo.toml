@@ -1,5 +1,16 @@
-[workspace]
-members = [
-  "og_image_writer",
-  "examples",
-]
+[package]
+name = "og_image_writer"
+version = "0.2.1"
+edition = "2018"
+license = "MIT"
+keywords = ["open-graphic", "image", "og", "canvas"]
+categories = ["web-programming", "rendering", "graphics"]
+repository = "https://github.com/keiya01/og_image_writer"
+description = "Generate an Open Graphic Image using a CSS-like API."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+image = "0.23"
+imageproc = "0.22"
+rusttype = "0.9"

@@ -111,7 +111,7 @@ mod tests {
             &context,
             width as f32,
             16.,
-            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+            &Font::try_from_bytes(include_bytes!("../fonts/Mplus1-Black.ttf")).unwrap(),
         );
 
         let expects = ["Hello World, ", "Hello World"];
@@ -135,7 +135,7 @@ mod tests {
             &context,
             width as f32,
             16.,
-            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+            &Font::try_from_bytes(include_bytes!("../fonts/Mplus1-Black.ttf")).unwrap(),
         );
 
         let expects = ["こんにちは世界、", "こんにちは世界"];

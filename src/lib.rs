@@ -24,7 +24,7 @@
 //!         ..style::WindowStyle::default()
 //!     });
 //!
-//!     let font = Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]);
+//!     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 //!
 //!     writer.set_text(
 //!         text,
@@ -40,7 +40,7 @@
 //!         font,
 //!     );
 //!
-//!     let out_dir = "../examples/assets";
+//!     let out_dir = "./examples/assets";
 //!     let out_filename = "output_background_color.png";
 //!
 //!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)));
