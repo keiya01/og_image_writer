@@ -6,6 +6,7 @@ You can generate Open Graphic Image dynamically.
 
 - A CSS-like API.
 - You can generate image by using template image.
+- WASM/WASI support.
 
 ## Problem
 
