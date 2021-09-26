@@ -7,7 +7,7 @@
 //!
 //! The following example generate Open Graphic Image from template PNG image.
 //!
-//! ```rust
+//!  ```rust
 //! use og_image_writer::{style, writer::OGImageWriter};
 //! use std::path::Path;
 //!
@@ -20,10 +20,10 @@
 //!             justify_content: style::JustifyContent::Center,
 //!             ..style::WindowStyle::default()
 //!         },
-//!         include_bytes!("./assets/og_template.png"),
+//!         include_bytes!("../../examples/assets/og_template.png"),
 //!     )?;
 //!
-//!     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
+//!     let font = Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]);
 //!
 //!     writer.set_text(
 //!         text,
@@ -39,7 +39,7 @@
 //!         font,
 //!     )?;
 //!
-//!     let out_dir = "./examples/assets";
+//!     let out_dir = "../examples/assets";
 //!     let out_filename = "output_background_image.png";
 //!
 //!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
