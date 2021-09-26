@@ -2,12 +2,21 @@ use crate::element::{Element, Line, Rect, Text};
 use crate::line_breaker::LineBreaker;
 use crate::style::{AlignItems, Margin, Position, Style, TextAlign, TextOverflow, WordBreak};
 use crate::writer::OGImageWriter;
+use crate::Error;
 use rusttype::Font;
 use std::str;
 
 impl<'a> OGImageWriter<'a> {
-    pub(crate) fn process_text(&mut self, text: &'a str, style: Style<'a>, font: Vec<u8>) {
-        let font = Font::try_from_vec(font).expect("Could not parse font data");
+    pub(crate) fn process_text(
+        &mut self,
+        text: &'a str,
+        style: Style<'a>,
+        font: Vec<u8>,
+    ) -> Result<(), Error> {
+        let font = match Font::try_from_vec(font) {
+            Some(font) => font,
+            None => return Err(Error::InvalidFontBytes),
+        };
 
         let window_width = self.window.width as f32;
 
@@ -149,6 +158,8 @@ impl<'a> OGImageWriter<'a> {
         }
 
         self.tree.push(text_elm);
+
+        Ok(())
     }
 
     fn set_ellipsis(

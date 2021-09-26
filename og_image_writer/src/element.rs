@@ -3,6 +3,7 @@ use image::{ImageBuffer, Rgba};
 use rusttype::Font;
 use std::ops::Range;
 
+#[derive(Debug)]
 pub(super) enum Element<'a> {
     Img(Option<Img<'a>>),
     Text(Option<Text<'a>>),
@@ -18,7 +19,7 @@ impl<'a> Element<'a> {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Rect {
     pub(super) x: u32,
     pub(super) y: u32,
@@ -30,6 +31,7 @@ impl Rect {
     }
 }
 
+#[derive(Debug)]
 pub struct Img<'a> {
     pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
     pub(super) width: u32,
@@ -56,6 +58,7 @@ impl<'a> Img<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct Line {
     pub(super) range: Range<usize>,
     pub(super) rect: Rect,
@@ -67,6 +70,7 @@ impl Line {
     }
 }
 
+#[derive(Debug)]
 pub struct Text<'a> {
     pub(super) text: String,
     pub(super) total_height: u32,

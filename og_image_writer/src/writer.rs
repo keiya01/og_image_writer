@@ -1,3 +1,7 @@
+use image::ImageError;
+
+use crate::Error;
+
 use super::context::Context;
 use super::element::{Element, Img, Text};
 use super::style::{Style, WindowStyle};
@@ -38,12 +42,13 @@ impl<'a> OGImageWriter<'a> {
 
     /// Set window style. Window act like CSS `flexbox`.
     /// Height and width are set by specified image.
-    pub fn from_data(window: WindowStyle, data: &[u8]) -> Self {
-        let context = Context::from_data(data);
+    pub fn from_data(window: WindowStyle, data: &[u8]) -> Result<Self, Error> {
+        let context = Context::from_data(data)?;
 
         let width = context.image.width();
         let height = context.image.height();
-        OGImageWriter {
+
+        Ok(OGImageWriter {
             context,
             tree: OGImageWriter::create_tree(),
             window: WindowStyle {
@@ -52,7 +57,7 @@ impl<'a> OGImageWriter<'a> {
                 ..window
             },
             content: Content::default(),
-        }
+        })
     }
 
     pub(super) fn create_tree() -> Vec<Element<'a>> {
@@ -61,32 +66,51 @@ impl<'a> OGImageWriter<'a> {
 
     /// Set text you want to write to image.
     /// And set the text element style. Text element act like CSS `inline-block`.
-    pub fn set_text(&mut self, text: &'a str, style: Style<'a>, font: Vec<u8>) {
-        self.process_text(text, style, font);
+    pub fn set_text(
+        &mut self,
+        text: &'a str,
+        style: Style<'a>,
+        font: Vec<u8>,
+    ) -> Result<(), Error> {
+        self.process_text(text, style, font)
     }
 
     /// Set image you want to write to image. And set the image element style.
-    pub fn set_img(&mut self, src: &'a str, width: u32, height: u32, style: Style<'a>) {
-        self.process_img_with_src(src, width, height, style);
+    pub fn set_img(
+        &mut self,
+        src: &'a str,
+        width: u32,
+        height: u32,
+        style: Style<'a>,
+    ) -> Result<(), Error> {
+        self.process_img_with_src(src, width, height, style)
     }
 
     /// Set image you want to write to image. And set the image element style.
-    pub fn set_img_with_data(&mut self, data: &[u8], width: u32, height: u32, style: Style<'a>) {
-        self.process_img_with_data(data, width, height, style);
+    pub fn set_img_with_data(
+        &mut self,
+        data: &[u8],
+        width: u32,
+        height: u32,
+        style: Style<'a>,
+    ) -> Result<(), ImageError> {
+        self.process_img_with_data(data, width, height, style)
     }
 
     /// Generate your image.
-    pub fn generate(&mut self, dest: &Path) {
+    pub fn generate(&mut self, dest: &Path) -> Result<(), Error> {
         self.process();
 
         while let Some(elm) = self.tree.pop() {
             match elm {
-                Element::Img(mut img) => self.paint_img(img.take().unwrap()),
-                Element::Text(mut text) => self.paint_text(text.take().unwrap()),
+                Element::Img(Some(img)) => self.paint_img(img),
+                Element::Text(Some(text)) => self.paint_text(text),
+                _ => return Err(Error::NullElement),
             }
         }
 
-        self.context.save(dest);
+        self.context.save(dest)?;
+        Ok(())
     }
 
     fn paint_img(&mut self, img: Img) {

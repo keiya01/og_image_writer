@@ -1,7 +1,10 @@
+use image::ImageError;
+
 use crate::element::{Element, Img, Rect};
 use crate::img::{open_and_resize, open_and_resize_with_data, round};
 use crate::style::Style;
 use crate::writer::OGImageWriter;
+use crate::Error;
 use std::str;
 
 impl<'a> OGImageWriter<'a> {
@@ -24,8 +27,8 @@ impl<'a> OGImageWriter<'a> {
         width: u32,
         height: u32,
         style: Style<'a>,
-    ) {
-        let (mut buf, size) = open_and_resize(src, width, height);
+    ) -> Result<(), Error> {
+        let (mut buf, size) = open_and_resize(src, width, height)?;
 
         // TODO: support border for image
         round(&mut buf, &mut style.border_radius.clone(), 0.);
@@ -39,6 +42,8 @@ impl<'a> OGImageWriter<'a> {
         )));
 
         self.process_img(img, size.width, size.height);
+
+        Ok(())
     }
 
     pub(crate) fn process_img_with_data(
@@ -47,8 +52,8 @@ impl<'a> OGImageWriter<'a> {
         width: u32,
         height: u32,
         style: Style<'a>,
-    ) {
-        let (mut buf, size) = open_and_resize_with_data(data, width, height);
+    ) -> Result<(), ImageError> {
+        let (mut buf, size) = open_and_resize_with_data(data, width, height)?;
 
         // TODO: support border for image
         round(&mut buf, &mut style.border_radius.clone(), 0.);
@@ -62,5 +67,7 @@ impl<'a> OGImageWriter<'a> {
         )));
 
         self.process_img(img, size.width, size.height);
+
+        Ok(())
     }
 }

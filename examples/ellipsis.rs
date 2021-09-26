@@ -1,7 +1,7 @@
 use og_image_writer::{style, writer::OGImageWriter};
-use std::{io, path::Path};
+use std::path::Path;
 
-fn main() -> io::Result<()> {
+fn main() -> anyhow::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer. This is multi line text, but this text is omitted with ellipsis.";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
@@ -28,12 +28,12 @@ fn main() -> io::Result<()> {
             ..style::Style::default()
         },
         font,
-    );
+    )?;
 
     let out_dir = "./examples/assets";
     let out_filename = "output_ellipsis.png";
 
-    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)));
+    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
 
     Ok(())
 }

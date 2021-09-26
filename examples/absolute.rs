@@ -1,7 +1,7 @@
 use og_image_writer::{style, writer::OGImageWriter};
-use std::{io, path::Path};
+use std::path::Path;
 
-fn main() -> io::Result<()> {
+fn main() -> anyhow::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
@@ -26,7 +26,7 @@ fn main() -> io::Result<()> {
             border_radius: style::BorderRadius(50, 50, 50, 50),
             ..style::Style::default()
         },
-    );
+    )?;
 
     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 
@@ -46,12 +46,12 @@ fn main() -> io::Result<()> {
             ..style::Style::default()
         },
         font,
-    );
+    )?;
 
     let out_dir = "./examples/assets";
     let out_filename = "output_absolute.png";
 
-    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)));
+    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
 
     Ok(())
 }
