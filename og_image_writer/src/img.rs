@@ -77,7 +77,7 @@ where
 }
 
 fn border_top_left_radius(buf: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
-    while_radius(buf, r - 2, (0, 0), |img, (x0, y0), (x, y), color| {
+    while_radius(buf, r - 1, (0, 0), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 + x) as f32, (y0) as f32),
@@ -97,7 +97,7 @@ fn border_top_left_radius(buf: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
 fn border_top_right_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
     let width = img.width() as i32;
 
-    while_radius(img, r, (width - 1, 0), |img, (x0, y0), (x, y), color| {
+    while_radius(img, r - 1, (width - 1, 0), |img, (x0, y0), (x, y), color| {
         draw_line_segment_mut(
             img,
             ((x0 - x) as f32, (y0) as f32),
