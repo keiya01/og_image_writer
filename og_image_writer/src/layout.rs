@@ -82,15 +82,15 @@ impl<'a> OGImageWriter<'a> {
                 let Margin(margin_top, margin_left, margin_bottom, margin_right) =
                     text.style.margin;
 
+                // Because imageproc draw text that include line_height.
+                let mut system_line_height = text.max_line_height as u32 / 2;
+
                 for line in &mut text.lines {
                     let logical_inline = match &self.window.align_items {
                         AlignItems::Start => margin_left,
                         AlignItems::Center => 0,
                         AlignItems::End => -margin_right,
                     };
-
-                    // Because imageproc draw text that include line_height.
-                    let system_line_height = text.max_line_height as u32 / 2;
 
                     line.rect.x += logical_inline as u32;
                     if is_end {
@@ -102,7 +102,12 @@ impl<'a> OGImageWriter<'a> {
                     }
 
                     if matches!(self.window.justify_content, JustifyContent::Center) {
-                        line.rect.y -= system_line_height;
+                        if line.rect.y >= system_line_height {
+                            line.rect.y -= system_line_height;
+                        } else {
+                            line.rect.y = 0;
+                            system_line_height = 0;
+                        }
                     }
                 }
 
