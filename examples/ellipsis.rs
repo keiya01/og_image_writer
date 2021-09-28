@@ -11,7 +11,7 @@ fn main() -> anyhow::Result<()> {
         align_items: style::AlignItems::Center,
         justify_content: style::JustifyContent::Center,
         ..style::WindowStyle::default()
-    });
+    })?;
 
     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
 

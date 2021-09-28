@@ -11,7 +11,7 @@ fn main() -> anyhow::Result<()> {
         align_items: style::AlignItems::Center,
         justify_content: style::JustifyContent::Center,
         ..style::WindowStyle::default()
-    });
+    })?;
 
     writer.set_img(
         "./examples/assets/thumbnail_circle.png",

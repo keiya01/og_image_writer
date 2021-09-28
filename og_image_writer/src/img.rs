@@ -9,28 +9,26 @@ pub(super) struct Size {
     pub(super) width: u32,
 }
 
-pub(super) fn open_and_resize(
-    src: &str,
-    w: u32,
-    h: u32,
-) -> Result<(ImageBuffer<Rgba<u8>, Vec<u8>>, Size), Error> {
+pub(super) struct ImageInfo(pub(super) ImageBuffer<Rgba<u8>, Vec<u8>>, pub(super) Size);
+
+pub(super) fn open_and_resize(src: &str, w: u32, h: u32) -> Result<ImageInfo, Error> {
     let rgba = open(src)?.into_rgba8();
     let buffer = DynamicImage::ImageRgba8(rgba).thumbnail(w, h).into_rgba8();
     let height = buffer.height();
     let width = buffer.width();
-    Ok((buffer, Size { height, width }))
+    Ok(ImageInfo(buffer, Size { height, width }))
 }
 
 pub(super) fn open_and_resize_with_data(
     data: &[u8],
     w: u32,
     h: u32,
-) -> Result<(ImageBuffer<Rgba<u8>, Vec<u8>>, Size), ImageError> {
+) -> Result<ImageInfo, ImageError> {
     let rgba = load_from_memory(data)?.into_rgba8();
     let buffer = DynamicImage::ImageRgba8(rgba).thumbnail(w, h).into_rgba8();
     let height = buffer.height();
     let width = buffer.width();
-    Ok((buffer, Size { height, width }))
+    Ok(ImageInfo(buffer, Size { height, width }))
 }
 
 // see: https://stackoverflow.com/questions/48478497/javascript-gecko-border-radius-adaptation-on-html-canvas-css-border-radius
@@ -99,21 +97,26 @@ fn border_top_left_radius(buf: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
 fn border_top_right_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
     let width = img.width() as i32;
 
-    while_radius(img, r - 1, (width - 1, 0), |img, (x0, y0), (x, y), color| {
-        draw_line_segment_mut(
-            img,
-            ((x0 - x) as f32, (y0) as f32),
-            ((x0) as f32, (y0 + y) as f32),
-            color,
-        );
+    while_radius(
+        img,
+        r - 1,
+        (width - 1, 0),
+        |img, (x0, y0), (x, y), color| {
+            draw_line_segment_mut(
+                img,
+                ((x0 - x) as f32, (y0) as f32),
+                ((x0) as f32, (y0 + y) as f32),
+                color,
+            );
 
-        draw_line_segment_mut(
-            img,
-            ((x0) as f32, (y0 + x) as f32),
-            ((x0 - y) as f32, (y0) as f32),
-            color,
-        );
-    });
+            draw_line_segment_mut(
+                img,
+                ((x0) as f32, (y0 + x) as f32),
+                ((x0 - y) as f32, (y0) as f32),
+                color,
+            );
+        },
+    );
 }
 
 fn border_bottom_left_radius(img: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, r: i32) {
