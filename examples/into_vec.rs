@@ -1,6 +1,6 @@
+use image::{save_buffer, ColorType};
 use og_image_writer::{style, writer::OGImageWriter};
 use std::path::Path;
-use image::{save_buffer, ColorType};
 
 fn main() -> anyhow::Result<()> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
@@ -38,7 +38,14 @@ fn main() -> anyhow::Result<()> {
     writer.paint()?;
     let buf = writer.into_vec()?;
 
-    save_buffer(Path::new(&format!("{}/{}", out_dir, out_filename)), &buf, width, height, ColorType::Rgba8).expect("Could not save image");
+    save_buffer(
+        Path::new(&format!("{}/{}", out_dir, out_filename)),
+        &buf,
+        width,
+        height,
+        ColorType::Rgba8,
+    )
+    .expect("Could not save image");
 
     Ok(())
 }
