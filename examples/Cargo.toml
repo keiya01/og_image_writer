@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 og_image_writer = { path = "../og_image_writer" }
 anyhow = "1.0"
+image = "0.23"
 
 [[example]]
 name = "background_image"
@@ -29,3 +30,7 @@ path = "ellipsis.rs"
 [[example]]
 name = "container"
 path = "container.rs"
+
+[[example]]
+name = "into_vec"
+path = "into_vec.rs"

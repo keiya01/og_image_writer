@@ -121,7 +121,7 @@ impl<'a> OGImageWriter<'a> {
         self.context.save(dest)
     }
 
-    fn paint(&mut self) -> Result<(), Error> {
+    pub fn paint(&mut self) -> Result<(), Error> {
         self.process();
 
         while let Some(elm) = self.tree.pop() {
@@ -133,6 +133,10 @@ impl<'a> OGImageWriter<'a> {
         }
 
         Ok(())
+    }
+
+    pub fn into_vec(self) -> Result<Vec<u8>, Error> {
+        self.context.into_vec()
     }
 
     fn paint_img(&mut self, img: Img) -> Result<(), Error> {

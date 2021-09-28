@@ -99,4 +99,11 @@ impl Context {
             None => Err(Error::NotFoundContainerImage),
         }
     }
+
+    pub(super) fn into_vec(mut self) -> Result<Vec<u8>, Error> {
+        match self.image.take() {
+            None => Err(Error::NullElement),
+            Some(img) => Ok(img.into_vec()),
+        }
+    }
 }
