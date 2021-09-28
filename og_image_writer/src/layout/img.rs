@@ -1,14 +1,14 @@
 use image::ImageError;
 
 use crate::element::{Element, Img, Rect};
-use crate::img::{open_and_resize, open_and_resize_with_data, round};
+use crate::img::{open_and_resize, open_and_resize_with_data, round, ImageInfo};
 use crate::style::Style;
 use crate::writer::OGImageWriter;
 use crate::Error;
 use std::str;
 
 impl<'a> OGImageWriter<'a> {
-    fn process_img(&mut self, img: Element<'a>, width: u32, height: u32) {
+    pub(super) fn process_img(&mut self, img: Element<'a>, width: u32, height: u32) {
         if !img.is_absolute() {
             self.content.height += height;
             self.content.width = if self.content.width > width {
@@ -28,7 +28,7 @@ impl<'a> OGImageWriter<'a> {
         height: u32,
         style: Style<'a>,
     ) -> Result<(), Error> {
-        let (mut buf, size) = open_and_resize(src, width, height)?;
+        let ImageInfo(mut buf, size) = open_and_resize(src, width, height)?;
 
         // TODO: support border for image
         round(&mut buf, &mut style.border_radius.clone(), 0.);
@@ -53,7 +53,7 @@ impl<'a> OGImageWriter<'a> {
         height: u32,
         style: Style<'a>,
     ) -> Result<(), ImageError> {
-        let (mut buf, size) = open_and_resize_with_data(data, width, height)?;
+        let ImageInfo(mut buf, size) = open_and_resize_with_data(data, width, height)?;
 
         // TODO: support border for image
         round(&mut buf, &mut style.border_radius.clone(), 0.);

@@ -25,7 +25,7 @@ pub struct OGImageWriter<'a> {
 
 impl<'a> OGImageWriter<'a> {
     /// Set window style. Window act like CSS `flexbox`.
-    pub fn new(window: WindowStyle) -> Self {
+    pub fn new(window: WindowStyle) -> Result<Self, Error> {
         let context = Context::new(window.width, window.height);
 
         let mut this = OGImageWriter {
@@ -35,9 +35,9 @@ impl<'a> OGImageWriter<'a> {
             content: Content::default(),
         };
 
-        this.process_background();
+        this.process_background()?;
 
-        this
+        Ok(this)
     }
 
     /// Set window style. Window act like CSS `flexbox`.
@@ -45,8 +45,13 @@ impl<'a> OGImageWriter<'a> {
     pub fn from_data(window: WindowStyle, data: &[u8]) -> Result<Self, Error> {
         let context = Context::from_data(data)?;
 
-        let width = context.image.width();
-        let height = context.image.height();
+        let image = match &context.image {
+            Some(image) => image,
+            None => return Err(Error::NotFoundContainerImage),
+        };
+
+        let width = image.width();
+        let height = image.height();
 
         Ok(OGImageWriter {
             context,
@@ -97,27 +102,44 @@ impl<'a> OGImageWriter<'a> {
         self.process_img_with_data(data, width, height, style)
     }
 
+    pub fn set_container(
+        &mut self,
+        writer: &mut OGImageWriter,
+        style: Style<'a>,
+    ) -> Result<(), Error> {
+        writer.paint()?;
+
+        self.process_container(writer, style)?;
+
+        Ok(())
+    }
+
     /// Generate your image.
     pub fn generate(&mut self, dest: &Path) -> Result<(), Error> {
+        self.paint()?;
+
+        self.context.save(dest)
+    }
+
+    fn paint(&mut self) -> Result<(), Error> {
         self.process();
 
         while let Some(elm) = self.tree.pop() {
             match elm {
-                Element::Img(Some(img)) => self.paint_img(img),
-                Element::Text(Some(text)) => self.paint_text(text),
+                Element::Img(Some(img)) => self.paint_img(img)?,
+                Element::Text(Some(text)) => self.paint_text(text)?,
                 _ => return Err(Error::NullElement),
             }
         }
 
-        self.context.save(dest)?;
         Ok(())
     }
 
-    fn paint_img(&mut self, img: Img) {
-        self.context.draw_image(img.buf, img.rect.x, img.rect.y);
+    fn paint_img(&mut self, img: Img) -> Result<(), Error> {
+        self.context.draw_image(img.buf, img.rect.x, img.rect.y)
     }
 
-    fn paint_text(&mut self, text_elm: Text<'a>) {
+    fn paint_text(&mut self, text_elm: Text<'a>) -> Result<(), Error> {
         let style = text_elm.style;
         for line in &text_elm.lines {
             self.context.draw_text(
@@ -127,7 +149,9 @@ impl<'a> OGImageWriter<'a> {
                 style.font_size,
                 &text_elm.font,
                 &text_elm.text[line.range.clone()],
-            );
+            )?;
         }
+
+        Ok(())
     }
 }

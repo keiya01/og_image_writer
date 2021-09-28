@@ -25,3 +25,7 @@ path = "absolute.rs"
 [[example]]
 name = "ellipsis"
 path = "ellipsis.rs"
+
+[[example]]
+name = "container"
+path = "container.rs"

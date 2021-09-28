@@ -1,9 +1,11 @@
+mod container;
 mod img;
 mod text;
 
 use super::element::Element;
 use super::style::{AlignItems, JustifyContent, Margin, TextAlign};
 use super::writer::OGImageWriter;
+use super::Error;
 
 impl<'a> OGImageWriter<'a> {
     pub(super) fn process(&mut self) {
@@ -160,13 +162,13 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 
-    pub(super) fn process_background(&mut self) {
+    pub(super) fn process_background(&mut self) -> Result<(), Error> {
         let window = &self.window;
         let background_color = match &window.background_color {
-            None => return,
+            None => return Ok(()),
             Some(color) => color,
         };
 
-        self.context.draw_background_color(*background_color);
+        self.context.draw_background_color(*background_color)
     }
 }

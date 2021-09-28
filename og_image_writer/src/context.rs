@@ -1,5 +1,5 @@
 use image::imageops::overlay;
-use image::{load_from_memory, ImageBuffer, ImageError, Rgba, RgbaImage};
+use image::{load_from_memory, ImageBuffer, Rgba, RgbaImage};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
 use rusttype::{Font, Scale};
@@ -13,19 +13,19 @@ pub(super) struct FontMetrics {
 }
 
 pub(super) struct Context {
-    pub image: RgbaImage,
+    pub image: Option<RgbaImage>,
 }
 
 impl Context {
     pub fn new(w: u32, h: u32) -> Self {
         let image = RgbaImage::new(w, h);
-        Self { image }
+        Self { image: Some(image) }
     }
 
     pub fn from_data(data: &[u8]) -> Result<Self, Error> {
         let image = load_from_memory(data)?;
         Ok(Self {
-            image: image.into_rgba8(),
+            image: Some(image.into_rgba8()),
         })
     }
 
@@ -47,12 +47,29 @@ impl Context {
         }
     }
 
-    pub fn draw_background_color(&mut self, rgba: Rgba<u8>) {
-        self.image = map_colors(&self.image, |_| rgba);
+    pub fn draw_background_color(&mut self, rgba: Rgba<u8>) -> Result<(), Error> {
+        let image = match &self.image {
+            Some(image) => image,
+            None => return Err(Error::NotFoundContainerImage),
+        };
+        self.image = Some(map_colors(image, |_| rgba));
+
+        Ok(())
     }
 
-    pub fn draw_image(&mut self, buf: ImageBuffer<Rgba<u8>, Vec<u8>>, x: u32, y: u32) {
-        overlay(&mut self.image, &buf, x, y);
+    pub fn draw_image(
+        &mut self,
+        buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
+        x: u32,
+        y: u32,
+    ) -> Result<(), Error> {
+        let image = match &mut self.image {
+            Some(image) => image,
+            None => return Err(Error::NotFoundContainerImage),
+        };
+        overlay(image, &buf, x, y);
+
+        Ok(())
     }
 
     pub fn draw_text(
@@ -63,19 +80,23 @@ impl Context {
         size: f32,
         font: &Font,
         text: &str,
-    ) {
-        draw_text_mut(
-            &mut self.image,
-            color,
-            x,
-            y,
-            Scale::uniform(size),
-            font,
-            text,
-        );
+    ) -> Result<(), Error> {
+        let image = match &mut self.image {
+            Some(image) => image,
+            None => return Err(Error::NotFoundContainerImage),
+        };
+        draw_text_mut(image, color, x, y, Scale::uniform(size), font, text);
+
+        Ok(())
     }
 
-    pub fn save(&self, path: &Path) -> Result<(), ImageError> {
-        self.image.save(path)
+    pub fn save(&self, path: &Path) -> Result<(), Error> {
+        match &self.image {
+            Some(image) => {
+                image.save(path)?;
+                Ok(())
+            }
+            None => Err(Error::NotFoundContainerImage),
+        }
     }
 }

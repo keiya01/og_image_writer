@@ -9,4 +9,6 @@ pub enum Error {
     ImageError(#[from] ImageError),
     #[error("failed to parse invalid font bytes")]
     InvalidFontBytes,
+    #[error("Container image could not found")]
+    NotFoundContainerImage,
 }
