@@ -59,8 +59,6 @@ pub struct Style<'a> {
     /// For Text element
     pub font_size: f32,
     /// For Text element
-    pub font_family: Option<Vec<u8>>,
-    /// For Text element
     pub word_break: WordBreak,
     /// For Text element
     pub color: Rgba<u8>,
@@ -85,7 +83,6 @@ impl<'a> Default for Style<'a> {
             margin: Margin::default(),
             line_height: 1.5,
             font_size: 30.,
-            font_family: None,
             word_break: WordBreak::Normal,
             color: Rgba([0, 0, 0, 255]),
             text_align: TextAlign::Start,
