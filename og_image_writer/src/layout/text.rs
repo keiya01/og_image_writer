@@ -1,6 +1,7 @@
+use super::textarea::TextArea;
 use crate::element::{Element, Line, Rect, Text};
 use crate::line_breaker::LineBreaker;
-use crate::style::{AlignItems, Margin, Position, Style, TextAlign, TextOverflow, WordBreak};
+use crate::style::{AlignItems, Margin, Position, Style, TextAlign, TextOverflow};
 use crate::writer::OGImageWriter;
 use crate::Error;
 use rusttype::Font;
@@ -9,8 +10,10 @@ use std::str;
 impl<'a> OGImageWriter<'a> {
     pub(crate) fn process_text(
         &mut self,
-        text: &'a str,
+        textarea: TextArea,
+        // Parent style that effect child element
         style: Style<'a>,
+        // Parent font that effect child element
         font: Vec<u8>,
     ) -> Result<(), Error> {
         let font = match Font::try_from_vec(font) {
@@ -33,44 +36,24 @@ impl<'a> OGImageWriter<'a> {
 
         let text_area_width = window_width as i32 - left - right;
 
-        let mut line_breaker = LineBreaker::new(text);
-        match style.word_break {
-            WordBreak::Normal => line_breaker.break_text_with_whitespace(
-                &self.context,
-                text_area_width as f32,
-                style.font_size,
-                &font,
-            ),
-            WordBreak::BreakAll => line_breaker.break_text_with_char(
-                &self.context,
-                text_area_width as f32,
-                style.font_size,
-                &font,
-            ),
-        }
+        let text = textarea.as_string();
 
-        let mut max_line_height = 0.;
-        let mut max_line_width = 0.;
-        for line in &line_breaker.lines {
-            let extents = self
-                .context
-                .text_extents(&text[line.clone()], style.font_size, &font);
+        let mut line_breaker = LineBreaker::new(&text);
+        line_breaker.break_text(
+            &self.context,
+            text_area_width as f32,
+            &style,
+            &font,
+            textarea,
+        )?;
 
-            max_line_height = if extents.height > max_line_height {
-                extents.height
-            } else {
-                max_line_height
-            };
-
-            max_line_width = if extents.width > max_line_width {
-                extents.width
-            } else {
-                max_line_width
-            };
-        }
+        // Calculate line size
+        let max_line_height = line_breaker.max_line_height;
+        let max_line_width = line_breaker.max_line_width;
 
         let mut lines: Vec<Line> = vec![];
 
+        // Calculate line position
         let mut total_height = 0.;
         let line_height = max_line_height * style.line_height / 2. - max_line_height / 2.;
         let lines_len = line_breaker.lines.len();
@@ -97,20 +80,18 @@ impl<'a> OGImageWriter<'a> {
                 AlignItems::End => window_width - max_line_width,
             };
 
-            let text_content = &text[line.clone()];
-
-            let extents = self
-                .context
-                .text_extents(text_content, style.font_size, &font);
             let content_box_inline = match style.text_align {
                 TextAlign::Start => 0.,
-                TextAlign::Center => max_line_width / 2. - extents.width / 2.,
-                TextAlign::End => max_line_width - extents.width,
+                TextAlign::Center => max_line_width / 2. - line.width / 2.,
+                TextAlign::End => max_line_width - line.width,
             } + logical_inline;
 
             if lines_len == 1 {
                 total_height = next_height;
-                lines.push(Line::new(line, Rect::new(content_box_inline as u32, 0)));
+                lines.push(Line::new(
+                    line.range,
+                    Rect::new(content_box_inline as u32, 0),
+                ));
                 break;
             }
 
@@ -123,7 +104,7 @@ impl<'a> OGImageWriter<'a> {
 
             total_height = next_height;
             lines.push(Line::new(
-                line,
+                line.range,
                 Rect::new(content_box_inline as u32, pos_y as u32),
             ));
         }

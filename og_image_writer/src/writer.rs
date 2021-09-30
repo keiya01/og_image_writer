@@ -4,6 +4,7 @@ use crate::Error;
 
 use super::context::Context;
 use super::element::{Element, Img, Text};
+use super::layout::TextArea;
 use super::style::{Style, WindowStyle};
 use std::{path::Path, str};
 
@@ -77,7 +78,9 @@ impl<'a> OGImageWriter<'a> {
         style: Style<'a>,
         font: Vec<u8>,
     ) -> Result<(), Error> {
-        self.process_text(text, style, font)
+        let mut text_area = TextArea::new();
+        text_area.push_text(text);
+        self.process_text(text_area, style, font)
     }
 
     /// Set image you want to write to image. And set the image element style.
