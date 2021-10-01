@@ -36,7 +36,7 @@ impl<'a> LineBreaker<'a> {
         width: f32,
         style: &Style,
         font: &Font,
-        textarea: TextArea,
+        textarea: &TextArea,
     ) -> Result<(), Error> {
         let chars = self.title.char_indices();
 
@@ -45,11 +45,13 @@ impl<'a> LineBreaker<'a> {
         let mut line_height = 0.;
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
+            let ch_len = ch.to_string().len();
+
             if ch.is_whitespace() {
-                last_whitespace_idx = i + ch.to_string().len();
+                last_whitespace_idx = i + ch_len;
             }
 
-            let split_text = textarea.get_split_text_from_char_range(range.end..i)?;
+            let split_text = textarea.get_split_text_from_char_range(range.end..i + ch_len)?;
             let font_size = match &split_text.style {
                 Some(style) => style.font_size,
                 None => style.font_size,
@@ -97,7 +99,7 @@ impl<'a> LineBreaker<'a> {
                 }
             }
 
-            range.end = i + ch.to_string().len();
+            range.end = i + ch_len;
             line_width += ch_width;
             line_height = if extents.height > line_height {
                 extents.height
@@ -162,7 +164,7 @@ mod tests {
                     ..Style::default()
                 },
                 &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
-                textarea,
+                &textarea,
             )
             .unwrap();
 
@@ -200,7 +202,7 @@ mod tests {
                     ..Style::default()
                 },
                 &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
-                textarea,
+                &textarea,
             )
             .unwrap();
 

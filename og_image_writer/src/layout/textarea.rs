@@ -3,6 +3,7 @@ use crate::Error;
 use rusttype::Font;
 use std::{ops::Range, str};
 
+#[derive(Debug)]
 pub(crate) struct SplitText<'a> {
     pub(crate) text: &'a str,
     pub(crate) style: Option<Style<'a>>,
@@ -10,14 +11,15 @@ pub(crate) struct SplitText<'a> {
     pub(crate) range: Range<usize>,
 }
 
-pub struct TextArea<'a>(Vec<SplitText<'a>>);
+#[derive(Debug, Default)]
+pub struct TextArea<'a>(pub(super) Vec<SplitText<'a>>);
 
 impl<'a> TextArea<'a> {
-    pub(crate) fn new() -> TextArea<'a> {
+    pub fn new() -> TextArea<'a> {
         TextArea(vec![])
     }
 
-    pub(crate) fn push(
+    pub fn push(
         &mut self,
         text: &'a str,
         style: Style<'a>,
@@ -45,7 +47,7 @@ impl<'a> TextArea<'a> {
         Ok(())
     }
 
-    pub(crate) fn push_text(&mut self, text: &'a str) {
+    pub fn push_text(&mut self, text: &'a str) {
         let last_range_end = match self.0.iter().last() {
             Some(split) => split.range.end,
             None => 0,

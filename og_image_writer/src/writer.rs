@@ -4,9 +4,9 @@ use crate::Error;
 
 use super::context::Context;
 use super::element::{Element, Img, Text};
-use super::layout::TextArea;
+use super::layout::{TextArea, SplitText};
 use super::style::{Style, WindowStyle};
-use std::{path::Path, str};
+use std::{path::Path, str, cell::RefCell};
 
 #[derive(Default)]
 pub(super) struct Content {
@@ -78,9 +78,18 @@ impl<'a> OGImageWriter<'a> {
         style: Style<'a>,
         font: Vec<u8>,
     ) -> Result<(), Error> {
-        let mut text_area = TextArea::new();
-        text_area.push_text(text);
-        self.process_text(text_area, style, font)
+        let textarea = RefCell::new(TextArea::new());
+        textarea.borrow_mut().push_text(text);
+        self.process_text(textarea, style, font)
+    }
+
+    pub fn set_textarea(
+        &mut self,
+        textarea: TextArea<'a>,
+        style: Style<'a>,
+        font: Vec<u8>
+    ) -> Result<(), Error> {
+        self.process_text(RefCell::new(textarea), style, font)
     }
 
     /// Set image you want to write to image. And set the image element style.
@@ -148,15 +157,72 @@ impl<'a> OGImageWriter<'a> {
 
     fn paint_text(&mut self, text_elm: Text<'a>) -> Result<(), Error> {
         let style = text_elm.style;
+        let mut current_split_text: Option<&SplitText> = None;
+        let mut range = 0..0;
         for line in &text_elm.lines {
-            self.context.draw_text(
-                style.color,
-                line.rect.x,
-                line.rect.y,
-                style.font_size,
-                &text_elm.font,
-                &text_elm.text[line.range.clone()],
-            )?;
+            let text = &text_elm.text[line.range.clone()];
+            for (i, ch) in text.char_indices() {
+                range.end = i + ch.to_string().len();
+
+                let split_text = text_elm.textarea.get_split_text_from_char_range(range.clone())?;
+                let contained = match &current_split_text {
+                    Some(current_split_text) => split_text.range.start >= current_split_text.range.start && split_text.range.end <= current_split_text.range.end,
+                    None => {
+                        current_split_text = Some(split_text);
+                        true
+                    }
+                };
+
+                if !contained {
+                    // current_split_text is always Some.
+                    let inner_split_text = current_split_text.unwrap();
+
+                    let font_size = match &inner_split_text.style {
+                        Some(style) => style.font_size,
+                        None => style.font_size,
+                    };
+                    let font = match &inner_split_text.font {
+                        Some(font) => font,
+                        None => &text_elm.font,
+                    };
+
+                    self.context.draw_text(
+                        style.color,
+                        line.rect.x,
+                        line.rect.y,
+                        font_size,
+                        font,
+                        &text[range.clone()],
+                    )?;
+
+                    range = range.end..range.end;
+
+                    current_split_text = Some(split_text);
+                }
+            }
+            if let Some(inner_split_text) = current_split_text {
+                if range.is_empty() {
+                    continue;
+                }
+
+                let font_size = match &inner_split_text.style {
+                    Some(style) => style.font_size,
+                    None => style.font_size,
+                };
+                let font = match &inner_split_text.font {
+                    Some(font) => font,
+                    None => &text_elm.font,
+                };
+
+                self.context.draw_text(
+                    style.color,
+                    line.rect.x,
+                    line.rect.y,
+                    font_size,
+                    font,
+                    &text[range.clone()],
+                )?;
+            }
         }
 
         Ok(())

@@ -6,11 +6,12 @@ use crate::writer::OGImageWriter;
 use crate::Error;
 use rusttype::Font;
 use std::str;
+use std::cell::RefCell;
 
 impl<'a> OGImageWriter<'a> {
     pub(crate) fn process_text(
         &mut self,
-        textarea: TextArea,
+        textarea: RefCell<TextArea<'a>>,
         // Parent style that effect child element
         style: Style<'a>,
         // Parent font that effect child element
@@ -36,7 +37,7 @@ impl<'a> OGImageWriter<'a> {
 
         let text_area_width = window_width as i32 - left - right;
 
-        let text = textarea.as_string();
+        let text = textarea.borrow().as_string();
 
         let mut line_breaker = LineBreaker::new(&text);
         line_breaker.break_text(
@@ -44,7 +45,7 @@ impl<'a> OGImageWriter<'a> {
             text_area_width as f32,
             &style,
             &font,
-            textarea,
+            &textarea.borrow(),
         )?;
 
         // Calculate line size
@@ -109,12 +110,14 @@ impl<'a> OGImageWriter<'a> {
             ));
         }
 
-        let text = if is_overflow {
+        let text =
+        if is_overflow {
             self.set_ellipsis(
                 &text[0..lines.last().unwrap().range.end],
                 &mut lines,
                 &style,
                 &font,
+                &mut textarea.borrow_mut(),
             )
         } else {
             text.to_string()
@@ -127,6 +130,7 @@ impl<'a> OGImageWriter<'a> {
             style,
             font,
             max_line_height,
+            textarea.into_inner(),
         )));
 
         if !text_elm.is_absolute() {
@@ -149,6 +153,7 @@ impl<'a> OGImageWriter<'a> {
         lines: &mut Vec<Line>,
         style: &Style,
         font: &Font,
+        textarea: &mut TextArea,
     ) -> String {
         let ellipsis = match style.text_overflow {
             TextOverflow::Ellipsis => "...",
@@ -175,6 +180,18 @@ impl<'a> OGImageWriter<'a> {
         }
 
         if let Some(line) = lines.last_mut() {
+            // shape TextArea with ellipsis
+            let mut total_ellipsis_len = ellipsis.len();
+            while let Some(mut split_text) = textarea.0.pop() {
+                if split_text.range.len() > total_ellipsis_len {
+                    split_text.range.end -= total_ellipsis_len;
+                    textarea.0.push(split_text);
+                    break;
+                } else {
+                    total_ellipsis_len -= split_text.range.len();
+                }
+            }
+
             let next_range = line.range.start..split_index + ellipsis.len();
             line.range = next_range.clone();
             let mut next_text = text[0..split_index].to_string().clone();

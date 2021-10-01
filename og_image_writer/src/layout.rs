@@ -3,7 +3,8 @@ mod img;
 mod text;
 mod textarea;
 
-pub(super) use textarea::TextArea;
+pub use textarea::TextArea;
+pub(super) use textarea::SplitText;
 
 use super::element::Element;
 use super::style::{AlignItems, JustifyContent, Margin, TextAlign};

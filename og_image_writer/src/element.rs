@@ -1,4 +1,5 @@
 use super::style::{Position, Style};
+use super::layout::TextArea;
 use image::{ImageBuffer, Rgba};
 use rusttype::Font;
 use std::ops::Range;
@@ -78,6 +79,7 @@ pub struct Text<'a> {
     pub(super) style: Style<'a>,
     pub(super) font: Font<'a>,
     pub(super) max_line_height: f32,
+    pub(super) textarea: TextArea<'a>,
 }
 
 impl<'a> Text<'a> {
@@ -88,6 +90,7 @@ impl<'a> Text<'a> {
         style: Style<'a>,
         font: Font<'a>,
         max_line_height: f32,
+        textarea: TextArea<'a>,
     ) -> Self {
         Text {
             text,
@@ -96,6 +99,7 @@ impl<'a> Text<'a> {
             style,
             font,
             max_line_height,
+            textarea,
         }
     }
 }
