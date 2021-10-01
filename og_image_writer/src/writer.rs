@@ -4,9 +4,9 @@ use crate::Error;
 
 use super::context::Context;
 use super::element::{Element, Img, Text};
-use super::layout::{TextArea, SplitText};
+use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
-use std::{path::Path, str, cell::RefCell};
+use std::{cell::RefCell, path::Path, str};
 
 #[derive(Default)]
 pub(super) struct Content {
@@ -87,7 +87,7 @@ impl<'a> OGImageWriter<'a> {
         &mut self,
         textarea: TextArea<'a>,
         style: Style<'a>,
-        font: Vec<u8>
+        font: Vec<u8>,
     ) -> Result<(), Error> {
         self.process_text(RefCell::new(textarea), style, font)
     }
@@ -164,9 +164,14 @@ impl<'a> OGImageWriter<'a> {
             for (i, ch) in text.char_indices() {
                 range.end = i + ch.to_string().len();
 
-                let split_text = text_elm.textarea.get_split_text_from_char_range(range.clone())?;
+                let split_text = text_elm
+                    .textarea
+                    .get_split_text_from_char_range(range.clone())?;
                 let contained = match &current_split_text {
-                    Some(current_split_text) => split_text.range.start >= current_split_text.range.start && split_text.range.end <= current_split_text.range.end,
+                    Some(current_split_text) => {
+                        split_text.range.start >= current_split_text.range.start
+                            && split_text.range.end <= current_split_text.range.end
+                    }
                     None => {
                         current_split_text = Some(split_text);
                         true

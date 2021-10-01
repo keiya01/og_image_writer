@@ -1,5 +1,5 @@
-use super::style::{Position, Style};
 use super::layout::TextArea;
+use super::style::{Position, Style};
 use image::{ImageBuffer, Rgba};
 use rusttype::Font;
 use std::ops::Range;

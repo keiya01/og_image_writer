@@ -19,12 +19,7 @@ impl<'a> TextArea<'a> {
         TextArea(vec![])
     }
 
-    pub fn push(
-        &mut self,
-        text: &'a str,
-        style: Style<'a>,
-        font: Vec<u8>,
-    ) -> Result<(), Error> {
+    pub fn push(&mut self, text: &'a str, style: Style<'a>, font: Vec<u8>) -> Result<(), Error> {
         let last_range_end = match self.0.iter().last() {
             Some(split) => split.range.end,
             None => 0,

@@ -5,8 +5,8 @@ use crate::style::{AlignItems, Margin, Position, Style, TextAlign, TextOverflow}
 use crate::writer::OGImageWriter;
 use crate::Error;
 use rusttype::Font;
-use std::str;
 use std::cell::RefCell;
+use std::str;
 
 impl<'a> OGImageWriter<'a> {
     pub(crate) fn process_text(
@@ -110,8 +110,7 @@ impl<'a> OGImageWriter<'a> {
             ));
         }
 
-        let text =
-        if is_overflow {
+        let text = if is_overflow {
             self.set_ellipsis(
                 &text[0..lines.last().unwrap().range.end],
                 &mut lines,
