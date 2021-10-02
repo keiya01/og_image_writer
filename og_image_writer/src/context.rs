@@ -2,7 +2,7 @@ use image::imageops::overlay;
 use image::{load_from_memory, ImageBuffer, Rgba, RgbaImage};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
-use rusttype::{Font, Scale};
+use rusttype::{Font, Scale, IntoGlyphId};
 use std::path::Path;
 
 use crate::Error;
@@ -44,6 +44,21 @@ impl Context {
         FontMetrics {
             height: vmetrics.ascent + vmetrics.descent,
             width,
+        }
+    }
+
+    pub fn char_extents(&self, ch: char, size: f32, font: &Font) -> FontMetrics {
+        let glyph_id = ch.into_glyph_id(font);
+        let glyph = font.glyph(glyph_id);
+        let scale = Scale::uniform(size);
+        let vmetrics = font.v_metrics(scale);
+
+        let sg = glyph.scaled(scale);
+        let hmetrics = sg.h_metrics();
+
+        FontMetrics {
+            height: vmetrics.ascent + vmetrics.descent,
+            width: hmetrics.advance_width,
         }
     }
 

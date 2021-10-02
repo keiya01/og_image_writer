@@ -117,7 +117,7 @@ impl<'a> OGImageWriter<'a> {
                 &style,
                 &font,
                 &mut textarea.borrow_mut(),
-            )
+            )?
         } else {
             text.to_string()
         };
@@ -153,11 +153,11 @@ impl<'a> OGImageWriter<'a> {
         style: &Style,
         font: &Font,
         textarea: &mut TextArea,
-    ) -> String {
+    ) -> Result<String, Error> {
         let ellipsis = match style.text_overflow {
             TextOverflow::Ellipsis => "...",
             TextOverflow::Content(s) => s,
-            TextOverflow::Clip => return text.to_string(),
+            TextOverflow::Clip => return Ok(text.to_string()),
         };
 
         let ellipsis_width = self
@@ -168,10 +168,16 @@ impl<'a> OGImageWriter<'a> {
         let mut total_char_width = 0.;
         let mut split_index = 0;
         for (i, ch) in text.char_indices().rev() {
-            total_char_width += self
-                .context
-                .text_extents(&ch.to_string(), style.font_size, font)
-                .width;
+            let split_text = textarea.get_split_text_from_char_range(i..i + ch.to_string().len())?;
+            let font_size = match &split_text.style {
+                Some(style) => style.font_size,
+                None => style.font_size,
+            };
+            let font = match &split_text.font {
+                Some(font) => font,
+                None => font,
+            };
+            total_char_width += self.context.char_extents(ch, font_size, font).width;
             if total_char_width > ellipsis_width {
                 break;
             }
@@ -195,9 +201,9 @@ impl<'a> OGImageWriter<'a> {
             line.range = next_range.clone();
             let mut next_text = text[0..split_index].to_string().clone();
             next_text.push_str(ellipsis);
-            return next_text;
+            return Ok(next_text);
         }
 
-        text.to_string()
+        Ok(text.to_string())
     }
 }

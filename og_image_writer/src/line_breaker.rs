@@ -41,15 +41,14 @@ impl<'a> LineBreaker<'a> {
         let chars = self.title.char_indices();
 
         let mut last_whitespace_idx = 0;
+        let mut last_whitespace_width = 0.;
+        // Space between whitespace and whitespace
+        let mut word_width = 0.;
         let mut range = 0..0;
         let mut line_height = 0.;
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
             let ch_len = ch.to_string().len();
-
-            if ch.is_whitespace() {
-                last_whitespace_idx = i + ch_len;
-            }
 
             let split_text = textarea.get_split_text_from_char_range(range.end..i + ch_len)?;
             let font_size = match &split_text.style {
@@ -60,7 +59,7 @@ impl<'a> LineBreaker<'a> {
                 Some(font) => font,
                 None => font,
             };
-            let extents = context.text_extents(&ch.to_string(), font_size, font);
+            let extents = context.char_extents(ch, font_size, font);
 
             let ch_width = extents.width;
 
@@ -68,6 +67,7 @@ impl<'a> LineBreaker<'a> {
                 match style.word_break {
                     WordBreak::Normal => {
                         let end = range.end;
+                        line_width -= word_width + last_whitespace_width;
                         self.lines.push(Line {
                             range: range.start..last_whitespace_idx,
                             height: line_height,
@@ -78,7 +78,7 @@ impl<'a> LineBreaker<'a> {
                             width: line_width,
                         });
                         range = last_whitespace_idx..end;
-                        line_width = 0.;
+                        line_width = word_width;
                         line_height = 0.;
                     }
                     WordBreak::BreakAll => {
@@ -101,6 +101,12 @@ impl<'a> LineBreaker<'a> {
 
             range.end = i + ch_len;
             line_width += ch_width;
+            word_width += ch_width;
+            if ch.is_whitespace() {
+                last_whitespace_idx = i + ch_len;
+                last_whitespace_width = extents.width;
+                word_width = 0.;
+            }
             line_height = if extents.height > line_height {
                 extents.height
             } else {
@@ -110,6 +116,10 @@ impl<'a> LineBreaker<'a> {
 
         self.lines.push(Line {
             range,
+            height: line_height,
+            width: line_width,
+        });
+        self.set_max_line_size(FontMetrics {
             height: line_height,
             width: line_width,
         });
@@ -150,6 +160,9 @@ mod tests {
         let context = Context::new(width, height);
 
         let text = "Hello World, Hello World";
+        let font_size = 16.;
+        let font = Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
@@ -159,11 +172,11 @@ mod tests {
                 &context,
                 width as f32,
                 &Style {
-                    font_size: 16.,
+                    font_size,
                     word_break: WordBreak::Normal,
                     ..Style::default()
                 },
-                &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+                &font,
                 &textarea,
             )
             .unwrap();
