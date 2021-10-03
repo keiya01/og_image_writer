@@ -68,7 +68,7 @@ impl<'a> OGImageWriter<'a> {
             };
 
             match style.max_height {
-                Some(max_height) if next_height > max_height as f32 => {
+                Some(max_height) if next_height > max_height as f32 && lines_len - i > 1 => {
                     is_overflow = true;
                     break;
                 }
@@ -179,9 +179,9 @@ impl<'a> OGImageWriter<'a> {
             };
             total_char_width += self.context.char_extents(ch, font_size, font).width;
             if total_char_width > ellipsis_width {
+                split_index = i;
                 break;
             }
-            split_index = i;
         }
 
         if let Some(line) = lines.last_mut() {
