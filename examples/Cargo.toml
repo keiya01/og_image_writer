@@ -34,3 +34,7 @@ path = "container.rs"
 [[example]]
 name = "into_vec"
 path = "into_vec.rs"
+
+[[example]]
+name = "textarea"
+path = "textarea.rs"
