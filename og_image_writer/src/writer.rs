@@ -83,6 +83,7 @@ impl<'a> OGImageWriter<'a> {
         self.process_text(textarea, style, font)
     }
 
+    /// Set [TextArea](super::TextArea) to image.
     pub fn set_textarea(
         &mut self,
         textarea: TextArea<'a>,
@@ -114,6 +115,7 @@ impl<'a> OGImageWriter<'a> {
         self.process_img_with_data(data, width, height, style)
     }
 
+    /// Set generated image by [OGImageWriter](Self) on parent image
     pub fn set_container(
         &mut self,
         writer: &mut OGImageWriter,

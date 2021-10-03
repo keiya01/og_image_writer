@@ -11,6 +11,8 @@ pub(crate) struct SplitText<'a> {
     pub(crate) range: Range<usize>,
 }
 
+/// TextArea is box to store each text with style.
+/// For example you can set style to text one by one.
 #[derive(Debug, Default)]
 pub struct TextArea<'a>(pub(super) Vec<SplitText<'a>>);
 
@@ -19,6 +21,7 @@ impl<'a> TextArea<'a> {
         TextArea(vec![])
     }
 
+    /// Push text with style.
     pub fn push(
         &mut self,
         text: &'a str,
@@ -50,6 +53,9 @@ impl<'a> TextArea<'a> {
         Ok(())
     }
 
+    /// Push text without style.
+    /// Style is override with parent style.
+    /// Parent style is set with [`OGImageWriter::set_textarea()`](crate::writer::OGImageWriter::set_textarea).
     pub fn push_text(&mut self, text: &'a str) {
         let last_range_end = match self.0.iter().last() {
             Some(split) => split.range.end,
