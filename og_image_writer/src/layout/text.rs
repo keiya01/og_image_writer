@@ -48,7 +48,6 @@ impl<'a> OGImageWriter<'a> {
             &textarea.borrow(),
         )?;
 
-        // Calculate line size
         let max_line_height = line_breaker.max_line_height;
         let max_line_width = line_breaker.max_line_width;
 
