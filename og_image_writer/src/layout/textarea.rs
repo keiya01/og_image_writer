@@ -19,22 +19,30 @@ impl<'a> TextArea<'a> {
         TextArea(vec![])
     }
 
-    pub fn push(&mut self, text: &'a str, style: Style<'a>, font: Vec<u8>) -> Result<(), Error> {
+    pub fn push(
+        &mut self,
+        text: &'a str,
+        style: Style<'a>,
+        font: Option<Vec<u8>>,
+    ) -> Result<(), Error> {
         let last_range_end = match self.0.iter().last() {
             Some(split) => split.range.end,
             None => 0,
         };
 
-        let font = match Font::try_from_vec(font) {
-            Some(font) => font,
-            None => return Err(Error::InvalidFontBytes),
+        let font = match font {
+            Some(font) => Some(match Font::try_from_vec(font) {
+                Some(font) => font,
+                None => return Err(Error::InvalidFontBytes),
+            }),
+            None => None,
         };
 
         let split_text = SplitText {
             text,
             style: Some(style),
-            font: Some(font),
-            range: last_range_end..text.len(),
+            font,
+            range: last_range_end..last_range_end + text.len(),
         };
 
         self.0.push(split_text);
@@ -51,7 +59,7 @@ impl<'a> TextArea<'a> {
             text,
             style: None,
             font: None,
-            range: last_range_end..text.len(),
+            range: last_range_end..last_range_end + text.len(),
         };
 
         self.0.push(split_text);
@@ -65,17 +73,12 @@ impl<'a> TextArea<'a> {
         text
     }
 
-    // 引数のrangeとself.rangeを比較して範囲内であればsplit_textを返し、範囲外の場合は何も返さない
-    // 1文字毎のrangeが渡ってきてそれに対応するsplit_textを返すイメージ
-    pub(crate) fn get_split_text_from_char_range(
-        &self,
-        range: Range<usize>,
-    ) -> Result<&SplitText, Error> {
+    pub(crate) fn get_split_text_from_char_range(&self, range: Range<usize>) -> Option<&SplitText> {
         for split_text in &self.0 {
             if split_text.range.start <= range.start && range.end <= split_text.range.end {
-                return Ok(split_text);
+                return Some(split_text);
             }
         }
-        Err(Error::OutOfRangeText)
+        None
     }
 }

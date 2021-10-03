@@ -158,72 +158,87 @@ impl<'a> OGImageWriter<'a> {
     fn paint_text(&mut self, text_elm: Text<'a>) -> Result<(), Error> {
         let style = text_elm.style;
         let mut current_split_text: Option<&SplitText> = None;
-        let mut range = 0..0;
         for line in &text_elm.lines {
             let text = &text_elm.text[line.range.clone()];
+            let mut range = 0..0;
+            let mut current_width = 0;
             for (i, ch) in text.char_indices() {
-                range.end = i + ch.to_string().len();
-
-                let split_text = text_elm
-                    .textarea
-                    .get_split_text_from_char_range(range.clone())?;
-                let contained = match &current_split_text {
-                    Some(current_split_text) => {
-                        split_text.range.start >= current_split_text.range.start
-                            && split_text.range.end <= current_split_text.range.end
-                    }
-                    None => {
-                        current_split_text = Some(split_text);
-                        true
-                    }
+                let ch_len = ch.to_string().len();
+                let split_text = text_elm.textarea.get_split_text_from_char_range(
+                    line.range.start + i..line.range.start + i + ch_len,
+                );
+                let contained = match split_text {
+                    Some(split_text) => match &current_split_text {
+                        Some(current_split_text) => {
+                            split_text.range.start >= current_split_text.range.start
+                                && split_text.range.end <= current_split_text.range.end
+                        }
+                        None => {
+                            current_split_text = Some(split_text);
+                            true
+                        }
+                    },
+                    None => false,
                 };
 
                 if !contained {
                     // current_split_text is always Some.
-                    let inner_split_text = current_split_text.unwrap();
+                    let (style, font) = match current_split_text {
+                        Some(current_split_text) => {
+                            let style = match &current_split_text.style {
+                                Some(style) => style,
+                                None => &style,
+                            };
+                            let font = match &current_split_text.font {
+                                Some(font) => font,
+                                None => &text_elm.font,
+                            };
+                            (style, font)
+                        }
+                        None => (&style, &text_elm.font),
+                    };
 
-                    let font_size = match &inner_split_text.style {
-                        Some(style) => style.font_size,
-                        None => style.font_size,
-                    };
-                    let font = match &inner_split_text.font {
-                        Some(font) => font,
-                        None => &text_elm.font,
-                    };
+                    let next_text = &text[range.clone()];
 
                     self.context.draw_text(
                         style.color,
-                        line.rect.x,
+                        line.rect.x + current_width,
                         line.rect.y,
-                        font_size,
+                        style.font_size,
                         font,
-                        &text[range.clone()],
+                        next_text,
                     )?;
 
                     range = range.end..range.end;
-
-                    current_split_text = Some(split_text);
+                    current_width += self
+                        .context
+                        .text_extents(next_text, style.font_size, font)
+                        .width as u32;
+                    current_split_text = split_text;
                 }
+                range.end = i + ch_len;
             }
-            if let Some(inner_split_text) = current_split_text {
-                if range.is_empty() {
-                    continue;
-                }
-
-                let font_size = match &inner_split_text.style {
-                    Some(style) => style.font_size,
-                    None => style.font_size,
-                };
-                let font = match &inner_split_text.font {
-                    Some(font) => font,
-                    None => &text_elm.font,
+            if !range.is_empty() {
+                let (style, font) = match current_split_text {
+                    Some(inner_split_text) => {
+                        let style = match &inner_split_text.style {
+                            Some(style) => style,
+                            None => &style,
+                        };
+                        let font = match &inner_split_text.font {
+                            Some(font) => font,
+                            None => &text_elm.font,
+                        };
+                        (style, font)
+                    }
+                    None => (&style, &text_elm.font),
                 };
 
                 self.context.draw_text(
                     style.color,
-                    line.rect.x,
+                    line.rect.x + current_width,
                     line.rect.y,
-                    font_size,
+                    style.font_size,
                     font,
                     &text[range.clone()],
                 )?;

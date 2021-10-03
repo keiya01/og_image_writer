@@ -50,14 +50,20 @@ impl<'a> LineBreaker<'a> {
         for (i, ch) in chars.into_iter() {
             let ch_len = ch.to_string().len();
 
-            let split_text = textarea.get_split_text_from_char_range(range.end..i + ch_len)?;
-            let font_size = match &split_text.style {
-                Some(style) => style.font_size,
-                None => style.font_size,
-            };
-            let font = match &split_text.font {
-                Some(font) => font,
-                None => font,
+            let split_text = textarea.get_split_text_from_char_range(i..i + ch_len);
+            let (font_size, font) = match split_text {
+                Some(split_text) => {
+                    let font_size = match &split_text.style {
+                        Some(style) => style.font_size,
+                        None => style.font_size,
+                    };
+                    let font = match &split_text.font {
+                        Some(font) => font,
+                        None => font,
+                    };
+                    (font_size, font)
+                }
+                None => (style.font_size, font),
             };
             let extents = context.char_extents(ch, font_size, font);
 

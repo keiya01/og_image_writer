@@ -68,7 +68,7 @@ impl<'a> OGImageWriter<'a> {
             };
 
             match style.max_height {
-                Some(max_height) if next_height > max_height as f32 && lines_len - i > 1 => {
+                Some(max_height) if next_height > max_height as f32 => {
                     is_overflow = true;
                     break;
                 }
@@ -168,17 +168,23 @@ impl<'a> OGImageWriter<'a> {
         let mut total_char_width = 0.;
         let mut split_index = 0;
         for (i, ch) in text.char_indices().rev() {
-            let split_text = textarea.get_split_text_from_char_range(i..i + ch.to_string().len())?;
-            let font_size = match &split_text.style {
-                Some(style) => style.font_size,
-                None => style.font_size,
-            };
-            let font = match &split_text.font {
-                Some(font) => font,
-                None => font,
+            let split_text = textarea.get_split_text_from_char_range(i..i + ch.to_string().len());
+            let (font_size, font) = match split_text {
+                Some(split_text) => {
+                    let font_size = match &split_text.style {
+                        Some(style) => style.font_size,
+                        None => style.font_size,
+                    };
+                    let font = match &split_text.font {
+                        Some(font) => font,
+                        None => font,
+                    };
+                    (font_size, font)
+                }
+                None => (style.font_size, font),
             };
             total_char_width += self.context.char_extents(ch, font_size, font).width;
-            if total_char_width > ellipsis_width {
+            if total_char_width >= ellipsis_width {
                 split_index = i;
                 break;
             }
@@ -186,14 +192,13 @@ impl<'a> OGImageWriter<'a> {
 
         if let Some(line) = lines.last_mut() {
             // shape TextArea with ellipsis
-            let mut total_ellipsis_len = ellipsis.len();
             while let Some(mut split_text) = textarea.0.pop() {
-                if split_text.range.len() > total_ellipsis_len {
-                    split_text.range.end -= total_ellipsis_len;
+                if split_text.range.start <= split_index && split_index <= split_text.range.end {
+                    let end = split_text.range.end - split_index;
+                    split_text.range.end -= end;
+                    split_text.text = &split_text.text[0..split_text.text.len() - end];
                     textarea.0.push(split_text);
                     break;
-                } else {
-                    total_ellipsis_len -= split_text.range.len();
                 }
             }
 

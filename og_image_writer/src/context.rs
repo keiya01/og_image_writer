@@ -2,7 +2,7 @@ use image::imageops::overlay;
 use image::{load_from_memory, ImageBuffer, Rgba, RgbaImage};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
-use rusttype::{Font, Scale, IntoGlyphId};
+use rusttype::{Font, IntoGlyphId, Scale};
 use std::path::Path;
 
 use crate::Error;
