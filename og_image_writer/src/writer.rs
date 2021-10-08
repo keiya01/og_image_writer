@@ -4,8 +4,9 @@ use crate::Error;
 
 use super::context::Context;
 use super::element::{Element, Img, Text};
+use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
-use std::{path::Path, str};
+use std::{cell::RefCell, path::Path, str};
 
 #[derive(Default)]
 pub(super) struct Content {
@@ -77,7 +78,19 @@ impl<'a> OGImageWriter<'a> {
         style: Style<'a>,
         font: Vec<u8>,
     ) -> Result<(), Error> {
-        self.process_text(text, style, font)
+        let textarea = RefCell::new(TextArea::new());
+        textarea.borrow_mut().push_text(text);
+        self.process_text(textarea, style, font)
+    }
+
+    /// Set [TextArea](super::TextArea) to image.
+    pub fn set_textarea(
+        &mut self,
+        textarea: TextArea<'a>,
+        style: Style<'a>,
+        font: Vec<u8>,
+    ) -> Result<(), Error> {
+        self.process_text(RefCell::new(textarea), style, font)
     }
 
     /// Set image you want to write to image. And set the image element style.
@@ -102,6 +115,7 @@ impl<'a> OGImageWriter<'a> {
         self.process_img_with_data(data, width, height, style)
     }
 
+    /// Set generated image by [OGImageWriter](Self) on parent image
     pub fn set_container(
         &mut self,
         writer: &mut OGImageWriter,
@@ -145,15 +159,92 @@ impl<'a> OGImageWriter<'a> {
 
     fn paint_text(&mut self, text_elm: Text<'a>) -> Result<(), Error> {
         let style = text_elm.style;
+        let mut current_split_text: Option<&SplitText> = None;
         for line in &text_elm.lines {
-            self.context.draw_text(
-                style.color,
-                line.rect.x,
-                line.rect.y,
-                style.font_size,
-                &text_elm.font,
-                &text_elm.text[line.range.clone()],
-            )?;
+            let text = &text_elm.text[line.range.clone()];
+            let mut range = 0..0;
+            let mut current_width = 0;
+            for (i, ch) in text.char_indices() {
+                let ch_len = ch.to_string().len();
+                let split_text = text_elm.textarea.get_split_text_from_char_range(
+                    line.range.start + i..line.range.start + i + ch_len,
+                );
+                let contained = match split_text {
+                    Some(split_text) => match &current_split_text {
+                        Some(current_split_text) => {
+                            split_text.range.start >= current_split_text.range.start
+                                && split_text.range.end <= current_split_text.range.end
+                        }
+                        None => {
+                            current_split_text = Some(split_text);
+                            true
+                        }
+                    },
+                    None => false,
+                };
+
+                if !contained {
+                    // current_split_text is always Some.
+                    let (style, font) = match current_split_text {
+                        Some(current_split_text) => {
+                            let style = match &current_split_text.style {
+                                Some(style) => style,
+                                None => &style,
+                            };
+                            let font = match &current_split_text.font {
+                                Some(font) => font,
+                                None => &text_elm.font,
+                            };
+                            (style, font)
+                        }
+                        None => (&style, &text_elm.font),
+                    };
+
+                    let next_text = &text[range.clone()];
+
+                    self.context.draw_text(
+                        style.color,
+                        line.rect.x + current_width,
+                        line.rect.y,
+                        style.font_size,
+                        font,
+                        next_text,
+                    )?;
+
+                    range = range.end..range.end;
+                    current_width += self
+                        .context
+                        .text_extents(next_text, style.font_size, font)
+                        .width as u32;
+                    current_split_text = split_text;
+                }
+                range.end = i + ch_len;
+            }
+            if !range.is_empty() {
+                let (style, font) = match current_split_text {
+                    Some(inner_split_text) => {
+                        let style = match &inner_split_text.style {
+                            Some(style) => style,
+                            None => &style,
+                        };
+                        let font = match &inner_split_text.font {
+                            Some(font) => font,
+                            None => &text_elm.font,
+                        };
+                        (style, font)
+                    }
+                    None => (&style, &text_elm.font),
+                };
+
+                self.context.draw_text(
+                    style.color,
+                    line.rect.x + current_width,
+                    line.rect.y,
+                    style.font_size,
+                    font,
+                    &text[range.clone()],
+                )?;
+            }
         }
 
         Ok(())

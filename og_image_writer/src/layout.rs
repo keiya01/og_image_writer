@@ -1,6 +1,10 @@
 mod container;
 mod img;
 mod text;
+mod textarea;
+
+pub(super) use textarea::SplitText;
+pub use textarea::TextArea;
 
 use super::element::Element;
 use super::style::{AlignItems, JustifyContent, Margin, TextAlign};

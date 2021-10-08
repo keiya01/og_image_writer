@@ -1,10 +1,21 @@
-use super::context::Context;
+use super::context::{Context, FontMetrics};
+use super::layout::TextArea;
+use crate::style::{Style, WordBreak};
+use crate::Error;
 use rusttype::Font;
 use std::ops::Range;
 
-pub struct LineBreaker<'a> {
+pub(super) struct Line {
+    pub(super) range: Range<usize>,
+    pub(super) width: f32,
+    pub(super) height: f32,
+}
+
+pub(super) struct LineBreaker<'a> {
     pub(super) title: &'a str,
-    pub(super) lines: Vec<Range<usize>>,
+    pub(super) lines: Vec<Line>,
+    pub(super) max_line_height: f32,
+    pub(super) max_line_width: f32,
 }
 
 // TODO: support truncate text when overflow specified height.
@@ -13,83 +24,131 @@ impl<'a> LineBreaker<'a> {
         LineBreaker {
             title,
             lines: vec![],
+            max_line_height: 0.,
+            max_line_width: 0.,
         }
     }
 
     // TODO: support hyphenation
-    pub(super) fn break_text_with_whitespace(
+    pub(super) fn break_text(
         &mut self,
         context: &Context,
         width: f32,
-        font_size: f32,
+        style: &Style,
         font: &Font,
-    ) {
-        let text_arr: Vec<&str> = self.title.split_whitespace().collect();
-
-        let text_arr_len = text_arr.len();
-
-        let whitespace_width = context.text_extents(" ", font_size, font).width;
-        let whitespace_idx = 1;
-
-        let mut line = 0..0;
-        let mut line_width = 0.;
-        for (i, text) in text_arr.into_iter().enumerate() {
-            let extents = context.text_extents(text, font_size, font);
-
-            let is_last = text_arr_len - 1 == i;
-
-            let text_width = extents.width;
-            let text_width = if is_last {
-                text_width
-            } else {
-                text_width + whitespace_width
-            };
-
-            if width <= line_width + text_width {
-                let start = line.end;
-                self.lines.push(line);
-                line = start..start;
-                line_width = 0.;
-            }
-
-            line.end += text.len() + whitespace_idx;
-            line_width += text_width;
-        }
-
-        // End of line should not have whitespace
-        line.end -= whitespace_idx;
-
-        self.lines.push(line);
-    }
-
-    pub(super) fn break_text_with_char(
-        &mut self,
-        context: &Context,
-        width: f32,
-        font_size: f32,
-        font: &Font,
-    ) {
+        textarea: &TextArea,
+    ) -> Result<(), Error> {
         let chars = self.title.char_indices();
 
-        let mut line = 0..0;
+        let mut last_whitespace_idx = 0;
+        let mut last_whitespace_width = 0.;
+        // Space between whitespace and whitespace
+        let mut word_width = 0.;
+        let mut range = 0..0;
+        let mut line_height = 0.;
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
-            let extents = context.text_extents(&ch.to_string(), font_size, font);
+            let ch_len = ch.to_string().len();
+
+            let split_text = textarea.get_split_text_from_char_range(i..i + ch_len);
+            let (font_size, font) = match split_text {
+                Some(split_text) => {
+                    let font_size = match &split_text.style {
+                        Some(style) => style.font_size,
+                        None => style.font_size,
+                    };
+                    let font = match &split_text.font {
+                        Some(font) => font,
+                        None => font,
+                    };
+                    (font_size, font)
+                }
+                None => (style.font_size, font),
+            };
+            let extents = context.char_extents(ch, font_size, font);
 
             let ch_width = extents.width;
 
             if width <= line_width + ch_width {
-                let start = line.end;
-                self.lines.push(line);
-                line = start..start;
-                line_width = 0.;
+                match style.word_break {
+                    WordBreak::Normal => {
+                        let end = range.end;
+                        line_width -= word_width + last_whitespace_width;
+                        self.lines.push(Line {
+                            range: range.start..last_whitespace_idx,
+                            height: line_height,
+                            width: line_width,
+                        });
+                        self.set_max_line_size(FontMetrics {
+                            height: line_height,
+                            width: line_width,
+                        });
+                        range = last_whitespace_idx..end;
+                        line_width = word_width;
+                        line_height = 0.;
+                    }
+                    WordBreak::BreakAll => {
+                        let start = range.end;
+                        self.lines.push(Line {
+                            range,
+                            height: line_height,
+                            width: line_width,
+                        });
+                        self.set_max_line_size(FontMetrics {
+                            height: line_height,
+                            width: line_width,
+                        });
+                        range = start..start;
+                        line_width = 0.;
+                        line_height = 0.;
+                    }
+                }
             }
 
-            line.end = i + ch.to_string().len();
+            range.end = i + ch_len;
             line_width += ch_width;
+            word_width += ch_width;
+            if ch.is_whitespace() {
+                last_whitespace_idx = i + ch_len;
+                last_whitespace_width = extents.width;
+                word_width = 0.;
+            }
+            line_height = if extents.height > line_height {
+                extents.height
+            } else {
+                line_height
+            };
         }
 
-        self.lines.push(line);
+        self.lines.push(Line {
+            range,
+            height: line_height,
+            width: line_width,
+        });
+        self.set_max_line_size(FontMetrics {
+            height: line_height,
+            width: line_width,
+        });
+
+        Ok(())
+    }
+
+    // Calculate line size
+    pub fn set_max_line_size(&mut self, metrics: FontMetrics) {
+        let max_line_height = self.max_line_height;
+        let max_line_width = self.max_line_width;
+
+        self.max_line_height = if metrics.height > max_line_height {
+            metrics.height
+        } else {
+            max_line_height
+        };
+
+        self.max_line_width = if metrics.width > max_line_width {
+            metrics.width
+        } else {
+            max_line_width
+        };
     }
 }
 
@@ -97,6 +156,7 @@ impl<'a> LineBreaker<'a> {
 mod tests {
     use super::*;
     use crate::context::Context;
+    use crate::layout::TextArea;
     use rusttype::Font;
 
     #[test]
@@ -106,19 +166,36 @@ mod tests {
         let context = Context::new(width, height);
 
         let text = "Hello World, Hello World";
+        let font_size = 16.;
+        let font = Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let mut textarea = TextArea::new();
+        textarea.push_text(text);
+
         let mut line_breaker = LineBreaker::new(text);
-        line_breaker.break_text_with_whitespace(
-            &context,
-            width as f32,
-            16.,
-            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
-        );
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style {
+                    font_size,
+                    word_break: WordBreak::Normal,
+                    ..Style::default()
+                },
+                &font,
+                &textarea,
+            )
+            .unwrap();
 
         let expects = ["Hello World, ", "Hello World"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
-            if expects[i] != &text[line.clone()] {
-                panic!("expect '{}', but got '{}'", expects[i], &text[line.clone()]);
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
             }
         }
     }
@@ -130,19 +207,33 @@ mod tests {
         let context = Context::new(width, height);
 
         let text = "こんにちは世界、こんにちは世界";
+        let mut textarea = TextArea::new();
+        textarea.push_text(text);
+
         let mut line_breaker = LineBreaker::new(text);
-        line_breaker.break_text_with_char(
-            &context,
-            width as f32,
-            16.,
-            &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
-        );
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style {
+                    font_size: 16.,
+                    word_break: WordBreak::BreakAll,
+                    ..Style::default()
+                },
+                &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+                &textarea,
+            )
+            .unwrap();
 
         let expects = ["こんにちは世界、", "こんにちは世界"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
-            if expects[i] != &text[line.clone()] {
-                panic!("expect '{}', but got '{}'", expects[i], &text[line.clone()]);
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
             }
         }
     }

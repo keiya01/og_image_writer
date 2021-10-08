@@ -11,4 +11,6 @@ pub enum Error {
     InvalidFontBytes,
     #[error("Container image could not found")]
     NotFoundContainerImage,
+    #[error("Could not found text within range")]
+    OutOfRangeText,
 }
