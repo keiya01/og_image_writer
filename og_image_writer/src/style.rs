@@ -49,6 +49,12 @@ pub enum Position {
     Absolute,
 }
 
+#[derive(Debug)]
+pub enum FlexDirection {
+    Column,
+    Row,
+}
+
 /// Style is used by `text` or `img` element.
 /// Text element is `inline-block`, so you can adjust text position by using `text_align`.
 #[derive(Debug)]
@@ -65,6 +71,8 @@ pub struct Style<'a> {
     pub text_align: TextAlign,
     /// For Text element
     pub max_height: Option<u32>,
+    /// For Text element
+    pub max_width: Option<u32>,
     /// For Text element
     /// This property support multiline.
     pub text_overflow: TextOverflow<'a>,
@@ -87,6 +95,7 @@ impl<'a> Default for Style<'a> {
             color: Rgba([0, 0, 0, 255]),
             text_align: TextAlign::Start,
             max_height: None,
+            max_width: None,
             text_overflow: TextOverflow::Clip,
             position: Position::Static,
             top: None,
@@ -96,6 +105,12 @@ impl<'a> Default for Style<'a> {
             border_radius: BorderRadius::default(),
         }
     }
+}
+
+pub enum LogicalFlexRowPosition {
+    Start,
+    Center,
+    End,
 }
 
 /// Window is act like flexbox. And default direction is `column`.
@@ -108,6 +123,25 @@ pub struct WindowStyle {
     pub background_color: Option<Rgba<u8>>,
     pub align_items: AlignItems,
     pub justify_content: JustifyContent,
+    /// This controls the direction in which the children of a node are laid out.
+    pub flex_direction: FlexDirection,
+}
+
+impl WindowStyle {
+    pub fn logical_flex_row_position(&self) -> LogicalFlexRowPosition {
+        match &self.flex_direction {
+            FlexDirection::Column => match self.align_items {
+                AlignItems::Start => LogicalFlexRowPosition::Start,
+                AlignItems::Center => LogicalFlexRowPosition::Center,
+                AlignItems::End => LogicalFlexRowPosition::End,
+            },
+            FlexDirection::Row => match self.justify_content {
+                JustifyContent::Start => LogicalFlexRowPosition::Start,
+                JustifyContent::Center => LogicalFlexRowPosition::Center,
+                JustifyContent::End => LogicalFlexRowPosition::End,
+            },
+        }
+    }
 }
 
 impl Default for WindowStyle {
@@ -118,6 +152,7 @@ impl Default for WindowStyle {
             background_color: None,
             align_items: AlignItems::Start,
             justify_content: JustifyContent::Start,
+            flex_direction: FlexDirection::Column,
         }
     }
 }

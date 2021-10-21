@@ -2,7 +2,7 @@ use image::ImageError;
 
 use crate::element::{Element, Img, Rect};
 use crate::img::{open_and_resize, open_and_resize_with_data, round, ImageInfo};
-use crate::style::Style;
+use crate::style::{FlexDirection, Style};
 use crate::writer::OGImageWriter;
 use crate::Error;
 use std::str;
@@ -10,12 +10,19 @@ use std::str;
 impl<'a> OGImageWriter<'a> {
     pub(super) fn process_img(&mut self, img: Element<'a>, width: u32, height: u32) {
         if !img.is_absolute() {
-            self.content.height += height;
-            self.content.width = if self.content.width > width {
-                self.content.width
-            } else {
-                width
-            };
+            match self.window.flex_direction {
+                FlexDirection::Column => {
+                    self.content.height += height;
+                    self.content.width = if self.content.width > width {
+                        self.content.width
+                    } else {
+                        width
+                    };
+                }
+                FlexDirection::Row => {
+                    self.content.width += width;
+                }
+            }
         }
 
         self.tree.push(img);

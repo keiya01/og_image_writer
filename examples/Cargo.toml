@@ -38,3 +38,7 @@ path = "into_vec.rs"
 [[example]]
 name = "textarea"
 path = "textarea.rs"
+
+[[example]]
+name = "row_container"
+path = "row_container.rs"

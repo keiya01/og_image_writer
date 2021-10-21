@@ -79,6 +79,7 @@ pub struct Text<'a> {
     pub(super) style: Style<'a>,
     pub(super) font: Font<'a>,
     pub(super) max_line_height: f32,
+    pub(super) max_line_width: f32,
     pub(super) textarea: TextArea<'a>,
 }
 
@@ -90,6 +91,7 @@ impl<'a> Text<'a> {
         style: Style<'a>,
         font: Font<'a>,
         max_line_height: f32,
+        max_line_width: f32,
         textarea: TextArea<'a>,
     ) -> Self {
         Text {
@@ -99,6 +101,7 @@ impl<'a> Text<'a> {
             style,
             font,
             max_line_height,
+            max_line_width,
             textarea,
         }
     }

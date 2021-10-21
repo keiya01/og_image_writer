@@ -1,7 +1,7 @@
 use super::textarea::TextArea;
 use crate::element::{Element, Line, Rect, Text};
 use crate::line_breaker::LineBreaker;
-use crate::style::{AlignItems, Margin, Position, Style, TextAlign, TextOverflow};
+use crate::style::{FlexDirection, Margin, Position, Style, TextAlign, TextOverflow};
 use crate::writer::OGImageWriter;
 use crate::Error;
 use rusttype::Font;
@@ -24,7 +24,7 @@ impl<'a> OGImageWriter<'a> {
 
         let window_width = self.window.width as f32;
 
-        let Margin(_, margin_left, _, margin_right) = style.margin;
+        let Margin(margin_top, margin_left, margin_bottom, margin_right) = style.margin;
 
         let (left, right) = if matches!(style.position, Position::Absolute) {
             (
@@ -35,7 +35,11 @@ impl<'a> OGImageWriter<'a> {
             (margin_left, margin_right)
         };
 
-        let text_area_width = window_width as i32 - left - right;
+        let text_area_width = match style.max_width {
+            Some(max_width) => max_width as i32,
+            None => window_width as i32,
+        } - left
+            - right;
 
         let text = textarea.borrow().as_string();
 
@@ -74,17 +78,11 @@ impl<'a> OGImageWriter<'a> {
                 _ => {}
             }
 
-            let logical_inline = match &self.window.align_items {
-                AlignItems::Start => 0.,
-                AlignItems::Center => window_width / 2. - max_line_width / 2.,
-                AlignItems::End => window_width - max_line_width,
-            };
-
             let content_box_inline = match style.text_align {
                 TextAlign::Start => 0.,
                 TextAlign::Center => max_line_width / 2. - line.width / 2.,
                 TextAlign::End => max_line_width - line.width,
-            } + logical_inline;
+            };
 
             if lines_len == 1 {
                 total_height = next_height;
@@ -128,16 +126,28 @@ impl<'a> OGImageWriter<'a> {
             style,
             font,
             max_line_height,
+            max_line_width,
             textarea.into_inner(),
         )));
 
+        // TODO: refactor
         if !text_elm.is_absolute() {
-            self.content.height += total_height as u32;
-            self.content.width = if self.content.width > max_line_width as u32 {
-                self.content.width
-            } else {
-                max_line_width as u32
-            };
+            match self.window.flex_direction {
+                FlexDirection::Column => {
+                    self.content.height +=
+                        (total_height as i32 + margin_top + margin_bottom) as u32;
+                    let next_width = (max_line_width as i32 + margin_left + margin_right) as u32;
+                    self.content.width = if self.content.width > next_width {
+                        self.content.width
+                    } else {
+                        next_width
+                    };
+                }
+                FlexDirection::Row => {
+                    self.content.width +=
+                        (max_line_width as i32 + margin_left + margin_right) as u32;
+                }
+            }
         }
 
         self.tree.push(text_elm);
