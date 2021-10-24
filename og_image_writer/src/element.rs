@@ -1,5 +1,5 @@
 use super::layout::TextArea;
-use super::style::{Position, Style};
+use super::style::{Margin, Position, Style};
 use image::{ImageBuffer, Rgba};
 use rusttype::Font;
 use std::ops::Range;
@@ -18,44 +18,45 @@ impl<'a> Element<'a> {
             _ => false,
         }
     }
+
+    pub(super) fn margin(&self) -> Margin {
+        match self {
+            Element::Img(Some(img)) => img.style.margin.clone(),
+            Element::Text(Some(text)) => text.style.margin.clone(),
+            _ => Margin::default(),
+        }
+    }
 }
 
 #[derive(Debug, Default)]
 pub struct Rect {
     pub(super) x: u32,
     pub(super) y: u32,
+    pub(super) width: u32,
+    pub(super) height: u32,
 }
 
 impl Rect {
-    pub fn new(x: u32, y: u32) -> Self {
-        Rect { x, y }
+    pub fn new(x: u32, y: u32, width: u32, height: u32) -> Self {
+        Rect {
+            x,
+            y,
+            width,
+            height,
+        }
     }
 }
 
 #[derive(Debug)]
 pub struct Img<'a> {
     pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
-    pub(super) width: u32,
-    pub(super) height: u32,
     pub(super) rect: Rect,
     pub(super) style: Style<'a>,
 }
 
 impl<'a> Img<'a> {
-    pub fn new(
-        buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
-        width: u32,
-        height: u32,
-        rect: Rect,
-        style: Style<'a>,
-    ) -> Self {
-        Img {
-            buf,
-            width,
-            height,
-            rect,
-            style,
-        }
+    pub fn new(buf: ImageBuffer<Rgba<u8>, Vec<u8>>, rect: Rect, style: Style<'a>) -> Self {
+        Img { buf, rect, style }
     }
 }
 
@@ -79,6 +80,7 @@ pub struct Text<'a> {
     pub(super) style: Style<'a>,
     pub(super) font: Font<'a>,
     pub(super) max_line_height: f32,
+    pub(super) max_line_width: f32,
     pub(super) textarea: TextArea<'a>,
 }
 
@@ -90,6 +92,7 @@ impl<'a> Text<'a> {
         style: Style<'a>,
         font: Font<'a>,
         max_line_height: f32,
+        max_line_width: f32,
         textarea: TextArea<'a>,
     ) -> Self {
         Text {
@@ -99,6 +102,7 @@ impl<'a> Text<'a> {
             style,
             font,
             max_line_height,
+            max_line_width,
             textarea,
         }
     }
