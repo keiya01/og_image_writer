@@ -42,9 +42,7 @@ impl<'a> OGImageWriter<'a> {
 
         let img = Element::Img(Some(Img::new(
             buf,
-            size.width,
-            size.height,
-            Rect::new(0, 0),
+            Rect::new(0, 0, size.width, size.height),
             style,
         )));
 
@@ -67,9 +65,7 @@ impl<'a> OGImageWriter<'a> {
 
         let img = Element::Img(Some(Img::new(
             buf,
-            size.width,
-            size.height,
-            Rect::new(0, 0),
+            Rect::new(0, 0, size.width, size.height),
             style,
         )));
 

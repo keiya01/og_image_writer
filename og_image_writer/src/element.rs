@@ -24,19 +24,19 @@ impl<'a> Element<'a> {
 pub struct Rect {
     pub(super) x: u32,
     pub(super) y: u32,
+    pub(super) width: u32,
+    pub(super) height: u32,
 }
 
 impl Rect {
-    pub fn new(x: u32, y: u32) -> Self {
-        Rect { x, y }
+    pub fn new(x: u32, y: u32, width: u32, height: u32) -> Self {
+        Rect { x, y, width, height }
     }
 }
 
 #[derive(Debug)]
 pub struct Img<'a> {
     pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
-    pub(super) width: u32,
-    pub(super) height: u32,
     pub(super) rect: Rect,
     pub(super) style: Style<'a>,
 }
@@ -44,15 +44,11 @@ pub struct Img<'a> {
 impl<'a> Img<'a> {
     pub fn new(
         buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
-        width: u32,
-        height: u32,
         rect: Rect,
         style: Style<'a>,
     ) -> Self {
         Img {
             buf,
-            width,
-            height,
             rect,
             style,
         }

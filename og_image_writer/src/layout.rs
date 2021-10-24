@@ -20,26 +20,21 @@ impl<'a> OGImageWriter<'a> {
         let mut current_y = self.calculate_logical_block() as i32;
         let mut current_x = self.calculate_logical_inline() as i32;
 
-        let tree_len = self.tree.len() - 1;
-        let mut idx = 0;
-
         let mut tree = OGImageWriter::create_tree();
         while let Some(mut elm) = self.tree.pop() {
-            let is_last = idx == tree_len;
             if elm.is_absolute() {
                 self.process_absolute(&mut elm);
             } else {
                 match self.window.flex_direction {
                     FlexDirection::Column => {
-                        self.process_column_flexbox(&mut elm, &mut current_y, is_last)
+                        self.process_column_flexbox(&mut elm, &mut current_y)
                     }
                     FlexDirection::Row => {
-                        self.process_row_flexbox(&mut elm, &mut current_x, is_last)
+                        self.process_row_flexbox(&mut elm, &mut current_x)
                     }
                 }
             }
 
-            idx += 1;
             tree.push(elm);
         }
         self.tree.append(&mut tree);
@@ -83,50 +78,31 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 
-    fn process_column_flexbox(&mut self, elm: &mut Element, current_y: &mut i32, is_last: bool) {
+    fn process_column_flexbox(&mut self, elm: &mut Element, current_y: &mut i32) {
         let window_width = self.window.width as i32;
-        let content_width = if self.content.width > self.window.width {
-            window_width
-        } else {
-            self.content.width as i32
-        };
         let is_end = matches!(self.window.justify_content, JustifyContent::End);
         match elm {
             Element::Img(Some(img)) => {
-                let Margin(margin_top, margin_left, margin_bottom, margin_right) = img.style.margin;
+                let Margin(margin_top, margin_right, margin_bottom, margin_left) = img.style.margin;
 
                 let logical_inline = match &self.window.align_items {
                     AlignItems::Start => margin_left,
-                    AlignItems::Center => {
-                        let center_width = window_width / 2 - content_width / 2 + margin_left;
-                        if is_last {
-                            center_width - margin_right
-                        } else {
-                            center_width
-                        }
-                    }
-                    AlignItems::End => window_width - content_width - margin_right,
+                    AlignItems::Center => window_width / 2 - img.rect.width as i32 / 2 + margin_left - margin_right,
+                    AlignItems::End => window_width - img.rect.width as i32 - margin_right,
                 };
 
-                let content_box_inline = match img.style.text_align {
-                    TextAlign::Start => 0,
-                    TextAlign::Center => content_width / 2 - (img.width as i32 / 2),
-                    TextAlign::End => content_width - img.width as i32,
-                } + logical_inline;
-
-                img.rect.x = content_box_inline as u32;
+                img.rect.x = logical_inline as u32;
 
                 if is_end {
-                    img.rect.y += (*current_y - img.height as i32 - margin_bottom) as u32;
-                    *current_y -= img.height as i32 + margin_top + margin_bottom;
+                    img.rect.y += (*current_y - img.rect.height as i32 - margin_bottom) as u32;
+                    *current_y -= img.rect.height as i32 + margin_top + margin_bottom;
                 } else {
                     img.rect.y += (*current_y + margin_top) as u32;
-                    *current_y += img.height as i32 + margin_top + margin_bottom;
+                    *current_y += img.rect.height as i32 + margin_top + margin_bottom;
                 }
             }
-            // 最後の要素はmargin_rightを引く
             Element::Text(Some(text)) => {
-                let Margin(margin_top, margin_left, margin_bottom, margin_right) =
+                let Margin(margin_top, margin_right, margin_bottom, margin_left) =
                     text.style.margin;
 
                 // Because imageproc draw text that include line_height.
@@ -135,19 +111,17 @@ impl<'a> OGImageWriter<'a> {
                 for line in &mut text.lines {
                     let logical_inline = match &self.window.align_items {
                         AlignItems::Start => margin_left,
-                        AlignItems::Center => {
-                            let center_width =
-                                window_width / 2 - text.max_line_width as i32 / 2 + margin_left;
-                            if is_last {
-                                center_width - margin_right
-                            } else {
-                                center_width
-                            }
-                        }
+                        AlignItems::Center => window_width / 2 - text.max_line_width as i32 / 2 + margin_left - margin_right,
                         AlignItems::End => window_width - text.max_line_width as i32 - margin_right,
                     };
 
-                    line.rect.x += logical_inline as u32;
+                    let content_box_inline = match text.style.text_align {
+                        TextAlign::Start => 0,
+                        TextAlign::Center => text.max_line_width as i32 / 2 - line.rect.width as i32 / 2,
+                        TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
+                    } + logical_inline;
+
+                    line.rect.x += content_box_inline as u32;
                     if is_end {
                         line.rect.y += (*current_y - text.total_height as i32 - margin_bottom)
                             as u32
@@ -176,54 +150,31 @@ impl<'a> OGImageWriter<'a> {
         }
     }
 
-    fn process_row_flexbox(&mut self, elm: &mut Element, current_x: &mut i32, is_last: bool) {
+    fn process_row_flexbox(&mut self, elm: &mut Element, current_x: &mut i32) {
         let window_height = self.window.height as i32;
-        let elm_height = match elm {
-            Element::Img(Some(img)) => img.height,
-            Element::Text(Some(text)) => text.total_height,
-            _ => 0,
-        };
-        let content_height = if elm_height > self.window.height {
-            window_height
-        } else {
-            elm_height as i32
-        };
         let is_end = matches!(self.window.justify_content, JustifyContent::End);
         match elm {
             Element::Img(Some(img)) => {
-                let Margin(margin_top, margin_left, margin_bottom, margin_right) = img.style.margin;
+                let Margin(margin_top, margin_right, margin_bottom, margin_left) = img.style.margin;
 
                 let logical_block = match &self.window.align_items {
                     AlignItems::Start => margin_top,
-                    AlignItems::Center => {
-                        let center_width = window_height / 2 - content_height / 2 + margin_top;
-                        if is_last {
-                            center_width - margin_bottom
-                        } else {
-                            center_width
-                        }
-                    }
-                    AlignItems::End => window_height - content_height - margin_bottom,
+                    AlignItems::Center => window_height / 2 - img.rect.height as i32 / 2 + margin_top - margin_bottom,
+                    AlignItems::End => window_height - img.rect.height as i32 - margin_bottom,
                 };
 
-                let content_box_block = match img.style.text_align {
-                    TextAlign::Start => 0,
-                    TextAlign::Center => content_height / 2 - (img.height as i32 / 2),
-                    TextAlign::End => content_height - img.height as i32,
-                } + logical_block;
-
-                img.rect.y = content_box_block as u32;
+                img.rect.y = logical_block as u32;
 
                 if is_end {
-                    img.rect.x += (*current_x - img.width as i32 - margin_right) as u32;
-                    *current_x -= img.width as i32 + margin_left + margin_right;
+                    img.rect.x += (*current_x - img.rect.width as i32 - margin_right) as u32;
+                    *current_x -= img.rect.width as i32 + margin_left + margin_right;
                 } else {
                     img.rect.x += (*current_x + margin_left) as u32;
-                    *current_x += img.width as i32 + margin_left + margin_right;
+                    *current_x += img.rect.width as i32 + margin_left + margin_right;
                 }
             }
             Element::Text(Some(text)) => {
-                let Margin(margin_top, margin_left, margin_bottom, margin_right) =
+                let Margin(margin_top, margin_right, margin_bottom, margin_left) =
                     text.style.margin;
 
                 // Because imageproc draw text that include line_height.
@@ -232,14 +183,7 @@ impl<'a> OGImageWriter<'a> {
                 for line in &mut text.lines {
                     let logical_block = match &self.window.align_items {
                         AlignItems::Start => margin_top,
-                        AlignItems::Center => {
-                            let center_width = window_height / 2 - content_height / 2 + margin_top;
-                            if is_last {
-                                center_width - margin_bottom
-                            } else {
-                                center_width
-                            }
-                        }
+                        AlignItems::Center => window_height / 2 - text.total_height as i32 / 2 + margin_top - margin_bottom,
                         AlignItems::End => {
                             self.window.height as i32
                                 - text.total_height as i32
@@ -249,6 +193,12 @@ impl<'a> OGImageWriter<'a> {
                     };
 
                     line.rect.y += logical_block as u32;
+
+                    line.rect.x += match text.style.text_align {
+                        TextAlign::Start => 0,
+                        TextAlign::Center => text.max_line_width as i32 / 2 - line.rect.width as i32 / 2,
+                        TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
+                    } as u32;
 
                     if is_end {
                         line.rect.x +=
@@ -285,14 +235,14 @@ impl<'a> OGImageWriter<'a> {
                 img.rect.x += match (img.style.left, img.style.right) {
                     (Some(left), _) => left as i32 + margin_left,
                     (None, Some(right)) => {
-                        self.window.width as i32 - img.width as i32 - right - margin_right
+                        self.window.width as i32 - img.rect.width as i32 - right - margin_right
                     }
                     (None, None) => margin_left,
                 } as u32;
                 img.rect.y += match (img.style.top, img.style.bottom) {
                     (Some(top), _) => top + margin_top,
                     (None, Some(bottom)) => {
-                        self.window.height as i32 - img.height as i32 - bottom - margin_bottom
+                        self.window.height as i32 - img.rect.height as i32 - bottom - margin_bottom
                     }
                     (None, None) => margin_top,
                 } as u32;

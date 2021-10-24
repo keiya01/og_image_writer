@@ -68,6 +68,7 @@ pub struct Style<'a> {
     pub word_break: WordBreak,
     /// For Text element
     pub color: Rgba<u8>,
+    /// For Text element
     pub text_align: TextAlign,
     /// For Text element
     pub max_height: Option<u32>,

@@ -20,9 +20,7 @@ impl<'a> OGImageWriter<'a> {
 
         let img = Element::Img(Some(Img::new(
             image,
-            writer.window.width,
-            writer.window.height,
-            Rect::new(0, 0),
+            Rect::new(0, 0, writer.window.width, writer.window.height),
             style,
         )));
 

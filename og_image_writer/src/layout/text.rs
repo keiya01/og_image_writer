@@ -1,7 +1,7 @@
 use super::textarea::TextArea;
 use crate::element::{Element, Line, Rect, Text};
 use crate::line_breaker::LineBreaker;
-use crate::style::{FlexDirection, Margin, Position, Style, TextAlign, TextOverflow};
+use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
 use crate::Error;
 use rusttype::Font;
@@ -24,7 +24,7 @@ impl<'a> OGImageWriter<'a> {
 
         let window_width = self.window.width as f32;
 
-        let Margin(margin_top, margin_left, margin_bottom, margin_right) = style.margin;
+        let Margin(margin_top, margin_right, margin_bottom, margin_left) = style.margin;
 
         let (left, right) = if matches!(style.position, Position::Absolute) {
             (
@@ -78,17 +78,11 @@ impl<'a> OGImageWriter<'a> {
                 _ => {}
             }
 
-            let content_box_inline = match style.text_align {
-                TextAlign::Start => 0.,
-                TextAlign::Center => max_line_width / 2. - line.width / 2.,
-                TextAlign::End => max_line_width - line.width,
-            };
-
             if lines_len == 1 {
                 total_height = next_height;
                 lines.push(Line::new(
                     line.range,
-                    Rect::new(content_box_inline as u32, 0),
+                    Rect::new(0, 0, line.width as u32, line.height as u32),
                 ));
                 break;
             }
@@ -103,7 +97,7 @@ impl<'a> OGImageWriter<'a> {
             total_height = next_height;
             lines.push(Line::new(
                 line.range,
-                Rect::new(content_box_inline as u32, pos_y as u32),
+                Rect::new(0, pos_y as u32, line.width as u32, line.height as u32),
             ));
         }
 
