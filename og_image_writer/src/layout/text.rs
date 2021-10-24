@@ -130,12 +130,6 @@ impl<'a> OGImageWriter<'a> {
                 FlexDirection::Column => {
                     self.content.height +=
                         (total_height as i32 + margin_top + margin_bottom) as u32;
-                    let next_width = (max_line_width as i32 + margin_left + margin_right) as u32;
-                    self.content.width = if self.content.width > next_width {
-                        self.content.width
-                    } else {
-                        next_width
-                    };
                 }
                 FlexDirection::Row => {
                     self.content.width +=

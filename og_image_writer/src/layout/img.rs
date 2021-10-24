@@ -13,11 +13,6 @@ impl<'a> OGImageWriter<'a> {
             match self.window.flex_direction {
                 FlexDirection::Column => {
                     self.content.height += height;
-                    self.content.width = if self.content.width > width {
-                        self.content.width
-                    } else {
-                        width
-                    };
                 }
                 FlexDirection::Row => {
                     self.content.width += width;
