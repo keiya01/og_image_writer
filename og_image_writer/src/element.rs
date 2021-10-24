@@ -30,7 +30,12 @@ pub struct Rect {
 
 impl Rect {
     pub fn new(x: u32, y: u32, width: u32, height: u32) -> Self {
-        Rect { x, y, width, height }
+        Rect {
+            x,
+            y,
+            width,
+            height,
+        }
     }
 }
 
@@ -42,16 +47,8 @@ pub struct Img<'a> {
 }
 
 impl<'a> Img<'a> {
-    pub fn new(
-        buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
-        rect: Rect,
-        style: Style<'a>,
-    ) -> Self {
-        Img {
-            buf,
-            rect,
-            style,
-        }
+    pub fn new(buf: ImageBuffer<Rgba<u8>, Vec<u8>>, rect: Rect, style: Style<'a>) -> Self {
+        Img { buf, rect, style }
     }
 }
 

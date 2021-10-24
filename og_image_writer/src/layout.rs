@@ -26,12 +26,8 @@ impl<'a> OGImageWriter<'a> {
                 self.process_absolute(&mut elm);
             } else {
                 match self.window.flex_direction {
-                    FlexDirection::Column => {
-                        self.process_column_flexbox(&mut elm, &mut current_y)
-                    }
-                    FlexDirection::Row => {
-                        self.process_row_flexbox(&mut elm, &mut current_x)
-                    }
+                    FlexDirection::Column => self.process_column_flexbox(&mut elm, &mut current_y),
+                    FlexDirection::Row => self.process_row_flexbox(&mut elm, &mut current_x),
                 }
             }
 
@@ -87,7 +83,9 @@ impl<'a> OGImageWriter<'a> {
 
                 let logical_inline = match &self.window.align_items {
                     AlignItems::Start => margin_left,
-                    AlignItems::Center => window_width / 2 - img.rect.width as i32 / 2 + margin_left - margin_right,
+                    AlignItems::Center => {
+                        window_width / 2 - img.rect.width as i32 / 2 + margin_left - margin_right
+                    }
                     AlignItems::End => window_width - img.rect.width as i32 - margin_right,
                 };
 
@@ -111,13 +109,18 @@ impl<'a> OGImageWriter<'a> {
                 for line in &mut text.lines {
                     let logical_inline = match &self.window.align_items {
                         AlignItems::Start => margin_left,
-                        AlignItems::Center => window_width / 2 - text.max_line_width as i32 / 2 + margin_left - margin_right,
+                        AlignItems::Center => {
+                            window_width / 2 - text.max_line_width as i32 / 2 + margin_left
+                                - margin_right
+                        }
                         AlignItems::End => window_width - text.max_line_width as i32 - margin_right,
                     };
 
                     let content_box_inline = match text.style.text_align {
                         TextAlign::Start => 0,
-                        TextAlign::Center => text.max_line_width as i32 / 2 - line.rect.width as i32 / 2,
+                        TextAlign::Center => {
+                            text.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                        }
                         TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
                     } + logical_inline;
 
@@ -159,7 +162,9 @@ impl<'a> OGImageWriter<'a> {
 
                 let logical_block = match &self.window.align_items {
                     AlignItems::Start => margin_top,
-                    AlignItems::Center => window_height / 2 - img.rect.height as i32 / 2 + margin_top - margin_bottom,
+                    AlignItems::Center => {
+                        window_height / 2 - img.rect.height as i32 / 2 + margin_top - margin_bottom
+                    }
                     AlignItems::End => window_height - img.rect.height as i32 - margin_bottom,
                 };
 
@@ -183,7 +188,10 @@ impl<'a> OGImageWriter<'a> {
                 for line in &mut text.lines {
                     let logical_block = match &self.window.align_items {
                         AlignItems::Start => margin_top,
-                        AlignItems::Center => window_height / 2 - text.total_height as i32 / 2 + margin_top - margin_bottom,
+                        AlignItems::Center => {
+                            window_height / 2 - text.total_height as i32 / 2 + margin_top
+                                - margin_bottom
+                        }
                         AlignItems::End => {
                             self.window.height as i32
                                 - text.total_height as i32
@@ -196,7 +204,9 @@ impl<'a> OGImageWriter<'a> {
 
                     line.rect.x += match text.style.text_align {
                         TextAlign::Start => 0,
-                        TextAlign::Center => text.max_line_width as i32 / 2 - line.rect.width as i32 / 2,
+                        TextAlign::Center => {
+                            text.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                        }
                         TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
                     } as u32;
 
