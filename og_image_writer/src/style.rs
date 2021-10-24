@@ -6,7 +6,7 @@ pub enum WordBreak {
     BreakAll,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
 #[derive(Debug, Default, Clone)]

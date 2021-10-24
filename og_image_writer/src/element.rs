@@ -1,5 +1,5 @@
 use super::layout::TextArea;
-use super::style::{Position, Style};
+use super::style::{Margin, Position, Style};
 use image::{ImageBuffer, Rgba};
 use rusttype::Font;
 use std::ops::Range;
@@ -16,6 +16,14 @@ impl<'a> Element<'a> {
             Element::Img(Some(img)) => matches!(img.style.position, Position::Absolute),
             Element::Text(Some(text)) => matches!(text.style.position, Position::Absolute),
             _ => false,
+        }
+    }
+
+    pub(super) fn margin(&self) -> Margin {
+        match self {
+            Element::Img(Some(img)) => img.style.margin.clone(),
+            Element::Text(Some(text)) => text.style.margin.clone(),
+            _ => Margin::default(),
         }
     }
 }
