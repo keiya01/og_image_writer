@@ -1,5 +1,5 @@
 use super::textarea::TextArea;
-use crate::element::{Element, Line, Rect, Text, LineMetrics};
+use crate::element::{Element, Line, LineMetrics, Rect, Text};
 use crate::line_breaker::LineBreaker;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
@@ -111,11 +111,7 @@ impl<'a> OGImageWriter<'a> {
         let text_elm = Element::Text(Some(Text::new(
             text,
             lines,
-            LineMetrics::new(
-                total_height as u32,
-                max_line_height,
-                max_line_width,
-            ),
+            LineMetrics::new(total_height as u32, max_line_height, max_line_width),
             style,
             font,
             textarea.into_inner(),

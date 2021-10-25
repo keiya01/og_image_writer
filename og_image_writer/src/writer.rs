@@ -4,9 +4,9 @@ use crate::Error;
 
 use super::context::Context;
 use super::element::{Element, Img, Text};
+use super::font::create_font;
 use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
-use super::font::create_font;
 use std::{cell::RefCell, path::Path, str};
 
 #[derive(Default)]

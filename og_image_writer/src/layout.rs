@@ -115,7 +115,9 @@ impl<'a> OGImageWriter<'a> {
                             window_width / 2 - line_metrics.max_line_width as i32 / 2 + margin_left
                                 - margin_right
                         }
-                        AlignItems::End => window_width - line_metrics.max_line_width as i32 - margin_right,
+                        AlignItems::End => {
+                            window_width - line_metrics.max_line_width as i32 - margin_right
+                        }
                     };
 
                     let content_box_inline = match text.style.text_align {
@@ -123,14 +125,16 @@ impl<'a> OGImageWriter<'a> {
                         TextAlign::Center => {
                             line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
                         }
-                        TextAlign::End => line_metrics.max_line_width as i32 - line.rect.width as i32,
+                        TextAlign::End => {
+                            line_metrics.max_line_width as i32 - line.rect.width as i32
+                        }
                     } + logical_inline;
 
                     line.rect.x += content_box_inline as u32;
                     if is_end {
-                        line.rect.y += (*current_y - line_metrics.total_height as i32 - margin_bottom)
-                            as u32
-                            - system_line_height;
+                        line.rect.y +=
+                            (*current_y - line_metrics.total_height as i32 - margin_bottom) as u32
+                                - system_line_height;
                     } else {
                         line.rect.y += (*current_y + margin_top) as u32;
                     }
@@ -211,7 +215,9 @@ impl<'a> OGImageWriter<'a> {
                         TextAlign::Center => {
                             line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
                         }
-                        TextAlign::End => line_metrics.max_line_width as i32 - line.rect.width as i32,
+                        TextAlign::End => {
+                            line_metrics.max_line_width as i32 - line.rect.width as i32
+                        }
                     } as u32;
 
                     if is_end {
