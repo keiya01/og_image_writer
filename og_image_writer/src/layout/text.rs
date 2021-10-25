@@ -1,5 +1,5 @@
 use super::textarea::TextArea;
-use crate::element::{Element, Line, Rect, Text};
+use crate::element::{Element, Line, Rect, Text, LineMetrics};
 use crate::line_breaker::LineBreaker;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
@@ -15,13 +15,8 @@ impl<'a> OGImageWriter<'a> {
         // Parent style that effect child element
         style: Style<'a>,
         // Parent font that effect child element
-        font: Vec<u8>,
+        font: Font<'a>,
     ) -> Result<(), Error> {
-        let font = match Font::try_from_vec(font) {
-            Some(font) => font,
-            None => return Err(Error::InvalidFontBytes),
-        };
-
         let window_width = self.window.width as f32;
 
         let Margin(margin_top, margin_right, margin_bottom, margin_left) = style.margin;
@@ -116,11 +111,13 @@ impl<'a> OGImageWriter<'a> {
         let text_elm = Element::Text(Some(Text::new(
             text,
             lines,
-            total_height as u32,
+            LineMetrics::new(
+                total_height as u32,
+                max_line_height,
+                max_line_width,
+            ),
             style,
             font,
-            max_line_height,
-            max_line_width,
             textarea.into_inner(),
         )));
 
@@ -138,7 +135,7 @@ impl<'a> OGImageWriter<'a> {
             }
         }
 
-        self.tree.push(text_elm);
+        self.tree.0.push(text_elm);
 
         Ok(())
     }

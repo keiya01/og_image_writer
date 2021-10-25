@@ -6,6 +6,7 @@ use super::context::Context;
 use super::element::{Element, Img, Text};
 use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
+use super::font::create_font;
 use std::{cell::RefCell, path::Path, str};
 
 #[derive(Default)]
@@ -14,12 +15,14 @@ pub(super) struct Content {
     pub(super) width: u32,
 }
 
+pub struct Tree<'a>(pub(super) Vec<Element<'a>>);
+
 /// This struct write text to PNG.
 /// You can set text or img with `set_*` method.
 /// And you can set style with `set_*_style` method.
 pub struct OGImageWriter<'a> {
     pub(super) context: Context,
-    pub(super) tree: Vec<Element<'a>>,
+    pub(super) tree: Tree<'a>,
     pub(super) window: WindowStyle,
     pub(super) content: Content,
 }
@@ -66,8 +69,8 @@ impl<'a> OGImageWriter<'a> {
         })
     }
 
-    pub(super) fn create_tree() -> Vec<Element<'a>> {
-        Vec::with_capacity(2)
+    pub(super) fn create_tree() -> Tree<'a> {
+        Tree(Vec::with_capacity(2))
     }
 
     /// Set text you want to write to image.
@@ -80,6 +83,9 @@ impl<'a> OGImageWriter<'a> {
     ) -> Result<(), Error> {
         let textarea = RefCell::new(TextArea::new());
         textarea.borrow_mut().push_text(text);
+
+        let font = create_font(font)?;
+
         self.process_text(textarea, style, font)
     }
 
@@ -90,6 +96,7 @@ impl<'a> OGImageWriter<'a> {
         style: Style<'a>,
         font: Vec<u8>,
     ) -> Result<(), Error> {
+        let font = create_font(font)?;
         self.process_text(RefCell::new(textarea), style, font)
     }
 
@@ -138,7 +145,7 @@ impl<'a> OGImageWriter<'a> {
     pub fn paint(&mut self) -> Result<(), Error> {
         self.process();
 
-        while let Some(elm) = self.tree.pop() {
+        while let Some(elm) = self.tree.0.pop() {
             match elm {
                 Element::Img(Some(img)) => self.paint_img(img)?,
                 Element::Text(Some(text)) => self.paint_text(text)?,

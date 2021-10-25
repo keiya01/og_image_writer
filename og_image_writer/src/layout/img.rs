@@ -22,7 +22,7 @@ impl<'a> OGImageWriter<'a> {
             }
         }
 
-        self.tree.push(img);
+        self.tree.0.push(img);
     }
 
     pub(crate) fn process_img_with_src(

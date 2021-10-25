@@ -14,14 +14,14 @@ use super::Error;
 impl<'a> OGImageWriter<'a> {
     pub(super) fn process(&mut self) {
         if !matches!(self.window.justify_content, JustifyContent::End) {
-            self.tree.reverse();
+            self.tree.0.reverse();
         }
 
         let mut current_y = self.calculate_logical_block() as i32;
         let mut current_x = self.calculate_logical_inline() as i32;
 
         let mut tree = OGImageWriter::create_tree();
-        while let Some(mut elm) = self.tree.pop() {
+        while let Some(mut elm) = self.tree.0.pop() {
             if elm.is_absolute() {
                 self.process_absolute(&mut elm);
             } else {
@@ -31,9 +31,9 @@ impl<'a> OGImageWriter<'a> {
                 }
             }
 
-            tree.push(elm);
+            tree.0.push(elm);
         }
-        self.tree.append(&mut tree);
+        self.tree.0.append(&mut tree.0);
     }
 
     fn calculate_logical_block(&self) -> u32 {
@@ -103,30 +103,32 @@ impl<'a> OGImageWriter<'a> {
                 let Margin(margin_top, margin_right, margin_bottom, margin_left) =
                     text.style.margin;
 
+                let line_metrics = &text.metrics;
+
                 // Because imageproc draw text that include line_height.
-                let mut system_line_height = text.max_line_height as u32 / 2;
+                let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
                 for line in &mut text.lines {
                     let logical_inline = match &self.window.align_items {
                         AlignItems::Start => margin_left,
                         AlignItems::Center => {
-                            window_width / 2 - text.max_line_width as i32 / 2 + margin_left
+                            window_width / 2 - line_metrics.max_line_width as i32 / 2 + margin_left
                                 - margin_right
                         }
-                        AlignItems::End => window_width - text.max_line_width as i32 - margin_right,
+                        AlignItems::End => window_width - line_metrics.max_line_width as i32 - margin_right,
                     };
 
                     let content_box_inline = match text.style.text_align {
                         TextAlign::Start => 0,
                         TextAlign::Center => {
-                            text.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                            line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
                         }
-                        TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
+                        TextAlign::End => line_metrics.max_line_width as i32 - line.rect.width as i32,
                     } + logical_inline;
 
                     line.rect.x += content_box_inline as u32;
                     if is_end {
-                        line.rect.y += (*current_y - text.total_height as i32 - margin_bottom)
+                        line.rect.y += (*current_y - line_metrics.total_height as i32 - margin_bottom)
                             as u32
                             - system_line_height;
                     } else {
@@ -144,9 +146,9 @@ impl<'a> OGImageWriter<'a> {
                 }
 
                 if is_end {
-                    *current_y -= text.total_height as i32 + margin_top + margin_bottom;
+                    *current_y -= line_metrics.total_height as i32 + margin_top + margin_bottom;
                 } else {
-                    *current_y += text.total_height as i32 + margin_top + margin_bottom;
+                    *current_y += line_metrics.total_height as i32 + margin_top + margin_bottom;
                 }
             }
             _ => {}
@@ -182,19 +184,21 @@ impl<'a> OGImageWriter<'a> {
                 let Margin(margin_top, margin_right, margin_bottom, margin_left) =
                     text.style.margin;
 
+                let line_metrics = &text.metrics;
+
                 // Because imageproc draw text that include line_height.
-                let mut system_line_height = text.max_line_height as u32 / 2;
+                let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
                 for line in &mut text.lines {
                     let logical_block = match &self.window.align_items {
                         AlignItems::Start => margin_top,
                         AlignItems::Center => {
-                            window_height / 2 - text.total_height as i32 / 2 + margin_top
+                            window_height / 2 - line_metrics.total_height as i32 / 2 + margin_top
                                 - margin_bottom
                         }
                         AlignItems::End => {
                             self.window.height as i32
-                                - text.total_height as i32
+                                - line_metrics.total_height as i32
                                 - system_line_height as i32
                                 - margin_bottom
                         }
@@ -205,14 +209,14 @@ impl<'a> OGImageWriter<'a> {
                     line.rect.x += match text.style.text_align {
                         TextAlign::Start => 0,
                         TextAlign::Center => {
-                            text.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                            line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
                         }
-                        TextAlign::End => text.max_line_width as i32 - line.rect.width as i32,
+                        TextAlign::End => line_metrics.max_line_width as i32 - line.rect.width as i32,
                     } as u32;
 
                     if is_end {
                         line.rect.x +=
-                            (*current_x - text.max_line_width as i32 - margin_right) as u32;
+                            (*current_x - line_metrics.max_line_width as i32 - margin_right) as u32;
                     } else {
                         line.rect.x += (*current_x + margin_left) as u32;
                     }
@@ -228,9 +232,9 @@ impl<'a> OGImageWriter<'a> {
                 }
 
                 if is_end {
-                    *current_x -= text.max_line_width as i32 + margin_left + margin_right;
+                    *current_x -= line_metrics.max_line_width as i32 + margin_left + margin_right;
                 } else {
-                    *current_x += text.max_line_width as i32 + margin_left + margin_right;
+                    *current_x += line_metrics.max_line_width as i32 + margin_left + margin_right;
                 }
             }
             _ => {}
@@ -261,12 +265,14 @@ impl<'a> OGImageWriter<'a> {
                 let Margin(margin_top, margin_right, margin_bottom, margin_left) =
                     text.style.margin;
 
+                let line_metrics = &text.metrics;
+
                 for line in &mut text.lines {
                     line.rect.x += match (text.style.left, text.style.right) {
                         (Some(left), _) => left + margin_left,
                         (None, Some(right)) => {
                             self.window.width as i32
-                                - text.max_line_width as i32
+                                - line_metrics.max_line_width as i32
                                 - right
                                 - margin_right
                         }
@@ -276,7 +282,7 @@ impl<'a> OGImageWriter<'a> {
                         (Some(top), _) => top + margin_top,
                         (None, Some(bottom)) => {
                             self.window.height as i32
-                                - text.total_height as i32
+                                - line_metrics.total_height as i32
                                 - bottom
                                 - margin_bottom
                         }

@@ -72,15 +72,30 @@ impl Line {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct LineMetrics {
+    pub total_height: u32,
+    pub max_line_height: f32,
+    pub max_line_width: f32,
+}
+
+impl LineMetrics {
+    pub fn new(total_height: u32, max_line_height: f32, max_line_width: f32) -> Self {
+        LineMetrics {
+            total_height,
+            max_line_height,
+            max_line_width,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Text<'a> {
     pub(super) text: String,
-    pub(super) total_height: u32,
+    pub(super) metrics: LineMetrics,
     pub(super) lines: Vec<Line>,
     pub(super) style: Style<'a>,
     pub(super) font: Font<'a>,
-    pub(super) max_line_height: f32,
-    pub(super) max_line_width: f32,
     pub(super) textarea: TextArea<'a>,
 }
 
@@ -88,21 +103,17 @@ impl<'a> Text<'a> {
     pub fn new(
         text: String,
         lines: Vec<Line>,
-        total_height: u32,
+        metrics: LineMetrics,
         style: Style<'a>,
         font: Font<'a>,
-        max_line_height: f32,
-        max_line_width: f32,
         textarea: TextArea<'a>,
     ) -> Self {
         Text {
             text,
             lines,
-            total_height,
+            metrics,
             style,
             font,
-            max_line_height,
-            max_line_width,
             textarea,
         }
     }

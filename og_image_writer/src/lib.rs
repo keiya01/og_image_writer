@@ -55,6 +55,7 @@ pub mod element;
 pub mod img;
 pub mod style;
 pub mod writer;
+pub mod font;
 pub use error::Error;
 pub use layout::TextArea;
 
