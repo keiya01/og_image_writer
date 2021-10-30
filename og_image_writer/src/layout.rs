@@ -11,7 +11,7 @@ use super::style::{AlignItems, FlexDirection, JustifyContent, Margin, TextAlign}
 use super::writer::OGImageWriter;
 use super::Error;
 
-impl<'a> OGImageWriter<'a> {
+impl OGImageWriter {
     pub(super) fn process(&mut self) {
         if !matches!(self.window.justify_content, JustifyContent::End) {
             self.tree.0.reverse();
@@ -307,6 +307,7 @@ impl<'a> OGImageWriter<'a> {
             Some(color) => color,
         };
 
-        self.context.draw_background_color(*background_color)
+        self.context
+            .draw_background_color(background_color.as_image_rgba())
     }
 }

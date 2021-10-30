@@ -4,11 +4,11 @@ use crate::style::Style;
 use crate::writer::OGImageWriter;
 use crate::Error;
 
-impl<'a> OGImageWriter<'a> {
+impl OGImageWriter {
     pub(crate) fn process_container(
         &mut self,
         writer: &mut OGImageWriter,
-        style: Style<'a>,
+        style: Style,
     ) -> Result<(), Error> {
         let mut image = match writer.context.image.take() {
             Some(image) => image,

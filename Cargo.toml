@@ -1,5 +1,6 @@
 [workspace]
 members = [
   "og_image_writer",
+  "wasm",
   "examples",
 ]

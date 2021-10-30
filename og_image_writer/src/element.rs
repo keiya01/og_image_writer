@@ -5,12 +5,12 @@ use rusttype::Font;
 use std::ops::Range;
 
 #[derive(Debug)]
-pub(super) enum Element<'a> {
-    Img(Option<Img<'a>>),
-    Text(Option<Text<'a>>),
+pub(super) enum Element {
+    Img(Option<Img>),
+    Text(Option<Text>),
 }
 
-impl<'a> Element<'a> {
+impl Element {
     pub(super) fn is_absolute(&self) -> bool {
         match self {
             Element::Img(Some(img)) => matches!(img.style.position, Position::Absolute),
@@ -48,14 +48,14 @@ impl Rect {
 }
 
 #[derive(Debug)]
-pub struct Img<'a> {
+pub struct Img {
     pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
     pub(super) rect: Rect,
-    pub(super) style: Style<'a>,
+    pub(super) style: Style,
 }
 
-impl<'a> Img<'a> {
-    pub fn new(buf: ImageBuffer<Rgba<u8>, Vec<u8>>, rect: Rect, style: Style<'a>) -> Self {
+impl Img {
+    pub fn new(buf: ImageBuffer<Rgba<u8>, Vec<u8>>, rect: Rect, style: Style) -> Self {
         Img { buf, rect, style }
     }
 }
@@ -90,23 +90,24 @@ impl LineMetrics {
 }
 
 #[derive(Debug)]
-pub struct Text<'a> {
+pub struct Text {
     pub(super) text: String,
     pub(super) metrics: LineMetrics,
     pub(super) lines: Vec<Line>,
-    pub(super) style: Style<'a>,
-    pub(super) font: Font<'a>,
-    pub(super) textarea: TextArea<'a>,
+    pub(super) style: Style,
+    // TODO: optimize static lifetime
+    pub(super) font: Font<'static>,
+    pub(super) textarea: TextArea,
 }
 
-impl<'a> Text<'a> {
+impl Text {
     pub fn new(
         text: String,
         lines: Vec<Line>,
         metrics: LineMetrics,
-        style: Style<'a>,
-        font: Font<'a>,
-        textarea: TextArea<'a>,
+        style: Style,
+        font: Font<'static>,
+        textarea: TextArea,
     ) -> Self {
         Text {
             text,

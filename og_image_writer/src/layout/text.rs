@@ -8,14 +8,14 @@ use rusttype::Font;
 use std::cell::RefCell;
 use std::str;
 
-impl<'a> OGImageWriter<'a> {
+impl OGImageWriter {
     pub(crate) fn process_text(
         &mut self,
-        textarea: RefCell<TextArea<'a>>,
+        textarea: RefCell<TextArea>,
         // Parent style that effect child element
-        style: Style<'a>,
+        style: Style,
         // Parent font that effect child element
-        font: Font<'a>,
+        font: Font<'static>,
     ) -> Result<(), Error> {
         let window_width = self.window.width as f32;
 
@@ -144,7 +144,7 @@ impl<'a> OGImageWriter<'a> {
         font: &Font,
         textarea: &mut TextArea,
     ) -> Result<String, Error> {
-        let ellipsis = match style.text_overflow {
+        let ellipsis = match &style.text_overflow {
             TextOverflow::Ellipsis => "...",
             TextOverflow::Content(s) => s,
             TextOverflow::Clip => return Ok(text.to_string()),
@@ -186,7 +186,8 @@ impl<'a> OGImageWriter<'a> {
                 if split_text.range.start <= split_index && split_index <= split_text.range.end {
                     let end = split_text.range.end - split_index;
                     split_text.range.end -= end;
-                    split_text.text = &split_text.text[0..split_text.text.len() - end];
+                    split_text.text =
+                        (&split_text.text[0..split_text.text.len() - end]).to_string();
                     textarea.0.push(split_text);
                     break;
                 }

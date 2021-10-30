@@ -15,19 +15,19 @@ pub(super) struct Content {
     pub(super) width: u32,
 }
 
-pub struct Tree<'a>(pub(super) Vec<Element<'a>>);
+pub struct Tree(pub(super) Vec<Element>);
 
 /// This struct write text to PNG.
 /// You can set text or img with `set_*` method.
 /// And you can set style with `set_*_style` method.
-pub struct OGImageWriter<'a> {
+pub struct OGImageWriter {
     pub(super) context: Context,
-    pub(super) tree: Tree<'a>,
+    pub(super) tree: Tree,
     pub(super) window: WindowStyle,
     pub(super) content: Content,
 }
 
-impl<'a> OGImageWriter<'a> {
+impl OGImageWriter {
     /// Set window style. Window act like CSS `flexbox`.
     pub fn new(window: WindowStyle) -> Result<Self, Error> {
         let context = Context::new(window.width, window.height);
@@ -69,18 +69,13 @@ impl<'a> OGImageWriter<'a> {
         })
     }
 
-    pub(super) fn create_tree() -> Tree<'a> {
+    pub(super) fn create_tree() -> Tree {
         Tree(Vec::with_capacity(2))
     }
 
     /// Set text you want to write to image.
     /// And set the text element style. Text element act like CSS `inline-block`.
-    pub fn set_text(
-        &mut self,
-        text: &'a str,
-        style: Style<'a>,
-        font: Vec<u8>,
-    ) -> Result<(), Error> {
+    pub fn set_text(&mut self, text: &str, style: Style, font: Vec<u8>) -> Result<(), Error> {
         let textarea = RefCell::new(TextArea::new());
         textarea.borrow_mut().push_text(text);
 
@@ -92,8 +87,8 @@ impl<'a> OGImageWriter<'a> {
     /// Set [TextArea](super::TextArea) to image.
     pub fn set_textarea(
         &mut self,
-        textarea: TextArea<'a>,
-        style: Style<'a>,
+        textarea: TextArea,
+        style: Style,
         font: Vec<u8>,
     ) -> Result<(), Error> {
         let font = create_font(font)?;
@@ -103,10 +98,10 @@ impl<'a> OGImageWriter<'a> {
     /// Set image you want to write to image. And set the image element style.
     pub fn set_img(
         &mut self,
-        src: &'a str,
+        src: &str,
         width: u32,
         height: u32,
-        style: Style<'a>,
+        style: Style,
     ) -> Result<(), Error> {
         self.process_img_with_src(src, width, height, style)
     }
@@ -117,17 +112,13 @@ impl<'a> OGImageWriter<'a> {
         data: &[u8],
         width: u32,
         height: u32,
-        style: Style<'a>,
+        style: Style,
     ) -> Result<(), ImageError> {
         self.process_img_with_data(data, width, height, style)
     }
 
     /// Set generated image by [OGImageWriter](Self) on parent image
-    pub fn set_container(
-        &mut self,
-        writer: &mut OGImageWriter,
-        style: Style<'a>,
-    ) -> Result<(), Error> {
+    pub fn set_container(&mut self, writer: &mut OGImageWriter, style: Style) -> Result<(), Error> {
         writer.paint()?;
 
         self.process_container(writer, style)?;
@@ -164,7 +155,7 @@ impl<'a> OGImageWriter<'a> {
         self.context.draw_image(img.buf, img.rect.x, img.rect.y)
     }
 
-    fn paint_text(&mut self, text_elm: Text<'a>) -> Result<(), Error> {
+    fn paint_text(&mut self, text_elm: Text) -> Result<(), Error> {
         let style = text_elm.style;
         let mut current_split_text: Option<&SplitText> = None;
         for line in &text_elm.lines {
@@ -210,7 +201,7 @@ impl<'a> OGImageWriter<'a> {
                     let next_text = &text[range.clone()];
 
                     self.context.draw_text(
-                        style.color,
+                        style.color.as_image_rgba(),
                         line.rect.x + current_width,
                         line.rect.y,
                         style.font_size,
@@ -244,7 +235,7 @@ impl<'a> OGImageWriter<'a> {
                 };
 
                 self.context.draw_text(
-                    style.color,
+                    style.color.as_image_rgba(),
                     line.rect.x + current_width,
                     line.rect.y,
                     style.font_size,

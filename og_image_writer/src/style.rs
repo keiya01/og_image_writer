@@ -1,19 +1,32 @@
-pub use image::{Rgb, Rgba};
+pub use image::{Rgb, Rgba as ImageRgba};
+use std::marker::Copy;
+use wasm_bindgen::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+pub struct Rgba(pub [u8; 4]);
+
+impl Rgba {
+    pub(super) fn as_image_rgba(&self) -> ImageRgba<u8> {
+        ImageRgba(self.0)
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum WordBreak {
     Normal,
     BreakAll,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct BorderRadius(pub u32, pub u32, pub u32, pub u32);
 
 /// Adjust the horizontal position.
-#[derive(Debug)]
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum AlignItems {
     Start,
     Center,
@@ -21,7 +34,8 @@ pub enum AlignItems {
 }
 
 /// Adjust the vertical position.
-#[derive(Debug)]
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum JustifyContent {
     Start,
     Center,
@@ -29,7 +43,8 @@ pub enum JustifyContent {
 }
 
 /// Adjust the text horizontal position.
-#[derive(Debug)]
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum TextAlign {
     Start,
     Center,
@@ -37,19 +52,21 @@ pub enum TextAlign {
 }
 
 #[derive(Debug)]
-pub enum TextOverflow<'a> {
+pub enum TextOverflow {
     Clip,
     Ellipsis,
-    Content(&'a str),
+    Content(String),
 }
 
-#[derive(Debug)]
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum Position {
     Static,
     Absolute,
 }
 
-#[derive(Debug)]
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
 pub enum FlexDirection {
     Column,
     Row,
@@ -58,7 +75,7 @@ pub enum FlexDirection {
 /// Style is used by `text` or `img` element.
 /// Text element is `inline-block`, so you can adjust text position by using `text_align`.
 #[derive(Debug)]
-pub struct Style<'a> {
+pub struct Style {
     pub margin: Margin,
     /// For Text element
     pub line_height: f32,
@@ -67,7 +84,7 @@ pub struct Style<'a> {
     /// For Text element
     pub word_break: WordBreak,
     /// For Text element
-    pub color: Rgba<u8>,
+    pub color: Rgba,
     /// For Text element
     pub text_align: TextAlign,
     /// For Text element
@@ -76,7 +93,7 @@ pub struct Style<'a> {
     pub max_width: Option<u32>,
     /// For Text element
     /// This property support multiline.
-    pub text_overflow: TextOverflow<'a>,
+    pub text_overflow: TextOverflow,
     pub position: Position,
     pub top: Option<i32>,
     pub right: Option<i32>,
@@ -86,7 +103,7 @@ pub struct Style<'a> {
     pub border_radius: BorderRadius,
 }
 
-impl<'a> Default for Style<'a> {
+impl Default for Style {
     fn default() -> Self {
         Style {
             margin: Margin::default(),
@@ -121,7 +138,7 @@ pub enum LogicalFlexRowPosition {
 pub struct WindowStyle {
     pub height: u32,
     pub width: u32,
-    pub background_color: Option<Rgba<u8>>,
+    pub background_color: Option<Rgba>,
     pub align_items: AlignItems,
     pub justify_content: JustifyContent,
     /// This controls the direction in which the children of a node are laid out.

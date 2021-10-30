@@ -16,6 +16,7 @@ image = "0.23"
 imageproc = "0.22"
 rusttype = "0.9"
 thiserror = "1.0"
+wasm-bindgen = { version = "0.2" }
 
 [dev-dependencies]
 anyhow = "1.0"

@@ -7,8 +7,8 @@ use crate::writer::OGImageWriter;
 use crate::Error;
 use std::str;
 
-impl<'a> OGImageWriter<'a> {
-    pub(super) fn process_img(&mut self, img: Element<'a>, width: u32, height: u32) {
+impl OGImageWriter {
+    pub(super) fn process_img(&mut self, img: Element, width: u32, height: u32) {
         let Margin(margin_top, margin_right, margin_bottom, margin_left) = img.margin();
 
         if !img.is_absolute() {
@@ -27,10 +27,10 @@ impl<'a> OGImageWriter<'a> {
 
     pub(crate) fn process_img_with_src(
         &mut self,
-        src: &'a str,
+        src: &str,
         width: u32,
         height: u32,
-        style: Style<'a>,
+        style: Style,
     ) -> Result<(), Error> {
         let ImageInfo(mut buf, size) = open_and_resize(src, width, height)?;
 
@@ -53,7 +53,7 @@ impl<'a> OGImageWriter<'a> {
         data: &[u8],
         width: u32,
         height: u32,
-        style: Style<'a>,
+        style: Style,
     ) -> Result<(), ImageError> {
         let ImageInfo(mut buf, size) = open_and_resize_with_data(data, width, height)?;
 

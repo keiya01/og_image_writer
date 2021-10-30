@@ -1,0 +1,20 @@
+[package]
+name = "wasm"
+version = "0.0.1"
+edition = "2018"
+license = "MIT"
+publish = false
+keywords = ["open-graphic", "image", "og", "canvas","wasm"]
+readme = "./README.md"
+repository = "https://github.com/keiya01/og_image_writer"
+description = "Generate an Open Graphic Image using a CSS-like API."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+og_image_writer = { path = "../og_image_writer" }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+console_error_panic_hook = "0.1.7"
