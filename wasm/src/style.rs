@@ -110,8 +110,8 @@ impl JsStyle {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_text_overflow(&mut self, value: String) {
-        self.text_overflow = value;
+    pub fn set_text_overflow(&mut self, value: JsTextOverflow) {
+        self.text_overflow = value.into_serde().unwrap();
     }
 }
 
