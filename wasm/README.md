@@ -6,6 +6,16 @@ You can generate custom image by using this package.
 ## Example
 
 ```js
+import init, {
+  AlignItems,
+  JustifyContent,
+  OGImageWriter,
+  Rgba,
+  Style,
+  TextArea,
+  WindowStyle,
+} from "og_image_writer";
+
 const createRgba = (r, g, b, a) => {
   let color = Rgba.new(r, g, b, a);
   return color;
@@ -58,6 +68,9 @@ const generateImage = async (w, h) => {
 };
 
 const render = async (w, h) => {
+  // initialize wasm module
+  await init();
+
   const data = await generateImage(w, h);
 
   const canvas = document.querySelector("canvas");
