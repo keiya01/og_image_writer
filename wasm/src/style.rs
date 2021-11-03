@@ -93,7 +93,7 @@ pub struct JsStyle {
     pub max_width: Option<u32>,
     /// For Text element
     /// This property support multiline.
-    text_overflow: JsTextOverflow,
+    text_overflow: String,
     pub position: Position,
     pub top: Option<i32>,
     pub right: Option<i32>,
@@ -110,7 +110,7 @@ impl JsStyle {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_text_overflow(&mut self, value: JsTextOverflow) {
+    pub fn set_text_overflow(&mut self, value: String) {
         self.text_overflow = value;
     }
 }
@@ -131,9 +131,7 @@ impl Default for JsStyle {
             text_align: TextAlign::Start,
             max_height: None,
             max_width: None,
-            text_overflow: JsTextOverflow {
-                obj: JsValue::from("clip"),
-            },
+            text_overflow: "clip".to_string(),
             position: Position::Static,
             top: None,
             right: None,
@@ -191,11 +189,10 @@ pub fn from_js_style(style: JsStyle) -> Style {
         max_height: style.max_height,
         max_width: style.max_width,
         text_overflow: {
-            let text_overflow: String = style.text_overflow.obj.into_serde().unwrap();
-            match &text_overflow[..] {
+            match &style.text_overflow[..] {
                 "clip" => TextOverflow::Clip,
                 "ellipsis" => TextOverflow::Ellipsis,
-                _ => TextOverflow::Content(text_overflow),
+                _ => TextOverflow::Content(style.text_overflow.clone()),
             }
         },
         position: style.position,

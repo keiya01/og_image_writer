@@ -3,6 +3,7 @@ mod style;
 use og_image_writer::{style::Style, writer::OGImageWriter, Error, TextArea};
 use std::path::Path;
 use wasm_bindgen::prelude::*;
+use std::panic;
 
 use style::{from_js_style, from_js_window_style, JsStyle, JsWindowStyle};
 
@@ -12,6 +13,11 @@ struct JsSplitText {
     font: Option<Vec<u8>>,
 }
 
+#[wasm_bindgen(start)]
+pub fn wasm_init() {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
 #[wasm_bindgen(js_name = TextArea)]
 #[derive(Default)]
 pub struct JsTextArea(Vec<JsSplitText>);
@@ -19,6 +25,7 @@ pub struct JsTextArea(Vec<JsSplitText>);
 #[wasm_bindgen(js_class = TextArea)]
 impl JsTextArea {
     pub fn new() -> JsTextArea {
+        console_error_panic_hook::set_once();
         JsTextArea::default()
     }
 
@@ -29,9 +36,10 @@ impl JsTextArea {
 
     fn into_textarea(self) -> Result<TextArea, Error> {
         let mut textarea = TextArea::new();
-        for split_text in self.0 {
-            if let Some(style) = split_text.style {
-                textarea.push(&split_text.text, style, split_text.font)?;
+        for mut split_text in self.0 {
+            if let Some(style) = split_text.style.take() {
+                let font = split_text.font.take();
+                textarea.push(&split_text.text, style, font)?;
             } else {
                 textarea.push_text(&split_text.text);
             }
@@ -48,8 +56,6 @@ pub struct JsOGImageWriter {
 #[wasm_bindgen(js_class = OGImageWriter)]
 impl JsOGImageWriter {
     pub fn new(style: JsWindowStyle) -> Self {
-        console_error_panic_hook::set_once();
-
         let style = from_js_window_style(style);
 
         JsOGImageWriter {
