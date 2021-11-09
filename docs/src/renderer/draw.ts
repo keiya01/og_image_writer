@@ -175,7 +175,5 @@ export const drawImg = (writer: Writer) => {
 
   imgWriter.paint();
 
-  console.log(imgWriter);
-
   return imgWriter;
 };
