@@ -6,8 +6,10 @@
   let writer = createWriter();
 </script>
 
-<div class="canvas-container">
-  <Canvas writer={writer} />
+<div class="canvas">
+  <div class="canvas-inner">
+    <Canvas writer={writer} />
+  </div>
 </div>
 <div class="writer-form">
   <div class="writer-form-inner">
@@ -16,8 +18,16 @@
 </div>
 
 <style>
-  .canvas-container {
-    margin: 0 20px;
+  .canvas {
+    box-sizing: border-box;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .canvas-inner {
+    display: inline-block;
+    padding: 0 20px;
+    box-sizing: border-box;
   }
 
   .writer-form {
