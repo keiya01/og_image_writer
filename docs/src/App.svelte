@@ -17,7 +17,7 @@ import Playground from './Playground.svelte';
   }
 
   :global(main) {
-    margin-top: 20px;
+    margin: 20px;
   }
 
   :global(:root) {

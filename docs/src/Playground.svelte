@@ -23,6 +23,8 @@
     box-sizing: border-box;
     overflow-x: auto;
     white-space: nowrap;
+    width: calc(100% + 40px);
+    margin-left: -20px;
   }
 
   .canvas-inner {
@@ -35,6 +37,8 @@
     box-sizing: border-box;
     margin-top: 10px;
     overflow-x: auto;
+    width: calc(100% + 40px);
+    margin-left: -20px;
     white-space: nowrap;
   }
 
