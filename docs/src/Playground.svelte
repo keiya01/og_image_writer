@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { overrideWindowStyle } from './constants/styles';
   import Canvas from './lib/Canvas'
   import WriterForm from './lib/WriterForm/WriterForm.svelte';
   import { createWriter } from './renderer/draw';
 
-  let writer = createWriter();
+  let writer = createWriter(overrideWindowStyle);
 </script>
 
 <div class="canvas">

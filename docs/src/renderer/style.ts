@@ -67,7 +67,7 @@ export type WindowStyleObj = {
   width?: number;
 };
 
-export const getDefaultWindowStyleObj = () => ({
+export const getDefaultWindowStyleObj = (): WindowStyleObj => ({
   alignItems: AlignItems.Start,
   backgroundColor: { r: 0, g: 0, b: 0, a: 255 },
   flexDirection: FlexDirection.Column,

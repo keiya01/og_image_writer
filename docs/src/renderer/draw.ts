@@ -15,20 +15,25 @@ import type {
   Writer,
   TextAreaItem,
 } from "./types";
-import type { StyleObj } from "./style";
+import type { StyleObj, WindowStyleObj } from "./style";
 import { getDefaultStyleObj, getDefaultWindowStyleObj } from "./style";
 
-export const createWriter = (): Writer => {
+export const createWriter = (overrideStyle?: WindowStyleObj): Writer => {
   return {
     data: [],
-    style: getDefaultWindowStyleObj(),
+    style: {
+      ...getDefaultWindowStyleObj(),
+      ...(overrideStyle || {}),
+    },
   };
 };
 
-export const createContainer = (): Container => {
+export const createContainer = (
+  overrideWindowStyle?: WindowStyleObj
+): Container => {
   return {
     type: "container",
-    writer: createWriter(),
+    writer: createWriter(overrideWindowStyle),
     style: getDefaultStyleObj(),
   };
 };

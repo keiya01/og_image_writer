@@ -5,8 +5,8 @@
 
   export let writer: Writer;
 
-  let width = 500;
-  let height = 300;
+  let width = writer.style.width;
+  let height = writer.style.height;
 </script>
 
 {#await initOnlyOnce()}
