@@ -1,6 +1,7 @@
 <script lang="ts">
   import { overrideWindowStyle } from './constants/styles';
   import Canvas from './lib/Canvas'
+  import Introduction from './lib/Introduction/Introduction.svelte';
   import WriterForm from './lib/WriterForm/WriterForm.svelte';
   import { createWriter } from './renderer/draw';
 
@@ -11,6 +12,9 @@
   <div class="canvas-inner">
     <Canvas writer={writer} />
   </div>
+</div>
+<div class="introduction">
+  <Introduction />
 </div>
 <div class="writer-form">
   <div class="writer-form-inner">
@@ -33,9 +37,13 @@
     box-sizing: border-box;
   }
 
+  .introduction {
+    margin: 40px 0 0;
+  }
+
   .writer-form {
     box-sizing: border-box;
-    margin-top: 10px;
+    margin-top: 40px;
     overflow-x: auto;
     width: calc(100% + 40px);
     margin-left: -20px;

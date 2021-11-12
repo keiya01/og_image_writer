@@ -1,4 +1,8 @@
-<section>
+<script lang="ts">
+  export let id: string | undefined = undefined;
+</script>
+
+<section id={id}>
   <slot></slot>
 </section>
 

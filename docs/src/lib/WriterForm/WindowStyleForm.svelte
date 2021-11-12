@@ -1,3 +1,7 @@
+<script context="module">
+  export const WINDOW_STYLE_FORM_ID = "window-style-form";
+</script>
+
 <script lang="ts">
   import { AlignItems, FlexDirection, JustifyContent } from "og_image_writer";
   import type { WindowStyleObj } from "../../renderer/style";
@@ -19,7 +23,7 @@ import Title from "./Title.svelte";
   }
 </script>
 
-<FormSection>
+<FormSection id={WINDOW_STYLE_FORM_ID}>
   <details>
     <summary>
       <Title>

@@ -1,7 +1,11 @@
+<script context="module">
+  export const ELEMENT_SELECT_FORM_ID = "element-select-form";
+</script>
+
 <script lang="ts">
   import type { Element } from "../../renderer/types";
-import { createEventDispatcher } from "svelte";
-import InlineButton from "../InlineButton";
+  import { createEventDispatcher } from "svelte";
+  import InlineButton from "../InlineButton";
 
   export let type: Element["type"];
 
@@ -12,7 +16,7 @@ import InlineButton from "../InlineButton";
   }
 </script>
 
-<div class="container">
+<div class="container" id={ELEMENT_SELECT_FORM_ID}>
   <select bind:value={type} name="element-type">
     <option value="">-- Select a drawing element --</option>
     <option value="textarea">textarea</option>
