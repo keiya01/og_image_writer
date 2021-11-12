@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+
   let timeoutId: NodeJS.Timeout;
 </script>
 
@@ -8,6 +9,8 @@
   import { drawImg } from '../../renderer/draw';
 
   export let writer: Writer;
+  export let height = 0;
+  export let width = 0;
 
   let canvas: HTMLCanvasElement;
 
@@ -16,15 +19,15 @@
       clearTimeout(timeoutId);
     }
 
-    const w = writer.style.width;
-    const h = writer.style.height;
+    const w = writer.style.width || width;
+    const h = writer.style.height || height;
     if(canvas && w && h) {
       timeoutId = setTimeout(() => {
-        const imgWriter = drawImg(writer);
+        const imgWriter = drawImg(writer, w, h);
         renderImg(canvas, imgWriter, w, h);
       }, 500);
     }
   }
 </script>
 
-<canvas bind:this={canvas} width={500} height={300} />
+<canvas bind:this={canvas} width={width} height={height} />

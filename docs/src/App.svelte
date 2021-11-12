@@ -1,5 +1,4 @@
 <script lang="ts">
-import { initOnlyOnce } from './helpers/wasmHelper';
 import Header from './lib/Header';
 import Playground from './Playground.svelte';
 </script>
@@ -7,11 +6,7 @@ import Playground from './Playground.svelte';
 <Header />
 
 <main>
-  {#await initOnlyOnce()}
-    <span class="loader">loading wasm modules...</span>
-  {:then _}
-    <Playground />
-  {/await}
+  <Playground />
 </main>
 
 <style>
@@ -33,9 +28,5 @@ import Playground from './Playground.svelte';
 
   :global(a:focus), :global(button:focus), :global(input:focus), :global(select:focus) {
     outline: 3px solid var(--focus-color);
-  }
-
-  .loader {
-    font-weight: bold;
   }
 </style>

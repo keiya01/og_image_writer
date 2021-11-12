@@ -119,7 +119,7 @@ const getStyle = (obj?: StyleObj) => {
   return style;
 };
 
-export const drawImg = (writer: Writer) => {
+export const drawImg = (writer: Writer, w: number, h: number) => {
   const windowStyle = WindowStyle.new();
   optionalAssign(windowStyle, "align_items", writer.style.alignItems);
   optionalAssign(
@@ -132,10 +132,10 @@ export const drawImg = (writer: Writer) => {
       writer.style.backgroundColor.a
     )
   );
-  optionalAssign(windowStyle, "height", writer.style.height);
+  optionalAssign(windowStyle, "height", h);
   optionalAssign(windowStyle, "flex_direction", writer.style.flexDirection);
   optionalAssign(windowStyle, "justify_content", writer.style.justifyContent);
-  optionalAssign(windowStyle, "width", writer.style.width);
+  optionalAssign(windowStyle, "width", w);
 
   const imgWriter = OGImageWriter.new(windowStyle);
 
@@ -165,7 +165,11 @@ export const drawImg = (writer: Writer) => {
         break;
       }
       case "container": {
-        const container = drawImg(elm.writer);
+        const container = drawImg(
+          elm.writer,
+          elm.writer.style.width || w / 1.5,
+          elm.writer.style.height || h / 1.5
+        );
         const style = getStyle(elm.style);
         imgWriter.set_container(container, style);
         break;
