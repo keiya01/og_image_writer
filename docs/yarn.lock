@@ -510,10 +510,10 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-og_image_writer@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/og_image_writer/-/og_image_writer-0.0.6.tgz#06df7ab80e0834d2fc54861ab74006adb1f9ca28"
-  integrity sha512-IiZztWc+aMVz7rm+RHKMWLeKcdC4tPArr+H0o7kPLo/1W4FYbJCtBtXfxY0sM7sCdIEg+vY5W5OTdmXv2YvF9w==
+og_image_writer@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/og_image_writer/-/og_image_writer-0.0.7.tgz#03b1c02bac84f0189933b759bb7a2c8b1132b291"
+  integrity sha512-lBn5jOKsHGawyYHLrBLT6n7HkFtzZndSDqJtE+m9FBsktiNLyaB2pfQ2sjhlDZmlDL3+ts0j5fEHHMtxg0iMvw==
 
 once@^1.3.0:
   version "1.4.0"
