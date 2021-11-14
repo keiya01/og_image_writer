@@ -7,6 +7,13 @@ use wasm_bindgen::prelude::*;
 
 use style::{from_js_style, from_js_window_style, JsStyle, JsWindowStyle};
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "wee_alloc")] {
+        #[global_allocator]
+        static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+    }
+}
+
 struct JsSplitText {
     text: String,
     style: Option<Style>,

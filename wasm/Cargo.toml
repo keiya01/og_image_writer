@@ -17,4 +17,9 @@ crate-type = ["cdylib"]
 [dependencies]
 og_image_writer = { path = "../og_image_writer" }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-console_error_panic_hook = "0.1.7"
+console_error_panic_hook = { version = "0.1.7", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
+cfg-if = "1.0.0"
+
+[features]
+default = ["console_error_panic_hook", "wee_alloc"]
