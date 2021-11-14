@@ -1,5 +1,6 @@
 <script lang="ts">
   import { GITHUB_URL, MDN_CSS } from '../../constants/url';
+  import Code from '../Code/Code.svelte';
 </script>
 
 <section>
@@ -20,9 +21,9 @@
     </ul>
     <li>Select a drawing element from select form then click the adding button.</li>
     <ul>
-      <li><code>textarea</code> is an element for indicating text. You need to set font data for drawing on window.</li>
-      <li><code>img</code> is an element for indicating image data. You need to set image data for drawing on window.</li>
-      <li><code>container</code> is an element for indicating child window.</li>
+      <li><Code>textarea</Code> is an element for indicating text. You need to set font data for drawing on window.</li>
+      <li><Code>img</Code> is an element for indicating image data. You need to set image data for drawing on window.</li>
+      <li><Code>container</Code> is an element for indicating child window.</li>
     </ul>
     <li>Set up element's style Properties.</li>
     <ul>
@@ -68,12 +69,5 @@
 
   ul > li {
     margin-top: 10px;
-  }
-
-  code {
-    font-family: inherit;
-    padding: 2px 5px;
-    border-radius: 5px;
-    background: var(--code-background-color);
   }
 </style>

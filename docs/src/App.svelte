@@ -24,6 +24,7 @@ import Playground from './Playground.svelte';
     --main-color: #963f09;
     --base-color: #fff;
     --focus-color: #0d6eff;
+    --error-color: #870707;
     --code-background-color: #ddd;
   }
 
