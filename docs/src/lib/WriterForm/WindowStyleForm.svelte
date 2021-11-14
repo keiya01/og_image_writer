@@ -24,7 +24,7 @@ import Title from "./Title.svelte";
 </script>
 
 <FormSection id={WINDOW_STYLE_FORM_ID}>
-  <details>
+  <details open>
     <summary>
       <Title>
         <h2>Window Style Properties</h2>
