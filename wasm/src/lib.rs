@@ -1,9 +1,9 @@
 mod style;
 
 use og_image_writer::{style::Style, writer::OGImageWriter, Error, TextArea};
+use std::panic;
 use std::path::Path;
 use wasm_bindgen::prelude::*;
-use std::panic;
 
 use style::{from_js_style, from_js_window_style, JsStyle, JsWindowStyle};
 
