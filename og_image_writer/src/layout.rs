@@ -153,6 +153,9 @@ impl OGImageWriter {
                     *current_y -= line_metrics.total_height as i32 + margin_top + margin_bottom;
                 } else {
                     *current_y += line_metrics.total_height as i32 + margin_top + margin_bottom;
+                    if matches!(self.window.justify_content, JustifyContent::Start) {
+                        *current_y += system_line_height as i32;
+                    }
                 }
             }
             _ => {}
