@@ -261,3 +261,9 @@ import Title from "./Title.svelte";
     </ChildList>
   </details>
 </section>
+
+<style>
+  legend {
+    font-size: 16px;
+  }
+</style>

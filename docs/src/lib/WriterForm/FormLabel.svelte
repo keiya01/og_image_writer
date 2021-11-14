@@ -8,7 +8,7 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
   }
 

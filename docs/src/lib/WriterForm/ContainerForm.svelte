@@ -31,3 +31,9 @@ export let element: Container & { id: number };
     </ChildList>
   </details>
 </section>
+
+<style>
+  legend {
+    font-size: 16px;
+  }
+</style>

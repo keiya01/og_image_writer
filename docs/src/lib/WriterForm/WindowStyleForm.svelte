@@ -152,3 +152,9 @@ import Title from "./Title.svelte";
     </ChildList>
   </details>
 </FormSection>
+
+<style>
+  legend {
+    font-size: 16px;
+  }
+</style>
