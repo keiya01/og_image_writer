@@ -15,7 +15,7 @@
     display: flex;
     grid-template-rows: 1fr 60px;
     width: 100%;
-    padding: 5px 10px;
+    padding: 5px 20px;
     box-sizing: border-box;
   }
 

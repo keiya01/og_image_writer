@@ -8,13 +8,13 @@
   let writer = createWriter(overrideWindowStyle);
 </script>
 
+<div class="introduction">
+  <Introduction />
+</div>
 <div class="canvas">
   <div class="canvas-inner">
     <Canvas writer={writer} />
   </div>
-</div>
-<div class="introduction">
-  <Introduction />
 </div>
 <div class="writer-form">
   <div class="writer-form-inner">
@@ -28,6 +28,7 @@
     overflow-x: auto;
     white-space: nowrap;
     width: calc(100% + 40px);
+    margin-top: 40px;
     margin-left: -20px;
   }
 

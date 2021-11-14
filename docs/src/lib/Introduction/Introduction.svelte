@@ -5,18 +5,18 @@
 <section>
   <h2>What is this?</h2>
   <p>This is documentation for <a href={GITHUB_URL}>og_image_writer</a> library written in Rust.</p>
-  <p>You can create image dynamically by using <a href={MDN_CSS}>CSS</a> like API.</p>
+  <p>You can create a image dynamically by using <a href={MDN_CSS}>CSS</a> like API.</p>
 </section>
 
 <section>
   <h2>How to use the playgroud?</h2>
-  <p>You can draw element and styling on image at the top of page by entering some infomation at the below input field.</p>
+  <p>You can draw an element and styling on window image by entering some styling value at the below input field.</p>
   <p>All style properties behave like <a href={MDN_CSS}>CSS</a>.</p>
   <h3>Drawing Steps</h3>
   <ol>
-    <li>Setting up <b>Window Style Properties</b> fields.</li>
+    <li>Set up <b>Window Style Properties</b> fields.</li>
     <ul>
-      <li><b>Window Style</b> specify style for top level window. All element is drawn on this window.</li>
+      <li><b>Window Style</b> indicates layout for top level window image. All element is drawn on this window.</li>
     </ul>
     <li>Select a drawing element from select form then click the adding button.</li>
     <ul>
@@ -24,7 +24,10 @@
       <li><code>img</code> is an element for indicating image data. You need to set image data for drawing on window.</li>
       <li><code>container</code> is an element for indicating child window.</li>
     </ul>
-    <li>Setting up element style properties.</li>
+    <li>Set up element's style Properties.</li>
+    <ul>
+      <li><b>Element's style</b> indicates layout for each element.</li>
+    </ul>
   </ol>
 </section>
 
@@ -65,5 +68,12 @@
 
   ul > li {
     margin-top: 10px;
+  }
+
+  code {
+    font-family: inherit;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: var(--code-background-color);
   }
 </style>
