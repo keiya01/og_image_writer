@@ -174,7 +174,7 @@ impl TextArea {
         self.0.push(split_text);
     }
 
-    pub fn push_text_with_glyphs(&mut self, text: &str, font: &Font, font_context: &FontContext) -> Result<(), Error> {
+    pub(super) fn push_text_with_glyphs(&mut self, text: &str, font: &Font, font_context: &FontContext) -> Result<(), Error> {
         let last_range_end = match self.0.iter().last() {
             Some(split) => split.range.end,
             None => 0,
