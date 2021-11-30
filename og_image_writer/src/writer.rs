@@ -78,6 +78,8 @@ impl OGImageWriter {
         })
     }
 
+    /// You can get FontContext.
+    /// You can specify global fallback font by using `FontContext::push`.
     pub fn get_font_context(&mut self) -> &mut FontContext {
         &mut self.font_context
     }
