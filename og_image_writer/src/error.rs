@@ -13,4 +13,6 @@ pub enum Error {
     NotFoundContainerImage,
     #[error("Could not found text within range")]
     OutOfRangeText,
+    #[error("Could not found specified font family")]
+    NotFoundSpecifiedFontFamily,
 }
