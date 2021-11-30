@@ -16,6 +16,9 @@ pub(crate) struct SplitText {
 }
 
 impl SplitText {
+    // Set bundled glyphs with text range that has same font.
+    // When all text have same font then glyphs length is 1.
+    // Glyph has text range bundled with same font.
     fn set_glyphs(
         &mut self,
         parent_font: &Font,
