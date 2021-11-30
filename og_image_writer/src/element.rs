@@ -21,8 +21,8 @@ impl Element {
 
     pub(super) fn margin(&self) -> Margin {
         match self {
-            Element::Img(Some(img)) => img.style.margin.clone(),
-            Element::Text(Some(text)) => text.style.margin.clone(),
+            Element::Img(Some(img)) => img.style.margin,
+            Element::Text(Some(text)) => text.style.margin,
             _ => Margin::default(),
         }
     }
