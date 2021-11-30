@@ -1,5 +1,6 @@
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
+use crate::font::FontContext;
 use crate::style::{Style, WordBreak};
 use crate::Error;
 use rusttype::Font;
@@ -37,6 +38,7 @@ impl<'a> LineBreaker<'a> {
         style: &Style,
         font: &Font,
         textarea: &TextArea,
+        font_context: &FontContext,
     ) -> Result<(), Error> {
         let chars = self.title.char_indices();
 
@@ -49,23 +51,8 @@ impl<'a> LineBreaker<'a> {
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
             let ch_len = ch.to_string().len();
-
-            let split_text = textarea.get_split_text_from_char_range(i..i + ch_len);
-            let (font_size, font) = match split_text {
-                Some(split_text) => {
-                    let font_size = match &split_text.style {
-                        Some(style) => style.font_size,
-                        None => style.font_size,
-                    };
-                    let font = match &split_text.font {
-                        Some(font) => font,
-                        None => font,
-                    };
-                    (font_size, font)
-                }
-                None => (style.font_size, font),
-            };
-            let extents = context.char_extents(ch, font_size, font);
+            let extents =
+                textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)?;
 
             let ch_width = extents.width;
 
@@ -156,6 +143,7 @@ impl<'a> LineBreaker<'a> {
 mod tests {
     use super::*;
     use crate::context::Context;
+    use crate::font::FontContext;
     use crate::layout::TextArea;
     use rusttype::Font;
 
@@ -172,6 +160,10 @@ mod tests {
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
+        let font_context = FontContext::new();
+
+        textarea.set_glyphs(&font, &font_context).unwrap();
+
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
@@ -184,6 +176,7 @@ mod tests {
                 },
                 &font,
                 &textarea,
+                &font_context,
             )
             .unwrap();
 
@@ -210,6 +203,12 @@ mod tests {
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
+        let font = Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let font_context = FontContext::new();
+
+        textarea.set_glyphs(&font, &font_context).unwrap();
+
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
@@ -220,8 +219,9 @@ mod tests {
                     word_break: WordBreak::BreakAll,
                     ..Style::default()
                 },
-                &Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap(),
+                &font,
                 &textarea,
+                &font_context,
             )
             .unwrap();
 
