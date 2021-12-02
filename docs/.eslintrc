@@ -1,0 +1,21 @@
+{
+  "env": {
+    "es2020": true,
+    "browser": true
+  },
+  "globals": {
+    "NodeJS": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "overrides": [
+    {
+      "files": ["**/*.svelte"],
+      "processor": "svelte3/svelte3"
+    }
+  ],
+  "plugins": ["svelte3", "@typescript-eslint"],
+  "settings": {
+    "svelte3/typescript": true
+  }
+}
