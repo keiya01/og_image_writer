@@ -38,6 +38,10 @@ impl OGImageWriter {
 
         let text = textarea.borrow().as_string();
 
+        textarea
+            .borrow_mut()
+            .set_glyphs(&font, &self.font_context)?;
+
         let mut line_breaker = LineBreaker::new(&text);
         line_breaker.break_text(
             &self.context,
@@ -45,6 +49,7 @@ impl OGImageWriter {
             &style,
             &font,
             &textarea.borrow(),
+            &self.font_context,
         )?;
 
         let max_line_height = line_breaker.max_line_height;
@@ -158,22 +163,15 @@ impl OGImageWriter {
         let mut total_char_width = 0.;
         let mut split_index = 0;
         for (i, ch) in text.char_indices().rev() {
-            let split_text = textarea.get_split_text_from_char_range(i..i + ch.to_string().len());
-            let (font_size, font) = match split_text {
-                Some(split_text) => {
-                    let font_size = match &split_text.style {
-                        Some(style) => style.font_size,
-                        None => style.font_size,
-                    };
-                    let font = match &split_text.font {
-                        Some(font) => font,
-                        None => font,
-                    };
-                    (font_size, font)
-                }
-                None => (style.font_size, font),
-            };
-            total_char_width += self.context.char_extents(ch, font_size, font).width;
+            let extents = textarea.char_extents(
+                ch,
+                font,
+                i..i + ch.to_string().len(),
+                style,
+                &self.context,
+                &self.font_context,
+            )?;
+            total_char_width += extents.width;
             if total_char_width >= ellipsis_width {
                 split_index = i;
                 break;
@@ -184,6 +182,15 @@ impl OGImageWriter {
             // shape TextArea with ellipsis
             while let Some(mut split_text) = textarea.0.pop() {
                 if split_text.range.start <= split_index && split_index <= split_text.range.end {
+                    while let Some(mut glyph) = split_text.glyphs.pop() {
+                        if glyph.range.start <= split_index && split_index <= glyph.range.end {
+                            let end = glyph.range.end - split_index;
+                            glyph.range.end -= end;
+                            split_text.glyphs.push(glyph);
+                            break;
+                        }
+                    }
+
                     let end = split_text.range.end - split_index;
                     split_text.range.end -= end;
                     split_text.text =
@@ -193,10 +200,11 @@ impl OGImageWriter {
                 }
             }
 
-            let next_range = line.range.start..split_index + ellipsis.len();
-            line.range = next_range.clone();
+            line.range = line.range.start..split_index + ellipsis.len();
             let mut next_text = text[0..split_index].to_string().clone();
             next_text.push_str(ellipsis);
+            textarea.push_text_with_glyphs(ellipsis, font, &self.font_context)?;
+
             return Ok(next_text);
         }
 

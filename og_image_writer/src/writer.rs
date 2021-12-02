@@ -3,11 +3,17 @@ use image::ImageError;
 use crate::Error;
 
 use super::context::Context;
-use super::element::{Element, Img, Text};
-use super::font::create_font;
+use super::element::{Element, Img, Line, Text};
+use super::font::{create_font, Font, FontContext, FontIndexStore};
+use super::glyph::Glyph;
 use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
-use std::{cell::RefCell, path::Path, str};
+use std::{
+    cell::RefCell,
+    ops::Range,
+    path::Path,
+    str,
+};
 
 #[derive(Default)]
 pub(super) struct Content {
@@ -25,6 +31,7 @@ pub struct OGImageWriter {
     pub(super) tree: Tree,
     pub(super) window: WindowStyle,
     pub(super) content: Content,
+    pub(super) font_context: FontContext,
 }
 
 impl OGImageWriter {
@@ -37,6 +44,7 @@ impl OGImageWriter {
             tree: OGImageWriter::create_tree(),
             window,
             content: Content::default(),
+            font_context: FontContext::new(),
         };
 
         this.process_background()?;
@@ -66,7 +74,14 @@ impl OGImageWriter {
                 ..window
             },
             content: Content::default(),
+            font_context: FontContext::new(),
         })
+    }
+
+    /// You can get FontContext.
+    /// You can specify global fallback font by using `FontContext::push`.
+    pub fn get_font_context(&mut self) -> &mut FontContext {
+        &mut self.font_context
     }
 
     pub(super) fn create_tree() -> Tree {
@@ -156,92 +171,174 @@ impl OGImageWriter {
     }
 
     fn paint_text(&mut self, text_elm: Text) -> Result<(), Error> {
+        fn render_text(
+            text: &str,
+            range: &mut Range<usize>,
+            font: &Font,
+            context: &mut Context,
+            current_width: &mut u32,
+            style: &Style,
+            line: &Line,
+        ) -> Result<(), Error> {
+            let next_text = &text[range.clone()];
+
+            context.draw_text(
+                style.color.as_image_rgba(),
+                line.rect.x + *current_width,
+                line.rect.y,
+                style.font_size,
+                font,
+                next_text,
+            )?;
+
+            *range = range.end..range.end;
+            *current_width +=
+                context.text_extents(next_text, style.font_size, font).width as u32;
+
+            Ok(())
+        }
+
         let style = text_elm.style;
         let mut current_split_text: Option<&SplitText> = None;
+        let mut current_glyph: Option<&Glyph> = None;
         for line in &text_elm.lines {
             let text = &text_elm.text[line.range.clone()];
             let mut range = 0..0;
             let mut current_width = 0;
             for (i, ch) in text.char_indices() {
                 let ch_len = ch.to_string().len();
-                let split_text = text_elm.textarea.get_split_text_from_char_range(
+                let (split_text, glyph) = text_elm.textarea.get_glyphs_from_char_range(
                     line.range.start + i..line.range.start + i + ch_len,
                 );
-                let contained = match split_text {
-                    Some(split_text) => match &current_split_text {
-                        Some(current_split_text) => {
+                let contained = match (split_text, glyph) {
+                    (Some(split_text), Some(glyph)) => match (&current_split_text, &current_glyph) {
+                        (Some(current_split_text), Some(current_glyph)) => {
                             split_text.range.start >= current_split_text.range.start
                                 && split_text.range.end <= current_split_text.range.end
+                                && glyph.font_index_store == current_glyph.font_index_store
                         }
-                        None => {
+                        (None, None) => {
                             current_split_text = Some(split_text);
+                            current_glyph = Some(glyph);
                             true
-                        }
+                        },
+                        _ => return Err(Error::OutOfRangeText),
                     },
-                    None => false,
+                    _ => return Err(Error::OutOfRangeText),
                 };
 
                 if !contained {
                     // current_split_text is always Some.
-                    let (style, font) = match current_split_text {
-                        Some(current_split_text) => {
-                            let style = match &current_split_text.style {
-                                Some(style) => style,
-                                None => &style,
-                            };
-                            let font = match &current_split_text.font {
-                                Some(font) => font,
-                                None => &text_elm.font,
-                            };
-                            (style, font)
-                        }
-                        None => (&style, &text_elm.font),
+                    let style = match current_split_text {
+                        Some(current_split_text) => match &current_split_text.style {
+                            Some(style) => style,
+                            None => &style,
+                        },
+                        None => &style,
                     };
 
-                    let next_text = &text[range.clone()];
+                    match current_glyph {
+                        Some(glyph) => match &glyph.font_index_store {
+                            FontIndexStore::Global(idx) => {
+                                let store = self.font_context.borrow_font_store();
+                                let store = store.borrow();
+                                let font = store.borrow_font(idx);
+                                render_text(
+                                    text,
+                                    &mut range,
+                                    font,
+                                    &mut self.context,
+                                    &mut current_width,
+                                    style,
+                                    line,
+                                )?;
+                            }
+                            FontIndexStore::Parent(_) => render_text(
+                                text,
+                                &mut range,
+                                &text_elm.font,
+                                &mut self.context,
+                                &mut current_width,
+                                style,
+                                line,
+                            )?,
+                            FontIndexStore::Child(_) => match current_split_text {
+                                Some(temp_split_text) => match &temp_split_text.font {
+                                    Some(font) => render_text(
+                                        text,
+                                        &mut range,
+                                        font,
+                                        &mut self.context,
+                                        &mut current_width,
+                                        style,
+                                        line,
+                                    )?,
+                                    None => return Err(Error::NotFoundSpecifiedFontFamily),
+                                },
+                                None => return Err(Error::OutOfRangeText),
+                            },
+                        },
+                        None => return Err(Error::NotFoundSpecifiedFontFamily),
+                    };
 
-                    self.context.draw_text(
-                        style.color.as_image_rgba(),
-                        line.rect.x + current_width,
-                        line.rect.y,
-                        style.font_size,
-                        font,
-                        next_text,
-                    )?;
-
-                    range = range.end..range.end;
-                    current_width += self
-                        .context
-                        .text_extents(next_text, style.font_size, font)
-                        .width as u32;
                     current_split_text = split_text;
+                    current_glyph = glyph;
                 }
                 range.end = i + ch_len;
             }
             if !range.is_empty() {
-                let (style, font) = match current_split_text {
-                    Some(inner_split_text) => {
-                        let style = match &inner_split_text.style {
-                            Some(style) => style,
-                            None => &style,
-                        };
-                        let font = match &inner_split_text.font {
-                            Some(font) => font,
-                            None => &text_elm.font,
-                        };
-                        (style, font)
+                let style = match current_split_text {
+                    Some(inner_split_text) => match &inner_split_text.style {
+                        Some(style) => style,
+                        None => &style,
                     }
-                    None => (&style, &text_elm.font),
+                    None => &style,
                 };
 
-                self.context.draw_text(
-                    style.color.as_image_rgba(),
-                    line.rect.x + current_width,
-                    line.rect.y,
-                    style.font_size,
-                    font,
-                    &text[range.clone()],
-                )?;
+                match current_glyph {
+                    Some(glyph) => match &glyph.font_index_store {
+                        FontIndexStore::Global(idx) => {
+                            let store = self.font_context.borrow_font_store();
+                            let store = store.borrow();
+                            let font = store.borrow_font(idx);
+                            self.context.draw_text(
+                                style.color.as_image_rgba(),
+                                line.rect.x + current_width,
+                                line.rect.y,
+                                style.font_size,
+                                font,
+                                &text[range.clone()],
+                            )?;
+                        },
+                        FontIndexStore::Parent(_) => {
+                            self.context.draw_text(
+                                style.color.as_image_rgba(),
+                                line.rect.x + current_width,
+                                line.rect.y,
+                                style.font_size,
+                                &text_elm.font,
+                                &text[range.clone()],
+                            )?;
+                        },
+                        FontIndexStore::Child(_) => match current_split_text {
+                            Some(split_text) => match &split_text.font {
+                                Some(font) => {
+                                    self.context.draw_text(
+                                        style.color.as_image_rgba(),
+                                        line.rect.x + current_width,
+                                        line.rect.y,
+                                        style.font_size,
+                                        font,
+                                        &text[range.clone()],
+                                    )?;
+                                },
+                                None => return Err(Error::NotFoundSpecifiedFontFamily),
+                            },
+                            None => return Err(Error::OutOfRangeText),
+                        }
+                    },
+                    None => return Err(Error::OutOfRangeText),
+                };
             }
         }
 

@@ -42,3 +42,7 @@ path = "textarea.rs"
 [[example]]
 name = "row_container"
 path = "row_container.rs"
+
+[[example]]
+name = "font_context"
+path = "font_context.rs"
