@@ -14,6 +14,24 @@ cfg_if::cfg_if! {
     }
 }
 
+#[wasm_bindgen(js_name = FontContext)]
+pub struct JsFontContext {
+    context: Vec<Vec<u8>>
+}
+
+#[wasm_bindgen(js_class = FontContext)]
+impl JsFontContext {
+    pub fn new() -> JsFontContext {
+        JsFontContext {
+            context: vec![],
+        }
+    }
+
+    pub fn push(&mut self, font: Vec<u8>) {
+        self.context.push(font);
+    }
+}
+
 struct JsSplitText {
     text: String,
     style: Option<Style>,
@@ -102,6 +120,13 @@ impl JsOGImageWriter {
         self.writer
             .set_container(&mut writer.writer, style)
             .unwrap();
+    }
+
+    pub fn set_font_context(&mut self, js_font_context: JsFontContext) {
+        let font_context = self.writer.get_font_context();
+        for data in js_font_context.context {
+            font_context.push(data).unwrap();
+        }
     }
 
     pub fn generate(&mut self, dest: String) {
