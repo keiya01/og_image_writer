@@ -5,10 +5,10 @@
 <script lang="ts">
   import { AlignItems, FlexDirection, JustifyContent } from "og_image_writer";
   import type { WindowStyleObj } from "../../renderer/style";
-import FormLabel from "./FormLabel.svelte";
-import ChildList from "./ChildList.svelte";
-import FormSection from "./FormSection.svelte";
-import Title from "./Title.svelte";
+  import FormLabel from "./FormLabel.svelte";
+  import ChildList from "./ChildList.svelte";
+  import FormSection from "./FormSection.svelte";
+  import Title from "./Title.svelte";
 
   export let style: WindowStyleObj;
 
@@ -29,7 +29,10 @@ import Title from "./Title.svelte";
       <Title>
         <h2>Window Style Properties</h2>
       </Title>
-      <p>Window Style indicates layout for top level window image. All element is drawn on this window.</p>
+      <p>
+        Window Style indicates layout for top level window image. All element is
+        drawn on this window.
+      </p>
     </summary>
 
     <ChildList>
@@ -54,25 +57,41 @@ import Title from "./Title.svelte";
             <li>
               <FormLabel>
                 r
-                <input slot="input" type="number" bind:value={style.backgroundColor.r} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.backgroundColor.r}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 g
-                <input slot="input" type="number" bind:value={style.backgroundColor.g} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.backgroundColor.g}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 b
-                <input slot="input" type="number" bind:value={style.backgroundColor.b} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.backgroundColor.b}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 a
-                <input slot="input" type="number" bind:value={style.backgroundColor.a} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.backgroundColor.a}
+                />
               </FormLabel>
             </li>
           </ul>
@@ -85,13 +104,27 @@ import Title from "./Title.svelte";
           <ul>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="flex_direction" bind:group={flexDirection} value="Column" checked={flexDirection === "Column"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="flex_direction"
+                  bind:group={flexDirection}
+                  value="Column"
+                  checked={flexDirection === "Column"}
+                />
                 Column
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="flex_direction" bind:group={flexDirection} value="Row" checked={flexDirection === "Row"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="flex_direction"
+                  bind:group={flexDirection}
+                  value="Row"
+                  checked={flexDirection === "Row"}
+                />
                 Row
               </FormLabel>
             </li>
@@ -105,19 +138,40 @@ import Title from "./Title.svelte";
           <ul>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="align_items" bind:group={alignItems} value="Start" checked={alignItems === "Start"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="align_items"
+                  bind:group={alignItems}
+                  value="Start"
+                  checked={alignItems === "Start"}
+                />
                 Start
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="align_items" bind:group={alignItems} value="Center" checked={alignItems === "Center"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="align_items"
+                  bind:group={alignItems}
+                  value="Center"
+                  checked={alignItems === "Center"}
+                />
                 Center
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="align_items" bind:group={alignItems} value="End" checked={alignItems === "End"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="align_items"
+                  bind:group={alignItems}
+                  value="End"
+                  checked={alignItems === "End"}
+                />
                 End
               </FormLabel>
             </li>
@@ -131,19 +185,40 @@ import Title from "./Title.svelte";
           <ul>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="justify_content" bind:group={justifyContent} value="Start" checked={justifyContent === "Start"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="justify_content"
+                  bind:group={justifyContent}
+                  value="Start"
+                  checked={justifyContent === "Start"}
+                />
                 Start
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="justify_content" bind:group={justifyContent} value="Center" checked={justifyContent === "Center"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="justify_content"
+                  bind:group={justifyContent}
+                  value="Center"
+                  checked={justifyContent === "Center"}
+                />
                 Center
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name="justify_content" bind:group={justifyContent} value="End" checked={justifyContent === "End"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name="justify_content"
+                  bind:group={justifyContent}
+                  value="End"
+                  checked={justifyContent === "End"}
+                />
                 End
               </FormLabel>
             </li>

@@ -2,4 +2,4 @@
   export let marginTop = 0;
 </script>
 
-<div style={`margin-top: ${marginTop}px;`}></div>
+<div style={`margin-top: ${marginTop}px;`} />

@@ -1,33 +1,30 @@
 <script lang="ts">
-import { createTextAreaItem } from "../../renderer/draw";
-import type { TextAreaItem, TextAreaObj } from "../../renderer/types";
-import InlineButton from "../InlineButton";
-import InlineFileInput from "./InlineFileInput.svelte";
-import ChildList from "./ChildList.svelte";
-import StyleForm from "./StyleForm.svelte";
-import TextAreaItemForm from "./TextAreaItemForm.svelte";
-import Title from "./Title.svelte";
+  import { createTextAreaItem } from "../../renderer/draw";
+  import type { TextAreaItem, TextAreaObj } from "../../renderer/types";
+  import InlineButton from "../InlineButton";
+  import InlineFileInput from "./InlineFileInput.svelte";
+  import ChildList from "./ChildList.svelte";
+  import StyleForm from "./StyleForm.svelte";
+  import TextAreaItemForm from "./TextAreaItemForm.svelte";
+  import Title from "./Title.svelte";
 
-export let element: TextAreaObj & { id: number };
+  export let element: TextAreaObj & { id: number };
 
-let area: TextAreaItem[] = [];
-let files: FileList;
+  let area: TextAreaItem[] = [];
+  let files: FileList;
 
-$: {
-  if(files?.length) {
-    files[0].arrayBuffer().then((buf) => {
-      element.font = new Uint8Array(buf);
-    });
+  $: {
+    if (files?.length) {
+      files[0].arrayBuffer().then((buf) => {
+        element.font = new Uint8Array(buf);
+      });
+    }
+    element.area = area;
   }
-  element.area = area;
-}
 
-const handleAddArea = () => {
-  area = [
-    ...area,
-    createTextAreaItem(),
-  ]
-}
+  const handleAddArea = () => {
+    area = [...area, createTextAreaItem()];
+  };
 </script>
 
 <section>
@@ -36,43 +33,48 @@ const handleAddArea = () => {
       <Title>
         <h2>TextArea</h2>
       </Title>
-      <p>textarea is an element for indicating text. You need to set font data for drawing on window.</p>
+      <p>
+        textarea is an element for indicating text. You need to set font data
+        for drawing on window.
+      </p>
     </summary>
-      <ChildList>
-        <li>
-          <InlineFileInput bind:files>
-            Select a parent font file(.ttf)
-          </InlineFileInput>
-        </li>
+    <ChildList>
+      <li>
+        <InlineFileInput bind:files>
+          Select a parent font file(.ttf)
+        </InlineFileInput>
+      </li>
 
-        <li>
-          <StyleForm bind:style={element.style} />
-        </li>
+      <li>
+        <StyleForm bind:style={element.style} />
+      </li>
 
-        <li>
-          <section>
-            <details open>
-              <summary>
-                <Title>
-                  <h3>Children</h3>
-                </Title>
-              </summary>
+      <li>
+        <section>
+          <details open>
+            <summary>
+              <Title>
+                <h3>Children</h3>
+              </Title>
+            </summary>
 
-              <div class="buttonContainer">
-                <InlineButton on:click={handleAddArea}>Add textarea item</InlineButton>
-              </div>
+            <div class="buttonContainer">
+              <InlineButton on:click={handleAddArea}
+                >Add textarea item</InlineButton
+              >
+            </div>
 
-              <ChildList hasListStyle={false}>
-                {#each area as item}
-                  <li class="textarea-item-list-item">
-                    <TextAreaItemForm bind:item />
-                  </li>
-                {/each}
-              </ChildList>
-            </details>
-          </section>
-        </li>
-      </ChildList>
+            <ChildList hasListStyle={false}>
+              {#each area as item}
+                <li class="textarea-item-list-item">
+                  <TextAreaItemForm bind:item />
+                </li>
+              {/each}
+            </ChildList>
+          </details>
+        </section>
+      </li>
+    </ChildList>
   </details>
 </section>
 

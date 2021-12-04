@@ -1,4 +1,4 @@
-<code><slot></slot></code>
+<code><slot /></code>
 
 <style>
   code {

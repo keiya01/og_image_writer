@@ -1,6 +1,6 @@
 <label>
-  <slot></slot>
-  <slot name="input"></slot>
+  <slot />
+  <slot name="input" />
 </label>
 
 <style>

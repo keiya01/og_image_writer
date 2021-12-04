@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { overrideWindowStyle } from './constants/styles';
-  import Canvas from './lib/Canvas'
-  import Introduction from './lib/Introduction/Introduction.svelte';
-  import WriterForm from './lib/WriterForm/WriterForm.svelte';
-  import { createWriter } from './renderer/draw';
+  import { overrideWindowStyle } from "./constants/styles";
+  import Canvas from "./lib/Canvas";
+  import Introduction from "./lib/Introduction/Introduction.svelte";
+  import WriterForm from "./lib/WriterForm/WriterForm.svelte";
+  import { createWriter } from "./renderer/draw";
 
   let writer = createWriter(overrideWindowStyle);
 </script>
@@ -13,7 +13,7 @@
 </div>
 <div class="canvas">
   <div class="canvas-inner">
-    <Canvas writer={writer} />
+    <Canvas {writer} />
   </div>
 </div>
 <div class="writer-form">

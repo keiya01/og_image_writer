@@ -2,8 +2,8 @@
   export let id: string | undefined = undefined;
 </script>
 
-<section id={id}>
-  <slot></slot>
+<section {id}>
+  <slot />
 </section>
 
 <style>

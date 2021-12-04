@@ -5,10 +5,10 @@
 
   let handleOnClick = () => {
     clickDispatcher("click");
-  }
+  };
 </script>
 
-<button type="button" on:click={handleOnClick}><slot></slot></button>
+<button type="button" on:click={handleOnClick}><slot /></button>
 
 <style>
   button {

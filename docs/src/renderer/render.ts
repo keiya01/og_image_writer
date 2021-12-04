@@ -11,7 +11,7 @@ export const renderImg = (
 
   const ctx = canvas.getContext("2d");
   const data = writer.into_vec();
-  let imageData = new ImageData(new Uint8ClampedArray(data.buffer), w, h);
+  const imageData = new ImageData(new Uint8ClampedArray(data.buffer), w, h);
 
   ctx.putImageData(imageData, 0, 0);
 };
