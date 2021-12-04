@@ -2,9 +2,9 @@ name: Test for Docs
 
 on:
   push:
-    paths: ["docs", "wasm", ".github"]
+    paths: ["docs/**", "wasm/**", ".github/**"]
   pull_request:
-    paths: ["docs", "wasm", ".github"]
+    paths: ["docs/**", "wasm/**", ".github/**"]
 
 jobs:
   build:
