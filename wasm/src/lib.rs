@@ -16,15 +16,13 @@ cfg_if::cfg_if! {
 
 #[wasm_bindgen(js_name = FontContext)]
 pub struct JsFontContext {
-    context: Vec<Vec<u8>>
+    context: Vec<Vec<u8>>,
 }
 
 #[wasm_bindgen(js_class = FontContext)]
 impl JsFontContext {
     pub fn new() -> JsFontContext {
-        JsFontContext {
-            context: vec![],
-        }
+        JsFontContext { context: vec![] }
     }
 
     pub fn push(&mut self, font: Vec<u8>) {

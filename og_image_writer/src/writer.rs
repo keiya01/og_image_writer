@@ -8,12 +8,7 @@ use super::font::{create_font, Font, FontContext, FontIndexStore};
 use super::glyph::Glyph;
 use super::layout::{SplitText, TextArea};
 use super::style::{Style, WindowStyle};
-use std::{
-    cell::RefCell,
-    ops::Range,
-    path::Path,
-    str,
-};
+use std::{cell::RefCell, ops::Range, path::Path, str};
 
 #[derive(Default)]
 pub(super) struct Content {
@@ -192,8 +187,7 @@ impl OGImageWriter {
             )?;
 
             *range = range.end..range.end;
-            *current_width +=
-                context.text_extents(next_text, style.font_size, font).width as u32;
+            *current_width += context.text_extents(next_text, style.font_size, font).width as u32;
 
             Ok(())
         }
@@ -211,19 +205,21 @@ impl OGImageWriter {
                     line.range.start + i..line.range.start + i + ch_len,
                 );
                 let contained = match (split_text, glyph) {
-                    (Some(split_text), Some(glyph)) => match (&current_split_text, &current_glyph) {
-                        (Some(current_split_text), Some(current_glyph)) => {
-                            split_text.range.start >= current_split_text.range.start
-                                && split_text.range.end <= current_split_text.range.end
-                                && glyph.font_index_store == current_glyph.font_index_store
+                    (Some(split_text), Some(glyph)) => {
+                        match (&current_split_text, &current_glyph) {
+                            (Some(current_split_text), Some(current_glyph)) => {
+                                split_text.range.start >= current_split_text.range.start
+                                    && split_text.range.end <= current_split_text.range.end
+                                    && glyph.font_index_store == current_glyph.font_index_store
+                            }
+                            (None, None) => {
+                                current_split_text = Some(split_text);
+                                current_glyph = Some(glyph);
+                                true
+                            }
+                            _ => return Err(Error::OutOfRangeText),
                         }
-                        (None, None) => {
-                            current_split_text = Some(split_text);
-                            current_glyph = Some(glyph);
-                            true
-                        },
-                        _ => return Err(Error::OutOfRangeText),
-                    },
+                    }
                     _ => return Err(Error::OutOfRangeText),
                 };
 
@@ -291,7 +287,7 @@ impl OGImageWriter {
                     Some(inner_split_text) => match &inner_split_text.style {
                         Some(style) => style,
                         None => &style,
-                    }
+                    },
                     None => &style,
                 };
 
@@ -309,7 +305,7 @@ impl OGImageWriter {
                                 font,
                                 &text[range.clone()],
                             )?;
-                        },
+                        }
                         FontIndexStore::Parent(_) => {
                             self.context.draw_text(
                                 style.color.as_image_rgba(),
@@ -319,7 +315,7 @@ impl OGImageWriter {
                                 &text_elm.font,
                                 &text[range.clone()],
                             )?;
-                        },
+                        }
                         FontIndexStore::Child(_) => match current_split_text {
                             Some(split_text) => match &split_text.font {
                                 Some(font) => {
@@ -331,11 +327,11 @@ impl OGImageWriter {
                                         font,
                                         &text[range.clone()],
                                     )?;
-                                },
+                                }
                                 None => return Err(Error::NotFoundSpecifiedFontFamily),
                             },
                             None => return Err(Error::OutOfRangeText),
-                        }
+                        },
                     },
                     None => return Err(Error::OutOfRangeText),
                 };

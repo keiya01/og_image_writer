@@ -70,7 +70,7 @@ impl FontContext {
         Ok(())
     }
 
-    pub fn clear(&self)  {
+    pub fn clear(&self) {
         // Clear global memory cache
         font_context_store::clear();
     }

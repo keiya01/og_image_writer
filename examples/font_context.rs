@@ -12,9 +12,15 @@ fn main() -> anyhow::Result<()> {
     })?;
 
     let fc = writer.get_font_context();
-    fc.push(Vec::from(include_bytes!("../fonts/Roboto-Light.ttf") as &[u8]))?;
-    fc.push(Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]))?;
-    fc.push(Vec::from(include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8]))?;
+    fc.push(Vec::from(
+        include_bytes!("../fonts/Roboto-Light.ttf") as &[u8]
+    ))?;
+    fc.push(Vec::from(
+        include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]
+    ))?;
+    fc.push(Vec::from(
+        include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8],
+    ))?;
 
     let mut textarea = TextArea::new();
     textarea.push_text("こんにちは。 ");
@@ -36,7 +42,9 @@ fn main() -> anyhow::Result<()> {
             font_size: 100.,
             ..style::Style::default()
         },
-        Some(Vec::from(include_bytes!("../fonts/Roboto-Light.ttf") as &[u8])),
+        Some(Vec::from(
+            include_bytes!("../fonts/Roboto-Light.ttf") as &[u8]
+        )),
     )?;
     textarea.push_text("!!!");
 
