@@ -36,11 +36,12 @@ const handleAddArea = () => {
       <Title>
         <h2>TextArea</h2>
       </Title>
+      <p>textarea is an element for indicating text. You need to set font data for drawing on window.</p>
     </summary>
       <ChildList>
         <li>
           <InlineFileInput bind:files>
-            Select a font file
+            Select a parent font file(.ttf)
           </InlineFileInput>
         </li>
 

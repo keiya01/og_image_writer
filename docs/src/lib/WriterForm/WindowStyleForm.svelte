@@ -29,6 +29,7 @@ import Title from "./Title.svelte";
       <Title>
         <h2>Window Style Properties</h2>
       </Title>
+      <p>Window Style indicates layout for top level window image. All element is drawn on this window.</p>
     </summary>
 
     <ChildList>

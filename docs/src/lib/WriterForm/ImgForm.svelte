@@ -37,6 +37,7 @@ $: {
       <Title>
         <h2>Img</h2>
       </Title>
+      <p>img is an element for indicating image data. You need to set image data for drawing on window.</p>
     </summary>
 
     <ChildList>

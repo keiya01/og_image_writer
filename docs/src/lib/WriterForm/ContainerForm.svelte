@@ -16,6 +16,7 @@ export let element: Container & { id: number };
       <Title>
         <h2>Container</h2>
       </Title>
+      <p>container is an element for indicating child window.</p>
     </summary>
 
     <ChildList>

@@ -15,4 +15,10 @@
     display: inline-block;
     min-width: 100%;
   }
+
+  section :global(p) {
+    font-size: calc(18rem / 16);
+    line-height: 1.5;
+    color: #333;
+  }
 </style>
