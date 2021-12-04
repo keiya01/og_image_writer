@@ -3,10 +3,10 @@ name: Test for Rust
 on:
   push:
     paths-ignore:
-      - "docs/**/*"
+      - "docs/*"
   pull_request:
     paths-ignore:
-      - "docs/**/*"
+      - "docs/*"
 
 env:
   CARGO_TERM_COLOR: always
