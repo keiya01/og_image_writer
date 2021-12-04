@@ -4,13 +4,8 @@ on:
   push:
     branches:
       - "*"
-    paths-ignore:
-      - "docs/**"
-  pull_request:
-    branches:
-      - "*"
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "!docs/**"
 
 env:
   CARGO_TERM_COLOR: always
