@@ -129,6 +129,11 @@ impl JsOGImageWriter {
         }
     }
 
+    pub fn clear_font_context(&mut self) {
+        let font_context = self.writer.get_font_context();
+        font_context.clear();
+    }
+
     pub fn generate(&mut self, dest: String) {
         self.writer.generate(Path::new(&dest)).unwrap();
     }

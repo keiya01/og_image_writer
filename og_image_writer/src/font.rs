@@ -41,6 +41,13 @@ mod font_context_store {
     pub(super) fn get_mut() -> Rc<RefCell<FontStore>> {
         FONT_CONTEXT_STORE.with(|f| f.clone())
     }
+
+    pub(super) fn clear() {
+        FONT_CONTEXT_STORE.with(|f| {
+            let mut store = f.borrow_mut();
+            store.0.clear();
+        });
+    }
 }
 
 // This strut do not have nothing.
@@ -61,6 +68,11 @@ impl FontContext {
         let font = create_font(data)?;
         store.0.push(font);
         Ok(())
+    }
+
+    pub fn clear(&self)  {
+        // Clear global memory cache
+        font_context_store::clear();
     }
 
     pub(super) fn select_font_family(&self, ch: char) -> Result<FontIndex, Error> {
