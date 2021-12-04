@@ -147,6 +147,7 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
   optionalAssign(windowStyle, "width", w);
 
   const imgWriter = OGImageWriter.new(windowStyle);
+  // clear global memory cache
   imgWriter.clear_font_context();
 
   const fontContext = FontContext.new();
