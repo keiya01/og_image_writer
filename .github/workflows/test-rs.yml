@@ -2,11 +2,9 @@ name: Test for Rust
 
 on:
   push:
-    paths-ignore:
-      - "docs/**"
-  pull_request:
-    paths-ignore:
-      - "docs/**"
+    paths:
+      - "**/*.rs"
+      - ".github/**"
 
 env:
   CARGO_TERM_COLOR: always
