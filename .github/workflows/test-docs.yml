@@ -1,13 +1,14 @@
 name: Test for Docs
 
-on: push
-    # paths:
-    #   - "docs/**"
-    #   - "wasm/**"
-    #   - ".github/**"
+on:
+  push:
+    paths:
+      - "docs/**"
+      - "wasm/**"
+      - ".github/**"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
