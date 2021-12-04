@@ -1,6 +1,6 @@
 import type { OGImageWriter } from "og_image_writer";
 
-export const renderImg = async (
+export const renderImg = (
   canvas: HTMLCanvasElement,
   writer: OGImageWriter,
   w: number,

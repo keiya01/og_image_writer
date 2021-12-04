@@ -29,7 +29,12 @@ export type Container = {
   style: StyleObj;
 };
 
+export type FontContextObj = {
+  context: Uint8Array[];
+};
+
 export type Writer = {
   data: Element[];
   style: WindowStyleObj;
+  fontContext: FontContextObj;
 };
