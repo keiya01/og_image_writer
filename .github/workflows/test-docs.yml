@@ -2,12 +2,10 @@ name: Test for Docs
 
 on:
   push:
-    branches:
-      - "*"
     paths:
-      - "docs/**"
-      - "wasm/**"
-      - ".github/**"
+      - "/docs/**"
+      - "/wasm/**"
+      - "/.github/**"
 
 jobs:
   build:
@@ -16,7 +14,7 @@ jobs:
       - name: Set up Node.js ⚙️
       - uses: actions/setup-node@v2
         with:
-          node-version: "16.x"
+          node-version: "16"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

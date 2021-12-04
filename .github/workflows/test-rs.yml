@@ -2,10 +2,9 @@ name: Test for Rust
 
 on:
   push:
-    branches:
-      - "*"
     paths:
-      - "!docs/**"
+      - "**/*.rs"
+      - ".github/**"
 
 env:
   CARGO_TERM_COLOR: always
