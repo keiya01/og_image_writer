@@ -10,7 +10,7 @@
 </script>
 
 {#await initOnlyOnce()}
-  <div class="loader" style={`width:${width}px;height:${height}px`}>
+  <div class="loader" style={`width:${width}px; height:${height}px`}>
     loading wasm modules...
   </div>
 {:then _}
