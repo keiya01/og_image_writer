@@ -17,5 +17,11 @@
   "plugins": ["svelte3", "@typescript-eslint"],
   "settings": {
     "svelte3/typescript": true
+  },
+  "rules": {
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ]
   }
 }
