@@ -17,6 +17,9 @@
 
 <style>
   .loader {
-    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
   }
 </style>

@@ -26,6 +26,7 @@ import Playground from './Playground.svelte';
     --focus-color: #0d6eff;
     --error-color: #870707;
     --code-background-color: #ddd;
+    --text-color-high: #333;
   }
 
   :global(a:focus), :global(button:focus), :global(input:focus), :global(select:focus) {

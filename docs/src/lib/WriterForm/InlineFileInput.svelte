@@ -1,5 +1,6 @@
 <script lang="ts">
   export let files: FileList;
+  export let multiple = false;
 
   let filename: string;
   $: filename = files?.length ? files[0].name : "No file selected.";
@@ -10,7 +11,7 @@
     <slot></slot>
   </div>
   {filename}
-  <input type="file" bind:files />
+  <input type="file" bind:files multiple={multiple} />
 </label>
 
 <style>

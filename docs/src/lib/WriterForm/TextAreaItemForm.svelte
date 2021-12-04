@@ -40,7 +40,7 @@ $: {
 
       <li>
         <InlineFileInput bind:files>
-          Select a font file
+          Select a child font file(.ttf)
         </InlineFileInput>
       </li>
 

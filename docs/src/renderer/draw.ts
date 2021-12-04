@@ -1,5 +1,6 @@
 import {
   BorderRadius,
+  FontContext,
   Margin,
   OGImageWriter,
   Rgba,
@@ -24,6 +25,9 @@ export const createWriter = (overrideStyle?: WindowStyleObj): Writer => {
     style: {
       ...getDefaultWindowStyleObj(),
       ...(overrideStyle || {}),
+    },
+    fontContext: {
+      context: [],
     },
   };
 };
@@ -143,6 +147,14 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
   optionalAssign(windowStyle, "width", w);
 
   const imgWriter = OGImageWriter.new(windowStyle);
+  imgWriter.clear_font_context();
+
+  const fontContext = FontContext.new();
+  for (const font of writer.fontContext.context) {
+    fontContext.push(font);
+  }
+
+  imgWriter.set_font_context(fontContext);
 
   for (const elm of writer.data) {
     switch (elm.type) {

@@ -3,11 +3,15 @@
 </script>
 
 <script lang="ts">
-  import type { Element, Writer } from "../../renderer/types";
+  import type { Element, FontContextObj, Writer } from "../../renderer/types";
   import { createContainer, createImg, createTextArea } from "../../renderer/draw";
   import WindowStyleForm from "./WindowStyleForm.svelte";
   import ElementForm from "./ElementForm.svelte";
   import ElementSelect from "./ElementSelect.svelte";
+  import FormSection from "./FormSection.svelte";
+  import Title from "./Title.svelte";
+import InlineFileInput from "./InlineFileInput.svelte";
+import Spacer from "../Spacer";
 
   export let writer: Writer;
 
@@ -22,6 +26,21 @@
       return rest;
     });
   }
+
+  let files: FileList;
+
+  $: {
+    // TODO: validate font file
+  if(files?.length) {
+    const context: FontContextObj["context"] = [];
+    Array.from(files).map((file) => {
+      file.arrayBuffer().then((buf) => {
+        context.push(new Uint8Array(buf));
+      });
+    });
+    writer.fontContext.context = context;
+  }
+}
 
   const handleAddElement = () => {
     if(!type) {
@@ -64,6 +83,22 @@
 
 <div>
   <form>
+    <FormSection>
+      <svelte:fragment>
+        <Title>
+          <h2>FontContext</h2>
+        </Title>
+        <p>
+          You can set global fallback font.<br/>
+          Replaced with FontContext when chars is not found in parent font or child font.
+        </p>
+        <Spacer marginTop={20} />
+        <InlineFileInput bind:files multiple>Select some global font file(.ttf).</InlineFileInput>
+      </svelte:fragment>
+    </FormSection>
+
+    <Spacer marginTop={20} />
+
     <WindowStyleForm bind:style={writer.style} />
 
     <ElementSelect bind:type={type} on:click={handleAddElement} />
@@ -80,6 +115,11 @@
 </div>
 
 <style>
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+
   .element-form-list {
     list-style: none;
   }
