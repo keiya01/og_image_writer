@@ -3,14 +3,14 @@ name: Test for Docs
 on:
   push:
     paths:
-      - "docs/**"
-      - "wasm/**"
-      - ".github/**"
+      - "docs/**/*"
+      - "wasm/**/*"
+      - ".github/**/*"
   pull_request:
     paths:
-      - "docs/**"
-      - "wasm/**"
-      - ".github/**"
+      - "docs/**/*"
+      - "wasm/**/*"
+      - ".github/**/*"
 
 jobs:
   build:
