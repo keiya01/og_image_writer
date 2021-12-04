@@ -2,15 +2,19 @@ name: Test for Docs
 
 on:
   push:
+    branches:
+      - "*"
     paths:
-      - "docs/*"
-      - "wasm/*"
-      - ".github/*"
+      - "docs/**"
+      - "wasm/**"
+      - ".github/**"
   pull_request:
+    branches:
+      - "*"
     paths:
-      - "docs/*"
-      - "wasm/*"
-      - ".github/*"
+      - "docs/**"
+      - "wasm/**"
+      - ".github/**"
 
 jobs:
   build:

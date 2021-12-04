@@ -2,11 +2,15 @@ name: Test for Rust
 
 on:
   push:
+    branches:
+      - "*"
     paths-ignore:
-      - "docs/*"
+      - "docs/**"
   pull_request:
+    branches:
+      - "*"
     paths-ignore:
-      - "docs/*"
+      - "docs/**"
 
 env:
   CARGO_TERM_COLOR: always
