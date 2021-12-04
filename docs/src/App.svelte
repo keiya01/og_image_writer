@@ -1,6 +1,6 @@
 <script lang="ts">
-import Header from './lib/Header';
-import Playground from './Playground.svelte';
+  import Header from "./lib/Header";
+  import Playground from "./Playground.svelte";
 </script>
 
 <Header />
@@ -29,7 +29,10 @@ import Playground from './Playground.svelte';
     --text-color-high: #333;
   }
 
-  :global(a:focus), :global(button:focus), :global(input:focus), :global(select:focus) {
+  :global(a:focus),
+  :global(button:focus),
+  :global(input:focus),
+  :global(select:focus) {
     outline: 3px solid var(--focus-color);
   }
 </style>

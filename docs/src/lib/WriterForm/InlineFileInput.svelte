@@ -8,10 +8,10 @@
 
 <label tabindex="0">
   <div class="button">
-    <slot></slot>
+    <slot />
   </div>
   {filename}
-  <input type="file" bind:files multiple={multiple} />
+  <input type="file" bind:files {multiple} />
 </label>
 
 <style>

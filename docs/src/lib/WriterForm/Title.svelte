@@ -1,9 +1,11 @@
 <span>
-  <slot class="title"></slot>
+  <slot class="title" />
 </span>
 
 <style>
-  span > :global(h2), span > :global(h3), span > :global(h4) {
+  span > :global(h2),
+  span > :global(h3),
+  span > :global(h4) {
     display: inline-block;
     margin: 0;
   }

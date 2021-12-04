@@ -1,0 +1,52 @@
+name: Test for Docs
+
+on:
+  push:
+    paths:
+      - "docs/**"
+      - "wasm/**"
+      - ".github/**"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "wasm/**"
+      - ".github/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js ⚙️
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        working-directory: ./docs
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies 📦
+        working-directory: ./docs
+        run: yarn install --frozen-lockfile
+      - name: Run prettier
+        working-directory: ./docs
+        run: yarn fmt
+      - name: Run svelte check
+        working-directory: ./docs
+        run: yarn svelte-check
+      - name: Run lint
+        working-directory: ./docs
+        run: yarn lint
+      - name: Run build
+        working-directory: ./docs
+        run: yarn build

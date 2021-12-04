@@ -4,14 +4,18 @@
 
 <script lang="ts">
   import type { Element, FontContextObj, Writer } from "../../renderer/types";
-  import { createContainer, createImg, createTextArea } from "../../renderer/draw";
+  import {
+    createContainer,
+    createImg,
+    createTextArea,
+  } from "../../renderer/draw";
   import WindowStyleForm from "./WindowStyleForm.svelte";
   import ElementForm from "./ElementForm.svelte";
   import ElementSelect from "./ElementSelect.svelte";
   import FormSection from "./FormSection.svelte";
   import Title from "./Title.svelte";
-import InlineFileInput from "./InlineFileInput.svelte";
-import Spacer from "../Spacer";
+  import InlineFileInput from "./InlineFileInput.svelte";
+  import Spacer from "../Spacer";
 
   export let writer: Writer;
 
@@ -31,22 +35,22 @@ import Spacer from "../Spacer";
 
   $: {
     // TODO: validate font file
-  if(files?.length) {
-    const context: FontContextObj["context"] = [];
-    Array.from(files).map((file) => {
-      file.arrayBuffer().then((buf) => {
-        context.push(new Uint8Array(buf));
+    if (files?.length) {
+      const context: FontContextObj["context"] = [];
+      Array.from(files).map((file) => {
+        file.arrayBuffer().then((buf) => {
+          context.push(new Uint8Array(buf));
+        });
       });
-    });
-    writer.fontContext.context = context;
+      writer.fontContext.context = context;
+    }
   }
-}
 
   const handleAddElement = () => {
-    if(!type) {
+    if (!type) {
       return;
     }
-    switch(type) {
+    switch (type) {
       case "img": {
         data = [
           ...data,
@@ -72,13 +76,13 @@ import Spacer from "../Spacer";
           ...data,
           {
             id: currentId,
-            ...createContainer()
+            ...createContainer(),
           },
         ];
       }
     }
     currentId += 1;
-  }
+  };
 </script>
 
 <div>
@@ -89,11 +93,14 @@ import Spacer from "../Spacer";
           <h2>FontContext</h2>
         </Title>
         <p>
-          You can set global fallback font.<br/>
-          Replaced with FontContext when chars is not found in parent font or child font.
+          You can set global fallback font.<br />
+          Replaced with FontContext when chars is not found in parent font or child
+          font.
         </p>
         <Spacer marginTop={20} />
-        <InlineFileInput bind:files multiple>Select some global font file(.ttf).</InlineFileInput>
+        <InlineFileInput bind:files multiple
+          >Select some global font file(.ttf).</InlineFileInput
+        >
       </svelte:fragment>
     </FormSection>
 
@@ -101,17 +108,16 @@ import Spacer from "../Spacer";
 
     <WindowStyleForm bind:style={writer.style} />
 
-    <ElementSelect bind:type={type} on:click={handleAddElement} />
+    <ElementSelect bind:type on:click={handleAddElement} />
 
     <ul class="element-form-list" role="list">
       {#each data as element (element.id)}
         <li class="element-form-item">
-          <ElementForm bind:element={element} />
+          <ElementForm bind:element />
         </li>
       {/each}
     </ul>
   </form>
-
 </div>
 
 <style>

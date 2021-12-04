@@ -3,7 +3,7 @@
 </script>
 
 <ul style={!hasListStyle && "list-style: none;"} role="list">
-  <slot></slot>
+  <slot />
 </ul>
 
 <style>

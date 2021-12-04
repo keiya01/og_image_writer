@@ -13,7 +13,7 @@
 
   let handleOnClick = () => {
     clickDispatcher("click");
-  }
+  };
 </script>
 
 <div class="container" id={ELEMENT_SELECT_FORM_ID}>

@@ -1,13 +1,12 @@
 <script lang="ts">
-import type { Container } from "../../renderer/types";
-import ChildList from "./ChildList.svelte";
-import StyleForm from "./StyleForm.svelte";
-import Title from "./Title.svelte";
+  import type { Container } from "../../renderer/types";
+  import ChildList from "./ChildList.svelte";
+  import StyleForm from "./StyleForm.svelte";
+  import Title from "./Title.svelte";
 
-import WriterForm from "./WriterForm.svelte";
+  import WriterForm from "./WriterForm.svelte";
 
-export let element: Container & { id: number };
-
+  export let element: Container & { id: number };
 </script>
 
 <section>

@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { ElementFormData } from "./WriterForm.svelte";
-import ContainerForm from "./ContainerForm.svelte";
-import TextAreaForm from "./TextAreaForm.svelte";
-import ImgForm from "./ImgForm.svelte";
-import FormSection from "./FormSection.svelte";
+  import ContainerForm from "./ContainerForm.svelte";
+  import TextAreaForm from "./TextAreaForm.svelte";
+  import ImgForm from "./ImgForm.svelte";
+  import FormSection from "./FormSection.svelte";
 
   export let element: ElementFormData[number];
 </script>

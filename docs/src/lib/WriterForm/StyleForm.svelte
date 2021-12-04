@@ -3,12 +3,12 @@
 </script>
 
 <script lang="ts">
-import { Position, TextAlign, WordBreak } from "og_image_writer";
+  import { Position, TextAlign, WordBreak } from "og_image_writer";
 
-import type { StyleObj } from "../../renderer/style";
-import FormLabel from "./FormLabel.svelte";
-import ChildList from "./ChildList.svelte";
-import Title from "./Title.svelte";
+  import type { StyleObj } from "../../renderer/style";
+  import FormLabel from "./FormLabel.svelte";
+  import ChildList from "./ChildList.svelte";
+  import Title from "./Title.svelte";
 
   let wordBreak: "Normal" | "BreakAll" = "Normal";
   let textAlign: "Start" | "Center" | "End" = "Start";
@@ -41,25 +41,41 @@ import Title from "./Title.svelte";
             <li>
               <FormLabel>
                 top_left
-                <input slot="input" type="number" bind:value={style.borderRadius.topLeft} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.borderRadius.topLeft}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 top_right
-                <input slot="input" type="number" bind:value={style.borderRadius.topRight} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.borderRadius.topRight}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 bottom_left
-                <input slot="input" type="number" bind:value={style.borderRadius.bottomLeft} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.borderRadius.bottomLeft}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 bottom_right
-                <input slot="input" type="number" bind:value={style.borderRadius.bottomRight} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.borderRadius.bottomRight}
+                />
               </FormLabel>
             </li>
           </ul>
@@ -119,25 +135,41 @@ import Title from "./Title.svelte";
             <li>
               <FormLabel>
                 top
-                <input slot="input" type="number" bind:value={style.margin.top} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.margin.top}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 right
-                <input slot="input" type="number" bind:value={style.margin.right} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.margin.right}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 bottom
-                <input slot="input" type="number" bind:value={style.margin.bottom} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.margin.bottom}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 left
-                <input slot="input" type="number" bind:value={style.margin.left} />
+                <input
+                  slot="input"
+                  type="number"
+                  bind:value={style.margin.left}
+                />
               </FormLabel>
             </li>
           </ul>
@@ -165,13 +197,27 @@ import Title from "./Title.svelte";
             <li>
               <FormLabel>
                 Static
-                <input slot="input" type="radio" name={`style-position-${nameIndex}`} bind:group={position} value="Static" checked={position === "Static"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-position-${nameIndex}`}
+                  bind:group={position}
+                  value="Static"
+                  checked={position === "Static"}
+                />
               </FormLabel>
             </li>
             <li>
               <FormLabel>
                 Absolute
-                <input slot="input" type="radio" name={`style-position-${nameIndex}`} bind:group={position} value="Absolute" checked={position === "Absolute"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-position-${nameIndex}`}
+                  bind:group={position}
+                  value="Absolute"
+                  checked={position === "Absolute"}
+                />
               </FormLabel>
             </li>
           </ul>
@@ -212,19 +258,40 @@ import Title from "./Title.svelte";
           <ul>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name={`style-text-align-${nameIndex}`} bind:group={textAlign} value="Start" checked={textAlign === "Start"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-text-align-${nameIndex}`}
+                  bind:group={textAlign}
+                  value="Start"
+                  checked={textAlign === "Start"}
+                />
                 Start
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name={`style-text-align-${nameIndex}`} bind:group={textAlign} value="Center" checked={textAlign === "Center"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-text-align-${nameIndex}`}
+                  bind:group={textAlign}
+                  value="Center"
+                  checked={textAlign === "Center"}
+                />
                 Center
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name={`style-text-align-${nameIndex}`} bind:group={textAlign} value="End" checked={textAlign === "End"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-text-align-${nameIndex}`}
+                  bind:group={textAlign}
+                  value="End"
+                  checked={textAlign === "End"}
+                />
                 End
               </FormLabel>
             </li>
@@ -245,13 +312,27 @@ import Title from "./Title.svelte";
           <ul>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name={`style-word-break-${nameIndex}`} bind:group={wordBreak} value="Normal" checked={wordBreak === "Normal"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-word-break-${nameIndex}`}
+                  bind:group={wordBreak}
+                  value="Normal"
+                  checked={wordBreak === "Normal"}
+                />
                 Normal
               </FormLabel>
             </li>
             <li>
               <FormLabel>
-                <input slot="input" type="radio" name={`style-word-break-${nameIndex}`} bind:group={wordBreak} value="BreakAll" checked={wordBreak === "BreakAll"} />
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-word-break-${nameIndex}`}
+                  bind:group={wordBreak}
+                  value="BreakAll"
+                  checked={wordBreak === "BreakAll"}
+                />
                 BreakAll
               </FormLabel>
             </li>

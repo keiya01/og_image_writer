@@ -1,4 +1,4 @@
-<span role="alert"><slot></slot></span>
+<span role="alert"><slot /></span>
 
 <style>
   span {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import github from '../../assets/github.png?url';
+  import github from "../../assets/github.png?url";
 </script>
 
 <header>
