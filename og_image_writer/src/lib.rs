@@ -36,7 +36,7 @@
 //!             text_align: style::TextAlign::Start,
 //!             ..style::Style::default()
 //!         },
-//!         font,
+//!         Some(font),
 //!     )?;
 //!
 //!     let out_dir = "../examples/assets";
@@ -106,7 +106,7 @@
 //!            word_break: style::WordBreak::BreakAll,
 //!            ..style::Style::default()
 //!        },
-//!        Vec::from(include_bytes!("../../fonts/OpenSansCondensed-Light.ttf") as &[u8]),
+//!        Some(Vec::from(include_bytes!("../../fonts/OpenSansCondensed-Light.ttf") as &[u8])),
 //!    )?;
 //!
 //!    let out_dir = "../examples/assets";
