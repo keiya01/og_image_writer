@@ -15,6 +15,7 @@ cfg_if::cfg_if! {
 }
 
 #[wasm_bindgen(js_name = FontContext)]
+#[derive(Default)]
 pub struct JsFontContext {
     context: Vec<Vec<u8>>,
 }
@@ -94,12 +95,12 @@ impl JsOGImageWriter {
         }
     }
 
-    pub fn set_text(&mut self, text: String, style: JsStyle, font: Vec<u8>) {
+    pub fn set_text(&mut self, text: String, style: JsStyle, font: Option<Vec<u8>>) {
         let style = from_js_style(style);
         self.writer.set_text(&text, style, font).unwrap();
     }
 
-    pub fn set_textarea(&mut self, textarea: JsTextArea, style: JsStyle, font: Vec<u8>) {
+    pub fn set_textarea(&mut self, textarea: JsTextArea, style: JsStyle, font: Option<Vec<u8>>) {
         let style = from_js_style(style);
         self.writer
             .set_textarea(textarea.into_textarea().unwrap(), style, font)
