@@ -1,5 +1,6 @@
 use super::textarea::TextArea;
 use crate::element::{Element, Line, LineMetrics, Rect, Text};
+use crate::font::match_font_family;
 use crate::line_breaker::LineBreaker;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
@@ -15,7 +16,7 @@ impl OGImageWriter {
         // Parent style that effect child element
         style: Style,
         // Parent font that effect child element
-        font: Font<'static>,
+        font: Option<Font<'static>>,
     ) -> Result<(), Error> {
         let window_width = self.window.width as f32;
 
@@ -146,7 +147,7 @@ impl OGImageWriter {
         text: &str,
         lines: &mut Vec<Line>,
         style: &Style,
-        font: &Font,
+        font: &Option<Font>,
         textarea: &mut TextArea,
     ) -> Result<String, Error> {
         let ellipsis = match &style.text_overflow {
@@ -155,22 +156,55 @@ impl OGImageWriter {
             TextOverflow::Clip => return Ok(text.to_string()),
         };
 
-        let ellipsis_width = self
-            .context
-            .text_extents(ellipsis, style.font_size, font)
-            .width;
+        let ellipsis_width = match font {
+            Some(font) if match_font_family('.', font) => {
+                self.context
+                    .text_extents(ellipsis, style.font_size, font)
+                    .width
+            }
+            _ => {
+                let idx = self.font_context.select_font_family('.')?;
+                self.font_context.with(
+                    &idx,
+                    |font| {
+                        self.context
+                            .text_extents(ellipsis, style.font_size, font)
+                            .width
+                    },
+                )
+            }
+        };
 
         let mut total_char_width = 0.;
         let mut split_index = 0;
         for (i, ch) in text.char_indices().rev() {
-            let extents = textarea.char_extents(
-                ch,
-                font,
-                i..i + ch.to_string().len(),
-                style,
-                &self.context,
-                &self.font_context,
-            )?;
+            let extents = match font {
+                Some(font) if match_font_family(ch, font) => textarea.char_extents(
+                    ch,
+                    font,
+                    i..i + ch.to_string().len(),
+                    style,
+                    &self.context,
+                    &self.font_context,
+                )?,
+                _ => {
+                    let idx = self.font_context.select_font_family(ch)?;
+                    self.font_context.with(
+                        &idx,
+                        |font| {
+                            textarea.char_extents(
+                                ch,
+                                font,
+                                i..i + ch.to_string().len(),
+                                style,
+                                &self.context,
+                                &self.font_context,
+                            )
+                        },
+                    )?
+                }
+            };
+
             total_char_width += extents.width;
             if total_char_width >= ellipsis_width {
                 split_index = i;

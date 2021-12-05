@@ -33,15 +33,20 @@
     </li>
     <ul>
       <li>
-        <Code>textarea</Code> is an element for indicating text. You need to set
-        font data for drawing on the window.
+        <Code>Textarea</Code> is an element for indicating text. You need to set
+        font data to <Code>parent font</Code> or <Code>global font context</Code> for drawing on the window.
       </li>
+      <ul>
+        <li><Code>Global font context</Code> is global fallback font family.</li>
+        <li><Code>Prent font</Code> is font family for <Code>textarea</Code>.</li>
+        <li><Code>Child font</Code> is font family for <Code>textarea items</Code>.</li>
+      </ul>
       <li>
-        <Code>img</Code> is an element for indicating image data. You need to set
+        <Code>Img</Code> is an element for indicating image data. You need to set
         image data for drawing on the window.
       </li>
       <li>
-        <Code>container</Code> is an element for indicating the child window.
+        <Code>Container</Code> is an element for indicating the child window.
       </li>
     </ul>
     <li>Set up element's style Properties.</li>

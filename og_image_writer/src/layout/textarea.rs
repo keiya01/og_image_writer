@@ -21,7 +21,7 @@ impl SplitText {
     // Glyph has text range bundled with same font.
     fn set_glyphs(
         &mut self,
-        parent_font: &Font,
+        parent_font: &Option<Font>,
         current_range_start: &mut usize,
         font_context: &FontContext,
     ) -> Result<(), Error> {
@@ -40,7 +40,10 @@ impl SplitText {
         let mut prev_font_index_store: Option<FontIndexStore> = None;
 
         for (_, ch) in text.char_indices() {
-            let has_parent_font = match_font_family(ch, parent_font);
+            let has_parent_font = match parent_font {
+                Some(parent_font) => match_font_family(ch, parent_font),
+                None => false,
+            };
             let has_child_font = match child_font {
                 Some(font) => match_font_family(ch, font),
                 None => false,
@@ -174,7 +177,7 @@ impl TextArea {
     pub(super) fn push_text_with_glyphs(
         &mut self,
         text: &str,
-        font: &Font,
+        font: &Option<Font>,
         font_context: &FontContext,
     ) -> Result<(), Error> {
         let last_range_end = match self.0.iter().last() {
@@ -225,7 +228,7 @@ impl TextArea {
 
     pub(crate) fn set_glyphs(
         &mut self,
-        parent_font: &Font,
+        parent_font: &Option<Font>,
         font_context: &FontContext,
     ) -> Result<(), Error> {
         let mut current_range_start = 0;
@@ -252,10 +255,7 @@ impl TextArea {
                 };
                 match &glyph.font_index_store {
                     FontIndexStore::Global(idx) => {
-                        let ctx = font_context.borrow_font_store();
-                        let store = ctx.borrow();
-                        let font = &store.borrow_font(idx);
-                        context.char_extents(ch, font_size, font)
+                        font_context.with(idx, |font| context.char_extents(ch, font_size, font))
                     }
                     FontIndexStore::Parent(_) => context.char_extents(ch, font_size, parent_font),
                     FontIndexStore::Child(_) => match &split_text.font {

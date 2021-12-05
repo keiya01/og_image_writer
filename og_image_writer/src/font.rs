@@ -1,6 +1,4 @@
 use super::Error;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 pub use rusttype::{Font, IntoGlyphId};
 
@@ -30,7 +28,8 @@ impl FontStore {
 }
 
 mod font_context_store {
-    use super::FontStore;
+    use super::Font;
+    use super::{FontIndex, FontStore};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -47,6 +46,16 @@ mod font_context_store {
             let mut store = f.borrow_mut();
             store.0.clear();
         });
+    }
+
+    pub(super) fn with<F, T>(idx: &FontIndex, f: F) -> T
+    where
+        F: FnOnce(&Font) -> T,
+    {
+        let ctx = get_mut();
+        let store = ctx.borrow();
+        let font = &store.borrow_font(idx);
+        f(font)
     }
 }
 
@@ -88,8 +97,11 @@ impl FontContext {
         Err(Error::NotFoundSpecifiedFontFamily)
     }
 
-    pub(super) fn borrow_font_store(&self) -> Rc<RefCell<FontStore>> {
-        font_context_store::get_mut()
+    pub(super) fn with<F, T>(&self, idx: &FontIndex, f: F) -> T
+    where
+        F: FnOnce(&Font) -> T,
+    {
+        font_context_store::with(idx, f)
     }
 }
 

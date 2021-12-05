@@ -1,6 +1,6 @@
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
-use crate::font::FontContext;
+use crate::font::{match_font_family, FontContext};
 use crate::style::{Style, WordBreak};
 use crate::Error;
 use rusttype::Font;
@@ -36,7 +36,7 @@ impl<'a> LineBreaker<'a> {
         context: &Context,
         width: f32,
         style: &Style,
-        font: &Font,
+        font: &Option<Font>,
         textarea: &TextArea,
         font_context: &FontContext,
     ) -> Result<(), Error> {
@@ -51,8 +51,27 @@ impl<'a> LineBreaker<'a> {
         let mut line_width = 0.;
         for (i, ch) in chars.into_iter() {
             let ch_len = ch.to_string().len();
-            let extents =
-                textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)?;
+            let extents = match font {
+                Some(font) if match_font_family(ch, font) => {
+                    textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)?
+                }
+                _ => {
+                    let idx = font_context.select_font_family('.')?;
+                    font_context.with(
+                        &idx,
+                        |font| {
+                            textarea.char_extents(
+                                ch,
+                                font,
+                                i..i + ch_len,
+                                style,
+                                context,
+                                font_context,
+                            )
+                        },
+                    )?
+                }
+            };
 
             let ch_width = extents.width;
 
@@ -162,7 +181,9 @@ mod tests {
 
         let font_context = FontContext::new();
 
-        textarea.set_glyphs(&font, &font_context).unwrap();
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
 
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
@@ -174,7 +195,7 @@ mod tests {
                     word_break: WordBreak::Normal,
                     ..Style::default()
                 },
-                &font,
+                &Some(font),
                 &textarea,
                 &font_context,
             )
@@ -207,7 +228,9 @@ mod tests {
 
         let font_context = FontContext::new();
 
-        textarea.set_glyphs(&font, &font_context).unwrap();
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
 
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
@@ -219,7 +242,7 @@ mod tests {
                     word_break: WordBreak::BreakAll,
                     ..Style::default()
                 },
-                &font,
+                &Some(font),
                 &textarea,
                 &font_context,
             )

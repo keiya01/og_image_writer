@@ -28,7 +28,7 @@ fn main() -> anyhow::Result<()> {
             max_height: Some(200),
             ..style::Style::default()
         },
-        font,
+        Some(font),
     )?;
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
@@ -63,7 +63,7 @@ fn main() -> anyhow::Result<()> {
             text_align: style::TextAlign::Start,
             ..style::Style::default()
         },
-        font,
+        Some(font),
     )?;
 
     let out_dir = "./examples/assets";

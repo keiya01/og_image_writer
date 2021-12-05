@@ -49,7 +49,7 @@ fn main() -> anyhow::Result<()> {
             word_break: style::WordBreak::BreakAll,
             ..style::Style::default()
         },
-        font,
+        Some(font),
     )?;
 
     let out_dir = "./examples/assets";

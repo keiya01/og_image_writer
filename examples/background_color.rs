@@ -26,7 +26,7 @@ fn main() -> anyhow::Result<()> {
             text_align: style::TextAlign::Start,
             ..style::Style::default()
         },
-        font,
+        Some(font),
     )?;
 
     let out_dir = "./examples/assets";

@@ -9,7 +9,7 @@ export type TextAreaItem = {
 export type TextAreaObj = {
   type: "textarea";
   style: StyleObj;
-  font: Uint8Array;
+  font?: Uint8Array;
   area: TextAreaItem[];
 };
 
