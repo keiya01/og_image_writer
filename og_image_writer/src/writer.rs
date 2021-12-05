@@ -75,6 +75,7 @@ impl OGImageWriter {
 
     /// You can get FontContext.
     /// You can specify global fallback font by using `FontContext::push`.
+    /// NOTE: FontContext will be shared with other instance.
     pub fn get_font_context(&mut self) -> &mut FontContext {
         &mut self.font_context
     }
@@ -85,11 +86,19 @@ impl OGImageWriter {
 
     /// Set text you want to write to image.
     /// And set the text element style. Text element act like CSS `inline-block`.
-    pub fn set_text(&mut self, text: &str, style: Style, font: Vec<u8>) -> Result<(), Error> {
+    pub fn set_text(
+        &mut self,
+        text: &str,
+        style: Style,
+        font: Option<Vec<u8>>,
+    ) -> Result<(), Error> {
         let textarea = RefCell::new(TextArea::new());
         textarea.borrow_mut().push_text(text);
 
-        let font = create_font(font)?;
+        let font = match font {
+            Some(data) => Some(create_font(data)?),
+            None => None,
+        };
 
         self.process_text(textarea, style, font)
     }
@@ -99,9 +108,12 @@ impl OGImageWriter {
         &mut self,
         textarea: TextArea,
         style: Style,
-        font: Vec<u8>,
+        font: Option<Vec<u8>>,
     ) -> Result<(), Error> {
-        let font = create_font(font)?;
+        let font = match font {
+            Some(data) => Some(create_font(data)?),
+            None => None,
+        };
         self.process_text(RefCell::new(textarea), style, font)
     }
 
@@ -236,9 +248,27 @@ impl OGImageWriter {
                     match current_glyph {
                         Some(glyph) => match &glyph.font_index_store {
                             FontIndexStore::Global(idx) => {
-                                let store = self.font_context.borrow_font_store();
-                                let store = store.borrow();
-                                let font = store.borrow_font(idx);
+                                let mut context = &mut self.context;
+                                self.font_context.with(
+                                    idx,
+                                    |font| {
+                                        render_text(
+                                            text,
+                                            &mut range,
+                                            font,
+                                            &mut context,
+                                            &mut current_width,
+                                            style,
+                                            line,
+                                        )
+                                    },
+                                )?;
+                            }
+                            FontIndexStore::Parent(_) => {
+                                let font = match &text_elm.font {
+                                    Some(font) => font,
+                                    None => return Err(Error::NotFoundSpecifiedFontFamily),
+                                };
                                 render_text(
                                     text,
                                     &mut range,
@@ -249,15 +279,6 @@ impl OGImageWriter {
                                     line,
                                 )?;
                             }
-                            FontIndexStore::Parent(_) => render_text(
-                                text,
-                                &mut range,
-                                &text_elm.font,
-                                &mut self.context,
-                                &mut current_width,
-                                style,
-                                line,
-                            )?,
                             FontIndexStore::Child(_) => match current_split_text {
                                 Some(temp_split_text) => match &temp_split_text.font {
                                     Some(font) => render_text(
@@ -294,25 +315,32 @@ impl OGImageWriter {
                 match current_glyph {
                     Some(glyph) => match &glyph.font_index_store {
                         FontIndexStore::Global(idx) => {
-                            let store = self.font_context.borrow_font_store();
-                            let store = store.borrow();
-                            let font = store.borrow_font(idx);
+                            let context = &mut self.context;
+                            self.font_context.with(
+                                idx,
+                                |font| {
+                                    context.draw_text(
+                                        style.color.as_image_rgba(),
+                                        line.rect.x + current_width,
+                                        line.rect.y,
+                                        style.font_size,
+                                        font,
+                                        &text[range.clone()],
+                                    )
+                                },
+                            )?;
+                        }
+                        FontIndexStore::Parent(_) => {
+                            let font = match &text_elm.font {
+                                Some(font) => font,
+                                None => return Err(Error::NotFoundSpecifiedFontFamily),
+                            };
                             self.context.draw_text(
                                 style.color.as_image_rgba(),
                                 line.rect.x + current_width,
                                 line.rect.y,
                                 style.font_size,
                                 font,
-                                &text[range.clone()],
-                            )?;
-                        }
-                        FontIndexStore::Parent(_) => {
-                            self.context.draw_text(
-                                style.color.as_image_rgba(),
-                                line.rect.x + current_width,
-                                line.rect.y,
-                                style.font_size,
-                                &text_elm.font,
                                 &text[range.clone()],
                             )?;
                         }

@@ -96,7 +96,7 @@ pub struct Text {
     pub(super) lines: Vec<Line>,
     pub(super) style: Style,
     // TODO: optimize static lifetime
-    pub(super) font: Font<'static>,
+    pub(super) font: Option<Font<'static>>,
     pub(super) textarea: TextArea,
 }
 
@@ -106,7 +106,7 @@ impl Text {
         lines: Vec<Line>,
         metrics: LineMetrics,
         style: Style,
-        font: Font<'static>,
+        font: Option<Font<'static>>,
         textarea: TextArea,
     ) -> Self {
         Text {
