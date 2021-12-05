@@ -13,13 +13,13 @@ fn main() -> anyhow::Result<()> {
 
     let fc = writer.get_font_context();
     fc.push(Vec::from(
+        include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8],
+    ))?;
+    fc.push(Vec::from(
         include_bytes!("../fonts/Roboto-Light.ttf") as &[u8]
     ))?;
     fc.push(Vec::from(
         include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]
-    ))?;
-    fc.push(Vec::from(
-        include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8],
     ))?;
 
     let mut textarea = TextArea::new();
@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
             word_break: style::WordBreak::BreakAll,
             ..style::Style::default()
         },
-        Vec::from(include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8]),
+        None,
     )?;
 
     let out_dir = "./examples/assets";

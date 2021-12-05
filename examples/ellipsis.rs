@@ -27,7 +27,7 @@ fn main() -> anyhow::Result<()> {
             text_overflow: style::TextOverflow::Ellipsis,
             ..style::Style::default()
         },
-        font,
+        Some(font),
     )?;
 
     let out_dir = "./examples/assets";
