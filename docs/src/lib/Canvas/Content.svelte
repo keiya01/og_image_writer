@@ -68,7 +68,7 @@ ${e.stack}
         href={`${GITHUB_URL}/issues/new?title=${encodeURIComponent(
           error.title
         )}&body=${encodeURIComponent(error.body)}`}
-        >send a issue with this url</a
+        >send an issue with this url</a
       >.
     </span>
   {/if}

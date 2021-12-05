@@ -45,7 +45,6 @@ export const createContainer = (
 export const createTextArea = (): TextAreaObj => ({
   type: "textarea",
   style: getDefaultStyleObj(),
-  font: new Uint8Array(),
   area: [],
 });
 
@@ -160,10 +159,6 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
   for (const elm of writer.data) {
     switch (elm.type) {
       case "textarea": {
-        if (!elm.font.byteLength) {
-          break;
-        }
-
         const textarea = TextArea.new();
         elm.area.forEach((data) => {
           const style = getStyle(data.style);
