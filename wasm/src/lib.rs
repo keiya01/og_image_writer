@@ -1,6 +1,6 @@
 mod style;
 
-use og_image_writer::{style::Style, writer::OGImageWriter, Error, TextArea};
+use og_image_writer::{style::Style, writer::OGImageWriter, Error, ImageOutputFormat, TextArea};
 use std::panic;
 use std::path::Path;
 use wasm_bindgen::prelude::*;
@@ -11,6 +11,37 @@ cfg_if::cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
         #[global_allocator]
         static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+    }
+}
+
+#[wasm_bindgen(js_name = ImageOutputFormatOption)]
+#[derive(Default)]
+pub struct JsImageOutputFormatOption {
+    pub q: u8,
+}
+
+#[wasm_bindgen(js_class = ImageOutputFormatOption)]
+impl JsImageOutputFormatOption {
+    pub fn new() -> JsImageOutputFormatOption {
+        JsImageOutputFormatOption { q: 255 }
+    }
+}
+
+#[wasm_bindgen(js_name = ImageOutputFormat)]
+pub enum JsImageOutputFormat {
+    Png,
+    Jpeg,
+    // An image in AVIF Format
+    // Avif,
+}
+
+#[wasm_bindgen(js_class = ImageOutputFormat)]
+impl JsImageOutputFormat {
+    fn into(self, option: JsImageOutputFormatOption) -> ImageOutputFormat {
+        match self {
+            JsImageOutputFormat::Png => ImageOutputFormat::Png,
+            JsImageOutputFormat::Jpeg => ImageOutputFormat::Jpeg(option.q),
+        }
     }
 }
 
@@ -143,5 +174,10 @@ impl JsOGImageWriter {
 
     pub fn into_vec(self) -> Vec<u8> {
         self.writer.into_vec().unwrap()
+    }
+
+    pub fn encode(self, f: JsImageOutputFormat, option: JsImageOutputFormatOption) -> Vec<u8> {
+        let f = f.into(option);
+        self.writer.encode(f).unwrap()
     }
 }
