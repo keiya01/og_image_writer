@@ -2,7 +2,7 @@ use image::ImageError;
 
 use crate::Error;
 
-use super::context::Context;
+use super::context::{Context, ImageOutputFormat};
 use super::element::{Element, Img, Line, Text};
 use super::font::{create_font, Font, FontContext, FontIndexStore};
 use super::glyph::Glyph;
@@ -169,8 +169,14 @@ impl OGImageWriter {
         Ok(())
     }
 
+    /// Return the raw image data.
     pub fn into_vec(self) -> Result<Vec<u8>, Error> {
         self.context.into_vec()
+    }
+
+    /// Return the encoded raw image data.
+    pub fn encode(self, format: ImageOutputFormat) -> Result<Vec<u8>, Error> {
+        self.context.encode(format)
     }
 
     fn paint_img(&mut self, img: Img) -> Result<(), Error> {

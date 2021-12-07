@@ -126,6 +126,7 @@ pub mod font;
 pub mod img;
 pub mod style;
 pub mod writer;
+pub use context::ImageOutputFormat;
 pub use error::Error;
 pub use layout::TextArea;
 

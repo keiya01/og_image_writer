@@ -1,11 +1,12 @@
+use crate::Error;
 use image::imageops::overlay;
-use image::{load_from_memory, ImageBuffer, Rgba, RgbaImage};
+use image::{load_from_memory, DynamicImage, ImageBuffer, Rgba, RgbaImage};
 use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
 use rusttype::{Font, IntoGlyphId, Scale};
 use std::path::Path;
 
-use crate::Error;
+pub use image::ImageOutputFormat;
 
 pub(super) struct FontMetrics {
     pub height: f32,
@@ -119,6 +120,17 @@ impl Context {
         match self.image.take() {
             None => Err(Error::NullElement),
             Some(img) => Ok(img.into_vec()),
+        }
+    }
+
+    pub(super) fn encode(mut self, f: ImageOutputFormat) -> Result<Vec<u8>, Error> {
+        match self.image.take() {
+            None => Err(Error::NullElement),
+            Some(img) => {
+                let mut buf = vec![];
+                DynamicImage::ImageRgba8(img).write_to(&mut buf, f)?;
+                Ok(buf)
+            }
         }
     }
 }
