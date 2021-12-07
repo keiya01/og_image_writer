@@ -255,20 +255,17 @@ impl OGImageWriter {
                         Some(glyph) => match &glyph.font_index_store {
                             FontIndexStore::Global(idx) => {
                                 let mut context = &mut self.context;
-                                self.font_context.with(
-                                    idx,
-                                    |font| {
-                                        render_text(
-                                            text,
-                                            &mut range,
-                                            font,
-                                            &mut context,
-                                            &mut current_width,
-                                            style,
-                                            line,
-                                        )
-                                    },
-                                )?;
+                                self.font_context.with(idx, |font| {
+                                    render_text(
+                                        text,
+                                        &mut range,
+                                        font,
+                                        &mut context,
+                                        &mut current_width,
+                                        style,
+                                        line,
+                                    )
+                                })?;
                             }
                             FontIndexStore::Parent(_) => {
                                 let font = match &text_elm.font {
@@ -322,19 +319,16 @@ impl OGImageWriter {
                     Some(glyph) => match &glyph.font_index_store {
                         FontIndexStore::Global(idx) => {
                             let context = &mut self.context;
-                            self.font_context.with(
-                                idx,
-                                |font| {
-                                    context.draw_text(
-                                        style.color.as_image_rgba(),
-                                        line.rect.x + current_width,
-                                        line.rect.y,
-                                        style.font_size,
-                                        font,
-                                        &text[range.clone()],
-                                    )
-                                },
-                            )?;
+                            self.font_context.with(idx, |font| {
+                                context.draw_text(
+                                    style.color.as_image_rgba(),
+                                    line.rect.x + current_width,
+                                    line.rect.y,
+                                    style.font_size,
+                                    font,
+                                    &text[range.clone()],
+                                )
+                            })?;
                         }
                         FontIndexStore::Parent(_) => {
                             let font = match &text_elm.font {

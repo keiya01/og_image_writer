@@ -57,19 +57,9 @@ impl<'a> LineBreaker<'a> {
                 }
                 _ => {
                     let idx = font_context.select_font_family('.')?;
-                    font_context.with(
-                        &idx,
-                        |font| {
-                            textarea.char_extents(
-                                ch,
-                                font,
-                                i..i + ch_len,
-                                style,
-                                context,
-                                font_context,
-                            )
-                        },
-                    )?
+                    font_context.with(&idx, |font| {
+                        textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)
+                    })?
                 }
             };
 
