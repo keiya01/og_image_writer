@@ -164,14 +164,11 @@ impl OGImageWriter {
             }
             _ => {
                 let idx = self.font_context.select_font_family('.')?;
-                self.font_context.with(
-                    &idx,
-                    |font| {
-                        self.context
-                            .text_extents(ellipsis, style.font_size, font)
-                            .width
-                    },
-                )
+                self.font_context.with(&idx, |font| {
+                    self.context
+                        .text_extents(ellipsis, style.font_size, font)
+                        .width
+                })
             }
         };
 
@@ -189,19 +186,16 @@ impl OGImageWriter {
                 )?,
                 _ => {
                     let idx = self.font_context.select_font_family(ch)?;
-                    self.font_context.with(
-                        &idx,
-                        |font| {
-                            textarea.char_extents(
-                                ch,
-                                font,
-                                i..i + ch.to_string().len(),
-                                style,
-                                &self.context,
-                                &self.font_context,
-                            )
-                        },
-                    )?
+                    self.font_context.with(&idx, |font| {
+                        textarea.char_extents(
+                            ch,
+                            font,
+                            i..i + ch.to_string().len(),
+                            style,
+                            &self.context,
+                            &self.font_context,
+                        )
+                    })?
                 }
             };
 

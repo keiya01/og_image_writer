@@ -36,6 +36,10 @@ name = "into_vec"
 path = "into_vec.rs"
 
 [[example]]
+name = "encode"
+path = "encode.rs"
+
+[[example]]
 name = "textarea"
 path = "textarea.rs"
 
