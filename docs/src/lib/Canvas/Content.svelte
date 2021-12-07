@@ -15,7 +15,7 @@
   let rendering = false;
   let error: { title: string; body: string } | null = null;
 
-  let canvas: HTMLCanvasElement;
+  let image: HTMLImageElement;
 
   const createError = (e: Error) => {
     const title = `[Web Document Runtime Error]: ${e.name} occurred.`;
@@ -38,12 +38,12 @@ ${e.stack}
 
     const w = writer.style.width || width;
     const h = writer.style.height || height;
-    if (canvas && w && h) {
+    if (image && w && h) {
       rendering = true;
       timeoutId = setTimeout(() => {
         try {
           const imgWriter = drawImg(writer, w, h);
-          renderImg(canvas, imgWriter, w, h);
+          renderImg(image, imgWriter);
         } catch (e) {
           error = createError(e);
           console.error(e);
@@ -55,7 +55,13 @@ ${e.stack}
   }
 </script>
 
-<canvas bind:this={canvas} {width} {height} />
+<img
+  alt="Rendered"
+  src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+  bind:this={image}
+  {width}
+  {height}
+/>
 
 <div class="state-container">
   {#if rendering}
