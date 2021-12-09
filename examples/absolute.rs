@@ -41,7 +41,7 @@ fn main() -> anyhow::Result<()> {
             max_height: Some(150),
             text_overflow: style::TextOverflow::Ellipsis,
             position: style::Position::Absolute,
-            bottom: Some(20),
+            bottom: Some(0),
             right: Some(0),
             ..style::Style::default()
         },
