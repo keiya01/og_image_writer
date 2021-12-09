@@ -290,7 +290,10 @@ impl OGImageWriter {
                     line.rect.y += match (text.style.top, text.style.bottom) {
                         (Some(top), _) => top + margin_top,
                         (None, Some(bottom)) => {
+                            let system_line_height = line_metrics.max_line_height as u32 / 2;
+
                             self.window.height as i32
+                                - system_line_height as i32
                                 - line_metrics.total_height as i32
                                 - bottom
                                 - margin_bottom
