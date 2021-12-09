@@ -73,13 +73,6 @@ impl OGImageWriter {
         })
     }
 
-    /// You can get FontContext.
-    /// You can specify global fallback font by using `FontContext::push`.
-    /// NOTE: FontContext will be shared with other instance.
-    pub fn get_font_context(&mut self) -> &mut FontContext {
-        &mut self.font_context
-    }
-
     pub(super) fn create_tree() -> Tree {
         Tree(Vec::with_capacity(2))
     }
