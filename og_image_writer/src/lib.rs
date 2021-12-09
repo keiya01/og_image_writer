@@ -51,7 +51,7 @@
 //! You can also create custom image like bellow.
 //!
 //! ```rust
-//! use og_image_writer::{style, writer::OGImageWriter, TextArea};
+//! use og_image_writer::{style, writer::OGImageWriter, TextArea, font::FontContext};
 //! use std::path::Path;
 //!
 //! fn main() -> anyhow::Result<()> {
@@ -65,7 +65,7 @@
 //!    })?;
 //!
 //!    // Set global fallback fonts.
-//!    let fc = writer.get_font_context();
+//!    let mut fc = FontContext::new();
 //!    fc.push(Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]))?;
 //!
 //!    // Set style for each text.
