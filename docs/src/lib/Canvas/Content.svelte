@@ -61,6 +61,7 @@ ${e.stack}
   bind:this={image}
   {width}
   {height}
+  class="canvas"
 />
 
 <div class="state-container">
@@ -81,6 +82,11 @@ ${e.stack}
 </div>
 
 <style>
+  .canvas {
+    height: auto;
+    width: 100%;
+  }
+
   .state-container {
     margin: 10px 0 0;
   }
