@@ -41,11 +41,18 @@ mod font_context_store {
         FONT_CONTEXT_STORE.with(|f| f.clone())
     }
 
-    pub(super) fn clear() {
+    pub fn clear() {
         FONT_CONTEXT_STORE.with(|f| {
             let mut store = f.borrow_mut();
             store.0.clear();
         });
+    }
+
+    pub fn len() -> usize {
+        FONT_CONTEXT_STORE.with(|f| {
+            let store = f.borrow_mut();
+            store.0.len()
+        })
     }
 
     pub(super) fn with<F, T>(idx: &FontIndex, f: F) -> T
@@ -63,10 +70,13 @@ mod font_context_store {
 // But this struct provide operation for font_context_store local thread.
 // If you want to use font_context_store, you must call method from FontContext.
 // That is FontContext has role for access control for font_context_store.
+
+/// You can specify global fallback font by using `FontContext::push`.
+/// NOTE: FontContext will be shared with other instance.
 pub struct FontContext;
 
 impl FontContext {
-    pub(super) fn new() -> FontContext {
+    pub fn new() -> FontContext {
         FontContext
     }
 
@@ -82,6 +92,14 @@ impl FontContext {
     pub fn clear(&self) {
         // Clear global memory cache
         font_context_store::clear();
+    }
+
+    pub fn len(&self) -> usize {
+        font_context_store::len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        font_context_store::len() == 0
     }
 
     pub(super) fn select_font_family(&self, ch: char) -> Result<FontIndex, Error> {

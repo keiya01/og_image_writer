@@ -1,4 +1,4 @@
-use og_image_writer::{style, writer::OGImageWriter, TextArea};
+use og_image_writer::{style, writer::OGImageWriter, TextArea, font::FontContext};
 use std::path::Path;
 
 fn main() -> anyhow::Result<()> {
@@ -11,7 +11,8 @@ fn main() -> anyhow::Result<()> {
         ..style::WindowStyle::default()
     })?;
 
-    let fc = writer.get_font_context();
+    // Set global font data
+    let mut fc = FontContext::new();
     fc.push(Vec::from(
         include_bytes!("../fonts/OpenSansCondensed-Light.ttf") as &[u8],
     ))?;
