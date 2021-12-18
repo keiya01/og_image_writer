@@ -66,11 +66,11 @@ impl JsFontContext {
         self.context.clear();
     }
 
-    pub fn len(self) -> usize {
+    pub fn len(&self) -> usize {
         self.context.len()
     }
 
-    pub fn is_empty(self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.context.is_empty()
     }
 }

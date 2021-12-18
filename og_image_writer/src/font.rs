@@ -50,7 +50,7 @@ mod font_context_store {
 
     pub fn len() -> usize {
         FONT_CONTEXT_STORE.with(|f| {
-            let store = f.borrow_mut();
+            let store = f.borrow();
             store.0.len()
         })
     }
