@@ -96,7 +96,11 @@ pub fn draw_text_mut<'a, C>(
         if let Some(q) = scaled_font.outline_glyph(q_glyph) {
             let bb = q.px_bounds();
             q.draw(|gx, gy, gv| {
-                let gx = gx as i32 + current_x + bb.min.x as i32;
+                let mut gx = gx as i32 + current_x;
+                if let KernSetting::Normal = setting.kern_setting {
+                    gx += bb.min.x as i32;
+                }
+
                 let y_bearing = (bb.min.y + scaled_font.ascent()) as i32;
                 let gy = gy as i32 + y_bearing;
 
