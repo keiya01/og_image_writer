@@ -1,9 +1,10 @@
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
 use crate::font::{match_font_family, FontContext};
+use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
 use crate::Error;
-use rusttype::Font;
+use ab_glyph::FontArc;
 use std::ops::Range;
 
 pub(super) struct Line {
@@ -36,11 +37,17 @@ impl<'a> LineBreaker<'a> {
         context: &Context,
         width: f32,
         style: &Style,
-        font: &Option<Font>,
+        font: &Option<FontArc>,
         textarea: &TextArea,
         font_context: &FontContext,
     ) -> Result<(), Error> {
         let chars = self.title.char_indices();
+
+        let setting = FontSetting {
+            size: style.font_size,
+            letter_spacing: style.letter_spacing,
+            kern_setting: style.kern_setting,
+        };
 
         let mut last_whitespace_idx = 0;
         let mut last_whitespace_width = 0.;
@@ -49,16 +56,31 @@ impl<'a> LineBreaker<'a> {
         let mut range = 0..0;
         let mut line_height = 0.;
         let mut line_width = 0.;
-        for (i, ch) in chars.into_iter() {
+        let mut chars = chars.into_iter().peekable();
+        while let Some((i, ch)) = chars.next() {
             let ch_len = ch.to_string().len();
             let extents = match font {
-                Some(font) if match_font_family(ch, font) => {
-                    textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)?
-                }
+                Some(font) if match_font_family(ch, font) => textarea.char_extents(
+                    ch,
+                    chars.peek().map(|(_, c)| *c),
+                    font,
+                    i..i + ch_len,
+                    context,
+                    font_context,
+                    &setting,
+                )?,
                 _ => {
                     let idx = font_context.select_font_family('.')?;
                     font_context.with(&idx, |font| {
-                        textarea.char_extents(ch, font, i..i + ch_len, style, context, font_context)
+                        textarea.char_extents(
+                            ch,
+                            chars.peek().map(|(_, c)| *c),
+                            font,
+                            i..i + ch_len,
+                            context,
+                            font_context,
+                            &setting,
+                        )
                     })?
                 }
             };
@@ -154,7 +176,7 @@ mod tests {
     use crate::context::Context;
     use crate::font::FontContext;
     use crate::layout::TextArea;
-    use rusttype::Font;
+    use ab_glyph::FontArc;
 
     #[test]
     fn test_break_test_with_whitespace() {
@@ -164,7 +186,7 @@ mod tests {
 
         let text = "Hello World, Hello World";
         let font_size = 16.;
-        let font = Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -214,7 +236,7 @@ mod tests {
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
-        let font = Font::try_from_bytes(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
         let font_context = FontContext::new();
 

@@ -2,10 +2,11 @@ use super::textarea::TextArea;
 use crate::element::{Element, Line, LineMetrics, Rect, Text};
 use crate::font::match_font_family;
 use crate::line_breaker::LineBreaker;
+use crate::renderer::FontSetting;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
 use crate::Error;
-use rusttype::Font;
+use ab_glyph::{Font, FontArc};
 use std::cell::RefCell;
 use std::str;
 
@@ -16,7 +17,7 @@ impl OGImageWriter {
         // Parent style that effect child element
         style: Style,
         // Parent font that effect child element
-        font: Option<Font<'static>>,
+        font: Option<FontArc>,
     ) -> Result<(), Error> {
         let window_width = self.window.width as f32;
 
@@ -147,7 +148,7 @@ impl OGImageWriter {
         text: &str,
         lines: &mut Vec<Line>,
         style: &Style,
-        font: &Option<Font>,
+        font: &Option<FontArc>,
         textarea: &mut TextArea,
     ) -> Result<String, Error> {
         let ellipsis = match &style.text_overflow {
@@ -156,17 +157,23 @@ impl OGImageWriter {
             TextOverflow::Clip => return Ok(text.to_string()),
         };
 
+        let setting = FontSetting {
+            size: style.font_size,
+            letter_spacing: style.letter_spacing,
+            kern_setting: style.kern_setting,
+        };
+
         let ellipsis_width = match font {
             Some(font) if match_font_family('.', font) => {
                 self.context
-                    .text_extents(ellipsis, style.font_size, font)
+                    .text_extents(ellipsis, font.as_scaled(style.font_size), &setting)
                     .width
             }
             _ => {
                 let idx = self.font_context.select_font_family('.')?;
                 self.font_context.with(&idx, |font| {
                     self.context
-                        .text_extents(ellipsis, style.font_size, font)
+                        .text_extents(ellipsis, font.as_scaled(style.font_size), &setting)
                         .width
                 })
             }
@@ -174,26 +181,29 @@ impl OGImageWriter {
 
         let mut total_char_width = 0.;
         let mut split_index = 0;
-        for (i, ch) in text.char_indices().rev() {
+        let mut chars = text.char_indices().rev().peekable();
+        while let Some((i, ch)) = chars.next() {
             let extents = match font {
                 Some(font) if match_font_family(ch, font) => textarea.char_extents(
                     ch,
+                    chars.peek().map(|(_, c)| *c),
                     font,
                     i..i + ch.to_string().len(),
-                    style,
                     &self.context,
                     &self.font_context,
+                    &setting,
                 )?,
                 _ => {
                     let idx = self.font_context.select_font_family(ch)?;
                     self.font_context.with(&idx, |font| {
                         textarea.char_extents(
                             ch,
+                            chars.peek().map(|(_, c)| *c),
                             font,
                             i..i + ch.to_string().len(),
-                            style,
                             &self.context,
                             &self.font_context,
+                            &setting,
                         )
                     })?
                 }

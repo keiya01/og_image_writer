@@ -1,11 +1,12 @@
 use super::Error;
+use ab_glyph::{Font, FontArc};
 
-pub use rusttype::{Font, IntoGlyphId};
+pub const WHITESPACE_EM: f32 = 0.2;
 
-pub fn create_font<'a>(data: Vec<u8>) -> Result<Font<'a>, Error> {
-    match Font::try_from_vec(data) {
-        Some(font) => Ok(font),
-        None => Err(Error::InvalidFontBytes),
+pub fn create_font(data: Vec<u8>) -> Result<FontArc, Error> {
+    match FontArc::try_from_vec(data) {
+        Ok(font) => Ok(font),
+        Err(_) => Err(Error::InvalidFontBytes),
     }
 }
 
@@ -19,17 +20,17 @@ pub(super) enum FontIndexStore {
     Child(FontIndex),
 }
 
-pub(super) struct FontStore(Vec<Font<'static>>);
+pub(super) struct FontStore(Vec<FontArc>);
 
 impl FontStore {
-    pub(super) fn borrow_font(&self, idx: &FontIndex) -> &Font<'static> {
+    pub(super) fn borrow_font(&self, idx: &FontIndex) -> &FontArc {
         &self.0[idx.0]
     }
 }
 
 mod font_context_store {
-    use super::Font;
     use super::{FontIndex, FontStore};
+    use ab_glyph::FontArc;
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -57,11 +58,11 @@ mod font_context_store {
 
     pub(super) fn with<F, T>(idx: &FontIndex, f: F) -> T
     where
-        F: FnOnce(&Font) -> T,
+        F: FnOnce(&FontArc) -> T,
     {
         let ctx = get_mut();
         let store = ctx.borrow();
-        let font = &store.borrow_font(idx);
+        let font = store.borrow_font(idx);
         f(font)
     }
 }
@@ -73,6 +74,7 @@ mod font_context_store {
 
 /// You can specify global fallback font by using `FontContext::push`.
 /// NOTE: FontContext will be shared with other instance.
+#[derive(Default)]
 pub struct FontContext;
 
 impl FontContext {
@@ -117,12 +119,12 @@ impl FontContext {
 
     pub(super) fn with<F, T>(&self, idx: &FontIndex, f: F) -> T
     where
-        F: FnOnce(&Font) -> T,
+        F: FnOnce(&FontArc) -> T,
     {
         font_context_store::with(idx, f)
     }
 }
 
-pub(super) fn match_font_family(ch: char, font: &Font) -> bool {
-    ch.into_glyph_id(font).0 != 0
+pub(super) fn match_font_family(ch: char, font: &FontArc) -> bool {
+    font.glyph_id(ch).0 != 0
 }

@@ -1,15 +1,17 @@
 use crate::context::{Context, FontMetrics};
-use crate::font::{match_font_family, Font, FontContext, FontIndex, FontIndexStore};
+use crate::font::{create_font, match_font_family, FontContext, FontIndex, FontIndexStore};
 use crate::glyph::Glyph;
+use crate::renderer::FontSetting;
 use crate::style::Style;
 use crate::Error;
+use ab_glyph::{Font, FontArc};
 use std::{ops::Range, str};
 
 #[derive(Debug)]
 pub(crate) struct SplitText {
     pub(crate) text: String,
     pub(crate) style: Option<Style>,
-    pub(crate) font: Option<Font<'static>>,
+    pub(crate) font: Option<FontArc>,
     // Fast path for glyphs.
     pub(crate) range: Range<usize>,
     pub(crate) glyphs: Vec<Glyph>,
@@ -21,7 +23,7 @@ impl SplitText {
     // Glyph has text range bundled with same font.
     fn set_glyphs(
         &mut self,
-        parent_font: &Option<Font>,
+        parent_font: &Option<FontArc>,
         current_range_start: &mut usize,
         font_context: &FontContext,
     ) -> Result<(), Error> {
@@ -128,9 +130,9 @@ impl TextArea {
         };
 
         let font = match font {
-            Some(font) => Some(match Font::try_from_vec(font) {
-                Some(font) => font,
-                None => return Err(Error::InvalidFontBytes),
+            Some(font) => Some(match create_font(font) {
+                Ok(font) => font,
+                Err(_) => return Err(Error::InvalidFontBytes),
             }),
             None => None,
         };
@@ -177,7 +179,7 @@ impl TextArea {
     pub(super) fn push_text_with_glyphs(
         &mut self,
         text: &str,
-        font: &Option<Font>,
+        font: &Option<FontArc>,
         font_context: &FontContext,
     ) -> Result<(), Error> {
         let last_range_end = match self.0.iter().last() {
@@ -228,7 +230,7 @@ impl TextArea {
 
     pub(crate) fn set_glyphs(
         &mut self,
-        parent_font: &Option<Font>,
+        parent_font: &Option<FontArc>,
         font_context: &FontContext,
     ) -> Result<(), Error> {
         let mut current_range_start = 0;
@@ -240,26 +242,46 @@ impl TextArea {
 
     pub(crate) fn char_extents(
         &self,
-        ch: char,
-        parent_font: &Font,
+        cur_char: char,
+        next_char: Option<char>,
+        parent_font: &FontArc,
         range: Range<usize>,
-        style: &Style,
         context: &Context,
         font_context: &FontContext,
+        setting: &FontSetting,
     ) -> Result<FontMetrics, Error> {
         let extents = match self.get_glyphs_from_char_range(range.clone()) {
             (Some(split_text), Some(glyph)) => {
-                let font_size = match &split_text.style {
-                    Some(style) => style.font_size,
-                    None => style.font_size,
+                let setting = match &split_text.style {
+                    Some(style) => FontSetting {
+                        size: style.font_size,
+                        letter_spacing: style.letter_spacing,
+                        kern_setting: style.kern_setting,
+                    },
+                    None => setting.clone(),
                 };
                 match &glyph.font_index_store {
-                    FontIndexStore::Global(idx) => {
-                        font_context.with(idx, |font| context.char_extents(ch, font_size, font))
-                    }
-                    FontIndexStore::Parent(_) => context.char_extents(ch, font_size, parent_font),
+                    FontIndexStore::Global(idx) => font_context.with(idx, |font| {
+                        context.char_extents(
+                            cur_char,
+                            next_char,
+                            font.as_scaled(setting.size),
+                            &setting,
+                        )
+                    }),
+                    FontIndexStore::Parent(_) => context.char_extents(
+                        cur_char,
+                        next_char,
+                        parent_font.as_scaled(setting.size),
+                        &setting,
+                    ),
                     FontIndexStore::Child(_) => match &split_text.font {
-                        Some(font) => context.char_extents(ch, font_size, font),
+                        Some(font) => context.char_extents(
+                            cur_char,
+                            next_char,
+                            font.as_scaled(setting.size),
+                            &setting,
+                        ),
                         None => return Err(Error::NotFoundSpecifiedFontFamily),
                     },
                 }

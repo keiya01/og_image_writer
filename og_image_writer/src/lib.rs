@@ -135,3 +135,4 @@ mod error;
 mod glyph;
 mod layout;
 mod line_breaker;
+mod renderer;
