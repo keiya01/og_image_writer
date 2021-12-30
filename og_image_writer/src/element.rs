@@ -1,7 +1,7 @@
 use super::layout::TextArea;
 use super::style::{Margin, Position, Style};
+use ab_glyph::FontArc;
 use image::{ImageBuffer, Rgba};
-use rusttype::Font;
 use std::ops::Range;
 
 #[derive(Debug)]
@@ -96,7 +96,7 @@ pub struct Text {
     pub(super) lines: Vec<Line>,
     pub(super) style: Style,
     // TODO: optimize static lifetime
-    pub(super) font: Option<Font<'static>>,
+    pub(super) font: Option<FontArc>,
     pub(super) textarea: TextArea,
 }
 
@@ -106,7 +106,7 @@ impl Text {
         lines: Vec<Line>,
         metrics: LineMetrics,
         style: Style,
-        font: Option<Font<'static>>,
+        font: Option<FontArc>,
         textarea: TextArea,
     ) -> Self {
         Text {

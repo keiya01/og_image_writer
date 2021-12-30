@@ -1,4 +1,4 @@
-use og_image_writer::{style, writer::OGImageWriter, TextArea, font::FontContext};
+use og_image_writer::{font::FontContext, style, writer::OGImageWriter, TextArea};
 use std::path::Path;
 
 fn main() -> anyhow::Result<()> {

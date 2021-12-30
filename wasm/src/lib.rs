@@ -1,6 +1,8 @@
 mod style;
 
-use og_image_writer::{style::Style, writer::OGImageWriter, Error, ImageOutputFormat, TextArea, font::FontContext};
+use og_image_writer::{
+    font::FontContext, style::Style, writer::OGImageWriter, Error, ImageOutputFormat, TextArea,
+};
 use std::panic;
 use std::path::Path;
 use wasm_bindgen::prelude::*;
@@ -46,6 +48,7 @@ impl JsImageOutputFormat {
 }
 
 #[wasm_bindgen(js_name = FontContext)]
+#[derive(Default)]
 pub struct JsFontContext {
     context: FontContext,
 }

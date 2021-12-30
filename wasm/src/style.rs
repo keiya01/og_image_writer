@@ -1,6 +1,6 @@
 use og_image_writer::style::{
-    AlignItems, BorderRadius, FlexDirection, JustifyContent, Margin, Position, Rgba, Style,
-    TextAlign, TextOverflow, WindowStyle, WordBreak,
+    AlignItems, BorderRadius, FlexDirection, JustifyContent, KernSetting, Margin, Position, Rgba,
+    Style, TextAlign, TextOverflow, WindowStyle, WordBreak,
 };
 use std::marker::Copy;
 use wasm_bindgen::prelude::*;
@@ -82,6 +82,9 @@ pub struct JsStyle {
     /// For Text element
     pub font_size: f32,
     /// For Text element
+    pub letter_spacing: i32,
+    pub kern_setting: KernSetting,
+    /// For Text element
     pub word_break: WordBreak,
     /// For Text element
     pub color: JsRgba,
@@ -121,6 +124,8 @@ impl Default for JsStyle {
             margin: JsMargin::default(),
             line_height: 1.5,
             font_size: 30.,
+            letter_spacing: 0,
+            kern_setting: KernSetting::Normal,
             word_break: WordBreak::Normal,
             color: JsRgba {
                 r: 0,
@@ -183,6 +188,8 @@ pub fn from_js_style(style: JsStyle) -> Style {
         ),
         line_height: style.line_height,
         font_size: style.font_size,
+        letter_spacing: style.letter_spacing,
+        kern_setting: style.kern_setting,
         word_break: style.word_break,
         color: Rgba([style.color.r, style.color.g, style.color.b, style.color.a]),
         text_align: style.text_align,

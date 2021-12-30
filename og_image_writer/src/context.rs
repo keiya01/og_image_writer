@@ -1,9 +1,10 @@
+use super::font::WHITESPACE_EM;
+use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
+use ab_glyph::{FontArc, PxScaleFont, ScaleFont};
 use image::imageops::overlay;
 use image::{load_from_memory, DynamicImage, ImageBuffer, Rgba, RgbaImage};
-use imageproc::drawing::draw_text_mut;
 use imageproc::map::map_colors;
-use rusttype::{Font, IntoGlyphId, Scale};
 use std::path::Path;
 
 pub use image::ImageOutputFormat;
@@ -30,36 +31,51 @@ impl Context {
         })
     }
 
-    pub fn text_extents(&self, text: &str, size: f32, font: &Font) -> FontMetrics {
-        let glyphs = font.glyphs_for(text.chars());
-        let scale = Scale::uniform(size);
-        let vmetrics = font.v_metrics(scale);
-
+    pub fn text_extents(
+        &self,
+        text: &str,
+        font: PxScaleFont<&FontArc>,
+        setting: &FontSetting,
+    ) -> FontMetrics {
+        let mut chars = text.chars().peekable();
         let mut width = 0.;
-        for g in glyphs {
-            let sg = g.scaled(scale);
-            let hmetrics = sg.h_metrics();
-            width += hmetrics.advance_width;
+        while let Some(cur_char) = chars.next() {
+            let metrics = self.char_extents(cur_char, chars.peek().copied(), font, setting);
+            width += metrics.width;
         }
 
         FontMetrics {
-            height: vmetrics.ascent + vmetrics.descent,
+            height: font.ascent() + font.descent(),
             width,
         }
     }
 
-    pub fn char_extents(&self, ch: char, size: f32, font: &Font) -> FontMetrics {
-        let glyph_id = ch.into_glyph_id(font);
-        let glyph = font.glyph(glyph_id);
-        let scale = Scale::uniform(size);
-        let vmetrics = font.v_metrics(scale);
+    pub fn char_extents(
+        &self,
+        cur_char: char,
+        next_char: Option<char>,
+        font: PxScaleFont<&FontArc>,
+        setting: &FontSetting,
+    ) -> FontMetrics {
+        let rect = get_glyph_rect(cur_char, &font, setting);
 
-        let sg = glyph.scaled(scale);
-        let hmetrics = sg.h_metrics();
+        let height = font.ascent() + font.descent();
+
+        if cur_char.is_whitespace() {
+            return FontMetrics {
+                height,
+                width: setting.size * WHITESPACE_EM,
+            };
+        }
 
         FontMetrics {
-            height: vmetrics.ascent + vmetrics.descent,
-            width: hmetrics.advance_width,
+            height,
+            width: match rect {
+                Some(rect) => {
+                    calculate_text_width(cur_char, next_char, &font, &rect, setting) as f32
+                }
+                None => 0.,
+            },
         }
     }
 
@@ -93,15 +109,15 @@ impl Context {
         color: Rgba<u8>,
         x: u32,
         y: u32,
-        size: f32,
-        font: &Font,
+        font: &FontArc,
+        setting: &FontSetting,
         text: &str,
     ) -> Result<(), Error> {
         let image = match &mut self.image {
             Some(image) => image,
             None => return Err(Error::NotFoundContainerImage),
         };
-        draw_text_mut(image, color, x, y, Scale::uniform(size), font, text);
+        draw_text_mut(image, color, x, y, font, setting, text);
 
         Ok(())
     }

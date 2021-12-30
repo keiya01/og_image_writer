@@ -11,8 +11,6 @@ fn main() -> anyhow::Result<()> {
         ..style::WindowStyle::default()
     })?;
 
-    let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);
-
     let mut textarea = TextArea::new();
     textarea.push_text("This is ");
     textarea.push(
@@ -32,7 +30,7 @@ fn main() -> anyhow::Result<()> {
             font_size: 100.,
             ..style::Style::default()
         },
-        None,
+        Some(include_bytes!("../fonts/Roboto-Light.ttf").to_vec()),
     )?;
 
     writer.set_textarea(
@@ -49,7 +47,7 @@ fn main() -> anyhow::Result<()> {
             word_break: style::WordBreak::BreakAll,
             ..style::Style::default()
         },
-        Some(font),
+        Some(include_bytes!("../fonts/Mplus1-Black.ttf").to_vec()),
     )?;
 
     let out_dir = "./examples/assets";

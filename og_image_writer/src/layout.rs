@@ -105,7 +105,7 @@ impl OGImageWriter {
 
                 let line_metrics = &text.metrics;
 
-                // Because imageproc draw text that include line_height.
+                // Because ab_glyph draw text that include line_height.
                 let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
                 for line in &mut text.lines {
@@ -193,7 +193,7 @@ impl OGImageWriter {
 
                 let line_metrics = &text.metrics;
 
-                // Because imageproc draw text that include line_height.
+                // Because ab_glyph draw text that include line_height.
                 let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
                 for line in &mut text.lines {

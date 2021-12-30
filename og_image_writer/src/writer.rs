@@ -4,10 +4,12 @@ use crate::Error;
 
 use super::context::{Context, ImageOutputFormat};
 use super::element::{Element, Img, Line, Text};
-use super::font::{create_font, Font, FontContext, FontIndexStore};
+use super::font::{create_font, FontContext, FontIndexStore};
 use super::glyph::Glyph;
 use super::layout::{SplitText, TextArea};
+use super::renderer::FontSetting;
 use super::style::{Style, WindowStyle};
+use ab_glyph::{Font, FontArc};
 use std::{cell::RefCell, ops::Range, path::Path, str};
 
 #[derive(Default)]
@@ -180,7 +182,7 @@ impl OGImageWriter {
         fn render_text(
             text: &str,
             range: &mut Range<usize>,
-            font: &Font,
+            font: &FontArc,
             context: &mut Context,
             current_width: &mut u32,
             style: &Style,
@@ -188,17 +190,25 @@ impl OGImageWriter {
         ) -> Result<(), Error> {
             let next_text = &text[range.clone()];
 
+            let setting = FontSetting {
+                size: style.font_size,
+                letter_spacing: style.letter_spacing,
+                kern_setting: style.kern_setting,
+            };
+
             context.draw_text(
                 style.color.as_image_rgba(),
                 line.rect.x + *current_width,
                 line.rect.y,
-                style.font_size,
                 font,
+                &setting,
                 next_text,
             )?;
 
             *range = range.end..range.end;
-            *current_width += context.text_extents(next_text, style.font_size, font).width as u32;
+            *current_width += context
+                .text_extents(next_text, font.as_scaled(style.font_size), &setting)
+                .width as u32;
 
             Ok(())
         }
@@ -313,13 +323,14 @@ impl OGImageWriter {
                         FontIndexStore::Global(idx) => {
                             let context = &mut self.context;
                             self.font_context.with(idx, |font| {
-                                context.draw_text(
-                                    style.color.as_image_rgba(),
-                                    line.rect.x + current_width,
-                                    line.rect.y,
-                                    style.font_size,
+                                render_text(
+                                    text,
+                                    &mut range,
                                     font,
-                                    &text[range.clone()],
+                                    context,
+                                    &mut current_width,
+                                    style,
+                                    line,
                                 )
                             })?;
                         }
@@ -328,25 +339,27 @@ impl OGImageWriter {
                                 Some(font) => font,
                                 None => return Err(Error::NotFoundSpecifiedFontFamily),
                             };
-                            self.context.draw_text(
-                                style.color.as_image_rgba(),
-                                line.rect.x + current_width,
-                                line.rect.y,
-                                style.font_size,
+                            render_text(
+                                text,
+                                &mut range,
                                 font,
-                                &text[range.clone()],
+                                &mut self.context,
+                                &mut current_width,
+                                style,
+                                line,
                             )?;
                         }
                         FontIndexStore::Child(_) => match current_split_text {
                             Some(split_text) => match &split_text.font {
                                 Some(font) => {
-                                    self.context.draw_text(
-                                        style.color.as_image_rgba(),
-                                        line.rect.x + current_width,
-                                        line.rect.y,
-                                        style.font_size,
+                                    render_text(
+                                        text,
+                                        &mut range,
                                         font,
-                                        &text[range.clone()],
+                                        &mut self.context,
+                                        &mut current_width,
+                                        style,
+                                        line,
                                     )?;
                                 }
                                 None => return Err(Error::NotFoundSpecifiedFontFamily),

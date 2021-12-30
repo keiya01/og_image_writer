@@ -2,6 +2,14 @@ pub use image::{Rgb, Rgba as ImageRgba};
 use std::marker::Copy;
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum KernSetting {
+    Normal,
+    Metrics,
+    Optical,
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct Rgba(pub [u8; 4]);
 
@@ -82,6 +90,10 @@ pub struct Style {
     /// For Text element
     pub font_size: f32,
     /// For Text element
+    pub letter_spacing: i32,
+    /// For Text element
+    pub kern_setting: KernSetting,
+    /// For Text element
     pub word_break: WordBreak,
     /// For Text element
     pub color: Rgba,
@@ -109,6 +121,8 @@ impl Default for Style {
             margin: Margin::default(),
             line_height: 1.5,
             font_size: 30.,
+            letter_spacing: 0,
+            kern_setting: KernSetting::Normal,
             word_break: WordBreak::Normal,
             color: Rgba([0, 0, 0, 255]),
             text_align: TextAlign::Start,
