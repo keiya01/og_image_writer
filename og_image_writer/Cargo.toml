@@ -14,9 +14,10 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 [dependencies]
 image = "0.23"
 imageproc = "0.22"
-rusttype = "0.9"
+ab_glyph = "0.2.12"
 thiserror = "1.0"
 wasm-bindgen = { version = "0.2" }
+conv = "0.3.3"
 
 [dev-dependencies]
 anyhow = "1.0"
