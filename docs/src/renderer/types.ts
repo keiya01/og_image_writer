@@ -1,4 +1,5 @@
 import type { StyleObj, WindowStyleObj } from "./style";
+import type { ImageInputFormat } from "og_image_writer";
 
 export type TextAreaItem = {
   text: string;
@@ -18,6 +19,7 @@ export type ImgObj = {
   data: Uint8Array;
   width: number;
   height: number;
+  format: ImageInputFormat;
   style: StyleObj;
 };
 

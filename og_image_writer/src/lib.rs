@@ -5,10 +5,10 @@
 //! - API looks like CSS.
 //! - You can generate image by using template image.
 //!
-//! The following example generate Open Graphic Image from template PNG image.
+//! The following example generate Open Graphic Image from template image.
 //!
 //! ```rust
-//! use og_image_writer::{style, writer::OGImageWriter};
+//! use og_image_writer::{style, writer::OGImageWriter, img::ImageInputFormat};
 //! use std::path::Path;
 //!
 //! fn main() -> anyhow::Result<()> {
@@ -21,6 +21,7 @@
 //!             ..style::WindowStyle::default()
 //!         },
 //!         include_bytes!("../../examples/assets/og_template.png"),
+//!         ImageInputFormat::Png,
 //!     )?;
 //!
 //!     let font = Vec::from(include_bytes!("../../fonts/Mplus1-Black.ttf") as &[u8]);

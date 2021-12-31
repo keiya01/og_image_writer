@@ -1,7 +1,7 @@
 use image::ImageError;
 
 use crate::element::{Element, Img, Rect};
-use crate::img::{open_and_resize, open_and_resize_with_data, round, ImageInfo};
+use crate::img::{open_and_resize, open_and_resize_with_data, round, ImageInfo, ImageInputFormat};
 use crate::style::{FlexDirection, Margin, Style};
 use crate::writer::OGImageWriter;
 use crate::Error;
@@ -53,9 +53,10 @@ impl OGImageWriter {
         data: &[u8],
         width: u32,
         height: u32,
+        format: ImageInputFormat,
         style: Style,
     ) -> Result<(), ImageError> {
-        let ImageInfo(mut buf, size) = open_and_resize_with_data(data, width, height)?;
+        let ImageInfo(mut buf, size) = open_and_resize_with_data(data, width, height, format)?;
 
         // TODO: support border for image
         round(&mut buf, &mut style.border_radius.clone(), 0.);

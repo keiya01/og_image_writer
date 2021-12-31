@@ -1,11 +1,11 @@
-use image::ImageError;
-
 use crate::Error;
+use image::ImageError;
 
 use super::context::{Context, ImageOutputFormat};
 use super::element::{Element, Img, Line, Text};
 use super::font::{create_font, FontContext, FontIndexStore};
 use super::glyph::Glyph;
+use super::img::ImageInputFormat;
 use super::layout::{SplitText, TextArea};
 use super::renderer::FontSetting;
 use super::style::{Style, WindowStyle};
@@ -20,7 +20,7 @@ pub(super) struct Content {
 
 pub struct Tree(pub(super) Vec<Element>);
 
-/// This struct write text to PNG.
+/// This struct write text to image.
 /// You can set text or img with `set_*` method.
 /// And you can set style with `set_*_style` method.
 pub struct OGImageWriter {
@@ -51,8 +51,12 @@ impl OGImageWriter {
 
     /// Set window style. Window act like CSS `flexbox`.
     /// Height and width are set by specified image.
-    pub fn from_data(window: WindowStyle, data: &[u8]) -> Result<Self, Error> {
-        let context = Context::from_data(data)?;
+    pub fn from_data(
+        window: WindowStyle,
+        data: &[u8],
+        format: ImageInputFormat,
+    ) -> Result<Self, Error> {
+        let context = Context::from_data(data, format)?;
 
         let image = match &context.image {
             Some(image) => image,
@@ -129,9 +133,10 @@ impl OGImageWriter {
         data: &[u8],
         width: u32,
         height: u32,
+        format: ImageInputFormat,
         style: Style,
     ) -> Result<(), ImageError> {
-        self.process_img_with_data(data, width, height, style)
+        self.process_img_with_data(data, width, height, format, style)
     }
 
     /// Set generated image by [OGImageWriter](Self) on parent image

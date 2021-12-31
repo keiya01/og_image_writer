@@ -7,6 +7,7 @@ import {
   Style,
   TextArea,
   WindowStyle,
+  ImageInputFormat,
 } from "og_image_writer";
 import type {
   Element,
@@ -57,6 +58,7 @@ export const createImg = (): ImgObj => ({
   data: new Uint8Array(),
   width: 0,
   height: 0,
+  format: ImageInputFormat.Png,
   style: getDefaultStyleObj(),
 });
 
@@ -172,7 +174,13 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
         }
 
         const style = getStyle(elm.style);
-        imgWriter.set_img_with_data(elm.data, elm.width, elm.height, style);
+        imgWriter.set_img_with_data(
+          elm.data,
+          elm.width,
+          elm.height,
+          elm.format,
+          style
+        );
         break;
       }
       case "container": {

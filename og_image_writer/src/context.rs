@@ -1,9 +1,10 @@
 use super::font::WHITESPACE_EM;
+use super::img::ImageInputFormat;
 use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
 use ab_glyph::{FontArc, PxScaleFont, ScaleFont};
 use image::imageops::overlay;
-use image::{load_from_memory, DynamicImage, ImageBuffer, Rgba, RgbaImage};
+use image::{load_from_memory_with_format, DynamicImage, ImageBuffer, Rgba, RgbaImage};
 use imageproc::map::map_colors;
 use std::path::Path;
 
@@ -24,8 +25,8 @@ impl Context {
         Self { image: Some(image) }
     }
 
-    pub fn from_data(data: &[u8]) -> Result<Self, Error> {
-        let image = load_from_memory(data)?;
+    pub fn from_data(data: &[u8], format: ImageInputFormat) -> Result<Self, Error> {
+        let image = load_from_memory_with_format(data, format.as_image_format())?;
         Ok(Self {
             image: Some(image.into_rgba8()),
         })

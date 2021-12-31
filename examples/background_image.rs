@@ -1,4 +1,4 @@
-use og_image_writer::{style, writer::OGImageWriter};
+use og_image_writer::{img::ImageInputFormat, style, writer::OGImageWriter};
 use std::path::Path;
 
 fn main() -> anyhow::Result<()> {
@@ -11,6 +11,7 @@ fn main() -> anyhow::Result<()> {
             ..style::WindowStyle::default()
         },
         include_bytes!("./assets/og_template.png"),
+        ImageInputFormat::Png,
     )?;
 
     let font = Vec::from(include_bytes!("../fonts/Mplus1-Black.ttf") as &[u8]);

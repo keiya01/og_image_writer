@@ -1,4 +1,3 @@
-use image::{save_buffer, ColorType};
 use og_image_writer::{style, writer::OGImageWriter, ImageOutputFormat};
 use std::fs::write;
 use std::path::Path;
