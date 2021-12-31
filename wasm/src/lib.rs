@@ -9,6 +9,8 @@ use wasm_bindgen::prelude::*;
 
 use style::{from_js_style, from_js_window_style, JsStyle, JsWindowStyle};
 
+pub use og_image_writer::img::ImageInputFormat;
+
 cfg_if::cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
         #[global_allocator]
@@ -134,11 +136,11 @@ impl JsOGImageWriter {
         }
     }
 
-    pub fn from_data(style: JsWindowStyle, data: Vec<u8>) -> Self {
+    pub fn from_data(style: JsWindowStyle, data: Vec<u8>, format: ImageInputFormat) -> Self {
         let style = from_js_window_style(style);
 
         JsOGImageWriter {
-            writer: OGImageWriter::from_data(style, &data).unwrap(),
+            writer: OGImageWriter::from_data(style, &data, format).unwrap(),
         }
     }
 
@@ -154,10 +156,17 @@ impl JsOGImageWriter {
             .unwrap();
     }
 
-    pub fn set_img_with_data(&mut self, data: Vec<u8>, width: u32, height: u32, style: JsStyle) {
+    pub fn set_img_with_data(
+        &mut self,
+        data: Vec<u8>,
+        width: u32,
+        height: u32,
+        format: ImageInputFormat,
+        style: JsStyle,
+    ) {
         let style = from_js_style(style);
         self.writer
-            .set_img_with_data(&data, width, height, style)
+            .set_img_with_data(&data, width, height, format, style)
             .unwrap();
     }
 
