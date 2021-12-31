@@ -1,8 +1,30 @@
 use crate::Error;
 
 use super::style::BorderRadius;
-use image::{load_from_memory, open, DynamicImage, ImageBuffer, ImageError, Rgba};
+use image::{
+    load_from_memory_with_format, open, DynamicImage, ImageBuffer, ImageError, ImageFormat, Rgba,
+};
 use imageproc::drawing::draw_line_segment_mut;
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub enum ImageInputFormat {
+    Png,
+    Jpeg,
+    // WebP,
+    // Avif,
+}
+
+impl ImageInputFormat {
+    pub(super) fn as_image_format(&self) -> ImageFormat {
+        match self {
+            ImageInputFormat::Png => ImageFormat::Png,
+            ImageInputFormat::Jpeg => ImageFormat::Jpeg,
+            // ImageInputFormat::WebP => ImageFormat::WebP,
+            // ImageInputFormat::Avif => ImageFormat::Avif,
+        }
+    }
+}
 
 pub(super) struct Size {
     pub(super) height: u32,
@@ -23,8 +45,9 @@ pub(super) fn open_and_resize_with_data(
     data: &[u8],
     w: u32,
     h: u32,
+    format: ImageInputFormat,
 ) -> Result<ImageInfo, ImageError> {
-    let rgba = load_from_memory(data)?.into_rgba8();
+    let rgba = load_from_memory_with_format(data, format.as_image_format())?.into_rgba8();
     let buffer = DynamicImage::ImageRgba8(rgba).thumbnail(w, h).into_rgba8();
     let height = buffer.height();
     let width = buffer.width();

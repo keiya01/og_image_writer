@@ -5,7 +5,7 @@
 //! - API looks like CSS.
 //! - You can generate image by using template image.
 //!
-//! The following example generate Open Graphic Image from template PNG image.
+//! The following example generate Open Graphic Image from template image.
 //!
 //! ```rust
 //! use og_image_writer::{style, writer::OGImageWriter};
