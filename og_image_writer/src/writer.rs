@@ -199,6 +199,7 @@ impl OGImageWriter {
                 size: style.font_size,
                 letter_spacing: style.letter_spacing,
                 kern_setting: style.kern_setting,
+                is_pre: style.white_space.is_pre(),
             };
 
             context.draw_text(

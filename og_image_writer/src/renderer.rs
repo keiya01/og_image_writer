@@ -1,4 +1,4 @@
-use super::font::WHITESPACE_EM;
+use super::font::{is_newline, is_newline_as_whitespace, whitespace_width};
 use super::style::KernSetting;
 use ab_glyph::{point as ab_point, Font, FontArc, Glyph, PxScaleFont, Rect, ScaleFont};
 use conv::ValueInto;
@@ -14,6 +14,7 @@ pub struct FontSetting {
     pub letter_spacing: i32,
     pub size: f32,
     pub kern_setting: KernSetting,
+    pub is_pre: bool,
 }
 
 impl Default for FontSetting {
@@ -22,6 +23,7 @@ impl Default for FontSetting {
             size: 16.,
             letter_spacing: 0,
             kern_setting: KernSetting::Normal,
+            is_pre: false,
         }
     }
 }
@@ -34,8 +36,9 @@ pub fn calculate_text_width(
     setting: &FontSetting,
 ) -> i32 {
     let glyph_id = font.glyph_id(cur_char);
-    if cur_char.is_whitespace() {
-        return (setting.size * WHITESPACE_EM) as i32 + setting.letter_spacing;
+
+    if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, cur_char, next_char) {
+        return whitespace_width(setting.size) as i32 + setting.letter_spacing;
     }
 
     let width = match setting.kern_setting {
@@ -85,12 +88,24 @@ pub fn draw_text_mut<'a, C>(
     let mut current_x = 0;
     let scaled_font = font.as_scaled(setting.size);
     let mut chars = text.char_indices().peekable();
-    let whitespace = (setting.size * WHITESPACE_EM) as i32;
+    let whitespace = whitespace_width(setting.size) as i32;
     while let Some((_, ch)) = chars.next() {
+        let peek_char = chars.peek().map(|(_, ch)| *ch);
+
         if ch.is_whitespace() {
             current_x += whitespace + setting.letter_spacing;
             continue;
         }
+
+        if is_newline(ch, peek_char) {
+            // skip 'n' char
+            chars.next();
+            if chars.peek().is_some() {
+                current_x += whitespace + setting.letter_spacing;
+            }
+            continue;
+        }
+
         let glyph_id = scaled_font.glyph_id(ch);
         let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, ab_point(0., 0.));
         if let Some(q) = scaled_font.outline_glyph(q_glyph) {
@@ -117,13 +132,7 @@ pub fn draw_text_mut<'a, C>(
                 }
             });
 
-            current_x += calculate_text_width(
-                ch,
-                chars.peek().map(|(_, ch)| *ch),
-                &scaled_font,
-                &bb,
-                setting,
-            );
+            current_x += calculate_text_width(ch, peek_char, &scaled_font, &bb, setting);
         }
     }
 }

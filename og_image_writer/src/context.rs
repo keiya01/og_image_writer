@@ -1,4 +1,4 @@
-use super::font::WHITESPACE_EM;
+use super::font::{is_newline_as_whitespace, whitespace_width};
 use super::img::ImageInputFormat;
 use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
@@ -62,10 +62,11 @@ impl Context {
 
         let height = font.ascent() + font.descent();
 
-        if cur_char.is_whitespace() {
+        if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, cur_char, next_char)
+        {
             return FontMetrics {
                 height,
-                width: setting.size * WHITESPACE_EM,
+                width: whitespace_width(setting.size),
             };
         }
 
