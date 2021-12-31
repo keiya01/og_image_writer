@@ -13,18 +13,18 @@
   export let element: ImgObj & { id: number };
 
   const toFormat = (ext: string) => {
-    switch(ext) {
+    switch (ext) {
       case "png": {
-        return ImageInputFormat.Png
+        return ImageInputFormat.Png;
       }
       case "jpg" || "jpeg": {
-        return ImageInputFormat.Jpeg
+        return ImageInputFormat.Jpeg;
       }
       default: {
         return null;
       }
     }
-  }
+  };
 
   let files: FileList;
   let errors = {
@@ -42,8 +42,8 @@
         file.arrayBuffer().then((buf) => {
           element.data = new Uint8Array(buf);
           const format = toFormat(ext);
-          if(format !== null) {
-            element.format = format
+          if (format !== null) {
+            element.format = format;
           } else {
             errors.file = true;
           }
@@ -67,11 +67,14 @@
 
     <ChildList>
       <li>
-        <InlineFileInput bind:files>Select a image file(png or jpeg)</InlineFileInput>
+        <InlineFileInput bind:files
+          >Select a image file(png or jpeg)</InlineFileInput
+        >
         {#if errors.file}
           <div class="error-message">
             <ErrorMessage
-              >Currently, only images in <Code>.png</Code> or <Code>.jpeg</Code> format are supported.</ErrorMessage
+              >Currently, only images in <Code>.png</Code> or <Code>.jpeg</Code>
+              format are supported.</ErrorMessage
             >
           </div>
         {/if}
