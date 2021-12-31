@@ -5,6 +5,7 @@ import {
   Position,
   TextAlign,
   WordBreak,
+  WhiteSpace,
 } from "og_image_writer";
 
 export type BorderRadiusObj = {
@@ -44,6 +45,7 @@ export type StyleObj = {
   textOverflow?: string;
   top?: number;
   wordBreak?: WordBreak;
+  whiteSpace?: WhiteSpace;
 };
 
 export const getDefaultStyleObj = (): StyleObj => ({
@@ -56,6 +58,7 @@ export const getDefaultStyleObj = (): StyleObj => ({
   textAlign: TextAlign.Start,
   textOverflow: "clip",
   wordBreak: WordBreak.Normal,
+  whiteSpace: WhiteSpace.Normal,
 });
 
 export type WindowStyleObj = {
