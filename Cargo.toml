@@ -4,6 +4,7 @@ members = [
   "wasm",
   "examples",
 ]
+resolver = "2"
 
 [profile.release]
 lto = true
