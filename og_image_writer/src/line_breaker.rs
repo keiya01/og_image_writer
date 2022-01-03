@@ -1,6 +1,9 @@
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
-use crate::font::{match_font_family, FontContext};
+use crate::font::{
+    is_newline, is_newline_as_whitespace, match_font_family, whitespace_width, FontContext,
+    NEWLINE_CHAR,
+};
 use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
 use crate::Error;
@@ -43,14 +46,7 @@ impl<'a> LineBreaker<'a> {
     ) -> Result<(), Error> {
         let chars = self.title.char_indices();
 
-        let setting = FontSetting {
-            size: style.font_size,
-            letter_spacing: style.letter_spacing,
-            kern_setting: style.kern_setting,
-        };
-
         let mut last_whitespace_idx = 0;
-        let mut last_whitespace_width = 0.;
         // Space between whitespace and whitespace
         let mut word_width = 0.;
         let mut range = 0..0;
@@ -59,6 +55,26 @@ impl<'a> LineBreaker<'a> {
         let mut chars = chars.into_iter().peekable();
         while let Some((i, ch)) = chars.next() {
             let ch_len = ch.to_string().len();
+
+            let setting = match textarea.get_glyphs_from_char_range(i..i + ch_len) {
+                (Some(split_text), _) => {
+                    let style = split_text.style.as_ref().unwrap_or(style);
+                    FontSetting {
+                        size: style.font_size,
+                        letter_spacing: style.letter_spacing,
+                        kern_setting: style.kern_setting,
+                        is_pre: style.white_space.is_pre(),
+                    }
+                }
+                _ => FontSetting {
+                    size: style.font_size,
+                    letter_spacing: style.letter_spacing,
+                    kern_setting: style.kern_setting,
+                    is_pre: style.white_space.is_pre(),
+                },
+            };
+            let whitespace_width = whitespace_width(setting.size);
+
             let extents = match font {
                 Some(font) if match_font_family(ch, font) => textarea.char_extents(
                     ch,
@@ -86,12 +102,32 @@ impl<'a> LineBreaker<'a> {
             };
 
             let ch_width = extents.width;
+            let is_newline = is_newline(ch, chars.peek().map(|(_, p)| *p));
+
+            if setting.is_pre && is_newline {
+                // skip 'n' char
+                chars.next();
+
+                let start = range.end + NEWLINE_CHAR.len();
+                self.lines.push(Line {
+                    range: range.start..range.end + NEWLINE_CHAR.len(),
+                    height: line_height,
+                    width: line_width,
+                });
+                self.set_max_line_size(FontMetrics {
+                    height: line_height,
+                    width: line_width,
+                });
+                range = start..start;
+                line_width = 0.;
+                line_height = 0.;
+            }
 
             if width <= line_width + ch_width {
                 match style.word_break {
                     WordBreak::Normal => {
                         let end = range.end;
-                        line_width -= word_width + last_whitespace_width;
+                        line_width -= word_width + whitespace_width;
                         self.lines.push(Line {
                             range: range.start..last_whitespace_idx,
                             height: line_height,
@@ -123,14 +159,27 @@ impl<'a> LineBreaker<'a> {
                 }
             }
 
-            range.end = i + ch_len;
-            line_width += ch_width;
-            word_width += ch_width;
             if ch.is_whitespace() {
+                range.end = i + ch_len;
+                line_width += whitespace_width;
                 last_whitespace_idx = i + ch_len;
-                last_whitespace_width = extents.width;
                 word_width = 0.;
+            } else if is_newline_as_whitespace(setting.is_pre, ch, chars.peek().map(|(_, c)| *c)) {
+                // skip 'n' char
+                chars.next();
+
+                range.end = i + NEWLINE_CHAR.len();
+                line_width += whitespace_width;
+                last_whitespace_idx = i + NEWLINE_CHAR.len();
+                word_width = 0.;
+            } else if is_newline {
+                word_width = 0.;
+            } else {
+                range.end = i + ch_len;
+                line_width += ch_width;
+                word_width += ch_width;
             }
+
             line_height = if extents.height > line_height {
                 extents.height
             } else {
@@ -138,15 +187,17 @@ impl<'a> LineBreaker<'a> {
             };
         }
 
-        self.lines.push(Line {
-            range,
-            height: line_height,
-            width: line_width,
-        });
-        self.set_max_line_size(FontMetrics {
-            height: line_height,
-            width: line_width,
-        });
+        if !range.is_empty() {
+            self.lines.push(Line {
+                range,
+                height: line_height,
+                width: line_width,
+            });
+            self.set_max_line_size(FontMetrics {
+                height: line_height,
+                width: line_width,
+            });
+        }
 
         Ok(())
     }
@@ -176,6 +227,7 @@ mod tests {
     use crate::context::Context;
     use crate::font::FontContext;
     use crate::layout::TextArea;
+    use crate::style::WhiteSpace;
     use ab_glyph::FontArc;
 
     #[test]
@@ -214,6 +266,152 @@ mod tests {
             .unwrap();
 
         let expects = ["Hello World, ", "Hello World"];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_break_test_with_pre_line() {
+        let width = 80u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "Test\\nHello World, Hello\\nWorld";
+        let font_size = 16.;
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let mut textarea = TextArea::new();
+        textarea.push_text(text);
+
+        let font_context = FontContext::new();
+
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
+
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style {
+                    font_size,
+                    word_break: WordBreak::Normal,
+                    white_space: WhiteSpace::PreLine,
+                    ..Style::default()
+                },
+                &Some(font),
+                &textarea,
+                &font_context,
+            )
+            .unwrap();
+
+        let expects = ["Test\\n", "Hello World, ", "Hello\\n", "World"];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_break_with_newline_as_whitespace() {
+        let width = 80u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "Hello World,\\nHello\\nWorld";
+        let font_size = 16.;
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let mut textarea = TextArea::new();
+        textarea.push_text(text);
+
+        let font_context = FontContext::new();
+
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
+
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style {
+                    font_size,
+                    word_break: WordBreak::Normal,
+                    white_space: WhiteSpace::Normal,
+                    ..Style::default()
+                },
+                &Some(font),
+                &textarea,
+                &font_context,
+            )
+            .unwrap();
+
+        let expects = ["Hello World,\\n", "Hello\\nWorld"];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_break_with_split_text_newline() {
+        let width = 80u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "Test\\nHello World, Hello\\nWorld";
+        let font_size = 16.;
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let mut textarea = TextArea::new();
+        textarea.push(text, Style {
+            font_size,
+            white_space: WhiteSpace::PreLine,
+            ..Style::default()
+        }, None).unwrap();
+
+        let font_context = FontContext::new();
+
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
+
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style::default(),
+                &Some(font),
+                &textarea,
+                &font_context,
+            )
+            .unwrap();
+
+        let expects = ["Test\\n", "Hello World, ", "Hello\\n", "World"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.range.clone()] {

@@ -26,6 +26,22 @@ pub enum WordBreak {
     BreakAll,
 }
 
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum WhiteSpace {
+    Normal,
+    PreLine,
+}
+
+impl WhiteSpace {
+    pub(crate) fn is_pre(&self) -> bool {
+        match self {
+            Self::Normal => false,
+            Self::PreLine => true,
+        }
+    }
+}
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 
@@ -96,6 +112,8 @@ pub struct Style {
     /// For Text element
     pub word_break: WordBreak,
     /// For Text element
+    pub white_space: WhiteSpace,
+    /// For Text element
     pub color: Rgba,
     /// For Text element
     pub text_align: TextAlign,
@@ -124,6 +142,7 @@ impl Default for Style {
             letter_spacing: 0,
             kern_setting: KernSetting::Normal,
             word_break: WordBreak::Normal,
+            white_space: WhiteSpace::Normal,
             color: Rgba([0, 0, 0, 255]),
             text_align: TextAlign::Start,
             max_height: None,

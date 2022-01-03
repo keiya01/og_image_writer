@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { Position, TextAlign, WordBreak } from "og_image_writer";
+  import { Position, TextAlign, WordBreak, WhiteSpace } from "og_image_writer";
 
   import type { StyleObj } from "../../renderer/style";
   import FormLabel from "./FormLabel.svelte";
@@ -11,6 +11,7 @@
   import Title from "./Title.svelte";
 
   let wordBreak: "Normal" | "BreakAll" = "Normal";
+  let whiteSpace: "Normal" | "PreLine" = "Normal";
   let textAlign: "Start" | "Center" | "End" = "Start";
   let position: "Static" | "Absolute" = "Static";
 
@@ -20,6 +21,7 @@
 
   $: {
     style.wordBreak = WordBreak[wordBreak];
+    style.whiteSpace = WhiteSpace[whiteSpace];
     style.textAlign = TextAlign[textAlign];
     style.position = Position[position];
   }
@@ -334,6 +336,40 @@
                   checked={wordBreak === "BreakAll"}
                 />
                 BreakAll
+              </FormLabel>
+            </li>
+          </ul>
+        </fieldset>
+      </li>
+
+      <li>
+        <fieldset>
+          <legend>white_space</legend>
+          <ul>
+            <li>
+              <FormLabel>
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-white_space-${nameIndex}`}
+                  bind:group={whiteSpace}
+                  value="Normal"
+                  checked={whiteSpace === "Normal"}
+                />
+                Normal
+              </FormLabel>
+            </li>
+            <li>
+              <FormLabel>
+                <input
+                  slot="input"
+                  type="radio"
+                  name={`style-white_space-${nameIndex}`}
+                  bind:group={whiteSpace}
+                  value="PreLine"
+                  checked={whiteSpace === "PreLine"}
+                />
+                PreLine
               </FormLabel>
             </li>
           </ul>

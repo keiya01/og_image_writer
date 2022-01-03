@@ -125,6 +125,7 @@ const getStyle = (obj?: StyleObj) => {
   optionalAssign(style, "text_overflow", obj.textOverflow);
   optionalAssign(style, "top", obj.top);
   optionalAssign(style, "word_break", obj.wordBreak);
+  optionalAssign(style, "white_space", obj.whiteSpace);
 
   return style;
 };

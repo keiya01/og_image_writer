@@ -54,3 +54,7 @@ path = "font_context.rs"
 [[example]]
 name = "font_kern"
 path = "font_kern.rs"
+
+[[example]]
+name = "white_space"
+path = "white_space.rs"

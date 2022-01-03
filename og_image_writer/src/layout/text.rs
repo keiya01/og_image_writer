@@ -1,6 +1,7 @@
-use super::textarea::TextArea;
+use super::textarea::{SplitText, TextArea};
+use crate::context::FontMetrics;
 use crate::element::{Element, Line, LineMetrics, Rect, Text};
-use crate::font::match_font_family;
+use crate::font::{match_font_family, whitespace_width, NEWLINE_CHAR};
 use crate::line_breaker::LineBreaker;
 use crate::renderer::FontSetting;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
@@ -151,6 +152,36 @@ impl OGImageWriter {
         font: &Option<FontArc>,
         textarea: &mut TextArea,
     ) -> Result<String, Error> {
+        fn rev_char_extents<F>(
+            is_newline: bool,
+            parent_font_size: f32,
+            split_text: Option<&SplitText>,
+            extents: F,
+        ) -> Result<FontMetrics, Error>
+        where
+            F: FnOnce() -> Result<FontMetrics, Error>,
+        {
+            let extents = extents()?;
+            let font_size = match split_text {
+                Some(split_text) => {
+                    if let Some(style) = &split_text.style {
+                        style.font_size
+                    } else {
+                        parent_font_size
+                    }
+                }
+                None => parent_font_size,
+            };
+            if is_newline {
+                Ok(FontMetrics {
+                    height: extents.height,
+                    width: whitespace_width(font_size),
+                })
+            } else {
+                Ok(extents)
+            }
+        }
+
         let ellipsis = match &style.text_overflow {
             TextOverflow::Ellipsis => "...",
             TextOverflow::Content(s) => s,
@@ -161,6 +192,7 @@ impl OGImageWriter {
             size: style.font_size,
             letter_spacing: style.letter_spacing,
             kern_setting: style.kern_setting,
+            is_pre: style.white_space.is_pre(),
         };
 
         let ellipsis_width = match font {
@@ -183,22 +215,15 @@ impl OGImageWriter {
         let mut split_index = 0;
         let mut chars = text.char_indices().rev().peekable();
         while let Some((i, ch)) = chars.next() {
+            let peek_char = chars.peek().map(|(_, c)| *c);
+            let is_newline = ch == 'n' && peek_char.map(|c| c == '\\').unwrap_or(false);
+            let (split_text, _) = textarea.get_glyphs_from_char_range(i..i + ch.to_string().len());
             let extents = match font {
-                Some(font) if match_font_family(ch, font) => textarea.char_extents(
-                    ch,
-                    chars.peek().map(|(_, c)| *c),
-                    font,
-                    i..i + ch.to_string().len(),
-                    &self.context,
-                    &self.font_context,
-                    &setting,
-                )?,
-                _ => {
-                    let idx = self.font_context.select_font_family(ch)?;
-                    self.font_context.with(&idx, |font| {
+                Some(font) if match_font_family(ch, font) => {
+                    rev_char_extents(is_newline, style.font_size, split_text, || {
                         textarea.char_extents(
                             ch,
-                            chars.peek().map(|(_, c)| *c),
+                            peek_char,
                             font,
                             i..i + ch.to_string().len(),
                             &self.context,
@@ -207,6 +232,30 @@ impl OGImageWriter {
                         )
                     })?
                 }
+                _ => {
+                    let idx = self.font_context.select_font_family(ch)?;
+                    self.font_context.with(&idx, |font| {
+                        rev_char_extents(is_newline, style.font_size, split_text, || {
+                            textarea.char_extents(
+                                ch,
+                                peek_char,
+                                font,
+                                i..i + ch.to_string().len(),
+                                &self.context,
+                                &self.font_context,
+                                &setting,
+                            )
+                        })
+                    })?
+                }
+            };
+
+            let i = if is_newline {
+                // skip 'n' char
+                chars.next();
+                i + NEWLINE_CHAR.len()
+            } else {
+                i
             };
 
             total_char_width += extents.width;
