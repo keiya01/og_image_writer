@@ -46,15 +46,6 @@ impl<'a> LineBreaker<'a> {
     ) -> Result<(), Error> {
         let chars = self.title.char_indices();
 
-        let setting = FontSetting {
-            size: style.font_size,
-            letter_spacing: style.letter_spacing,
-            kern_setting: style.kern_setting,
-            is_pre: style.white_space.is_pre(),
-        };
-
-        let whitespace_width = whitespace_width(setting.size);
-
         let mut last_whitespace_idx = 0;
         // Space between whitespace and whitespace
         let mut word_width = 0.;
@@ -64,6 +55,26 @@ impl<'a> LineBreaker<'a> {
         let mut chars = chars.into_iter().peekable();
         while let Some((i, ch)) = chars.next() {
             let ch_len = ch.to_string().len();
+
+            let setting = match textarea.get_glyphs_from_char_range(i..i + ch_len) {
+                (Some(split_text), _) => {
+                    let style = split_text.style.as_ref().unwrap_or(style);
+                    FontSetting {
+                        size: style.font_size,
+                        letter_spacing: style.letter_spacing,
+                        kern_setting: style.kern_setting,
+                        is_pre: style.white_space.is_pre(),
+                    }
+                }
+                _ => FontSetting {
+                    size: style.font_size,
+                    letter_spacing: style.letter_spacing,
+                    kern_setting: style.kern_setting,
+                    is_pre: style.white_space.is_pre(),
+                },
+            };
+            let whitespace_width = whitespace_width(setting.size);
+
             let extents = match font {
                 Some(font) if match_font_family(ch, font) => textarea.char_extents(
                     ch,
@@ -93,7 +104,7 @@ impl<'a> LineBreaker<'a> {
             let ch_width = extents.width;
             let is_newline = is_newline(ch, chars.peek().map(|(_, p)| *p));
 
-            if style.white_space.is_pre() && is_newline {
+            if setting.is_pre && is_newline {
                 // skip 'n' char
                 chars.next();
 

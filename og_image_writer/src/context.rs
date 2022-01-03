@@ -1,4 +1,4 @@
-use super::font::{is_newline_as_whitespace, whitespace_width};
+use super::font::{is_newline, is_newline_as_whitespace, whitespace_width};
 use super::img::ImageInputFormat;
 use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
@@ -41,8 +41,12 @@ impl Context {
         let mut chars = text.chars().peekable();
         let mut width = 0.;
         while let Some(cur_char) = chars.next() {
-            let metrics = self.char_extents(cur_char, chars.peek().copied(), font, setting);
+            let peek_char = chars.peek().copied();
+            let metrics = self.char_extents(cur_char, peek_char, font, setting);
             width += metrics.width;
+            if is_newline(cur_char, peek_char) {
+                chars.next();
+            }
         }
 
         FontMetrics {
