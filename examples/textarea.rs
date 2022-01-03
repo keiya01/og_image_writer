@@ -24,10 +24,11 @@ fn main() -> anyhow::Result<()> {
     )?;
     textarea.push_text(" for ");
     textarea.push(
-        "Web Developer!!!!!",
+        "Web\\nDeveloper!!!!!",
         style::Style {
             color: style::Rgba([255, 0, 0, 255]),
             font_size: 100.,
+            white_space: style::WhiteSpace::PreLine,
             ..style::Style::default()
         },
         Some(include_bytes!("../fonts/Roboto-Light.ttf").to_vec()),
@@ -42,8 +43,6 @@ fn main() -> anyhow::Result<()> {
             // word_break: style::WordBreak::Normal,
             color: style::Rgba([255, 255, 255, 255]),
             text_align: style::TextAlign::Start,
-            max_height: Some(150),
-            text_overflow: style::TextOverflow::Ellipsis,
             word_break: style::WordBreak::BreakAll,
             ..style::Style::default()
         },
