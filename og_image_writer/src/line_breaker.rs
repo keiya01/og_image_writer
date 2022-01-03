@@ -377,6 +377,54 @@ mod tests {
     }
 
     #[test]
+    fn test_break_with_split_text_newline() {
+        let width = 80u32;
+        let height = 50u32;
+        let context = Context::new(width, height);
+
+        let text = "Test\\nHello World, Hello\\nWorld";
+        let font_size = 16.;
+        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+
+        let mut textarea = TextArea::new();
+        textarea.push(text, Style {
+            font_size,
+            white_space: WhiteSpace::PreLine,
+            ..Style::default()
+        }, None).unwrap();
+
+        let font_context = FontContext::new();
+
+        textarea
+            .set_glyphs(&Some(font.clone()), &font_context)
+            .unwrap();
+
+        let mut line_breaker = LineBreaker::new(text);
+        line_breaker
+            .break_text(
+                &context,
+                width as f32,
+                &Style::default(),
+                &Some(font),
+                &textarea,
+                &font_context,
+            )
+            .unwrap();
+
+        let expects = ["Test\\n", "Hello World, ", "Hello\\n", "World"];
+
+        for (i, line) in line_breaker.lines.iter().enumerate() {
+            if expects[i] != &text[line.range.clone()] {
+                panic!(
+                    "expect '{}', but got '{}'",
+                    expects[i],
+                    &text[line.range.clone()]
+                );
+            }
+        }
+    }
+
+    #[test]
     fn test_break_test_with_char() {
         let width = 90u32;
         let height = 50u32;
