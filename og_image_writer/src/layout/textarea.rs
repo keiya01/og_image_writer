@@ -1,4 +1,4 @@
-use crate::char::CharFlags;
+use crate::char::{CharFlags, RenderingCharIndices};
 use crate::context::{Context, FontMetrics};
 use crate::font::{create_font, match_font_family, FontContext, FontIndex, FontIndexStore};
 use crate::glyph::Glyph;
@@ -42,7 +42,7 @@ impl SplitText {
         let mut font_index_store: Option<FontIndexStore> = None;
         let mut prev_font_index_store: Option<FontIndexStore> = None;
 
-        for (_, ch) in text.char_indices() {
+        for (_, _, ch, _) in RenderingCharIndices::from_str(text) {
             let has_parent_font = match parent_font {
                 Some(parent_font) => match_font_family(ch, parent_font),
                 None => false,

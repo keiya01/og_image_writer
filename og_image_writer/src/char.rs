@@ -1,14 +1,12 @@
 use std::iter::{Iterator, Peekable, Rev};
 use std::str::CharIndices;
 
-pub const NEWLINE_CHAR: &str = "\\n";
-
-pub(super) fn is_newline(cur_char: char, next_char: Option<char>) -> bool {
-    cur_char == '\\' && next_char.map(|c| c == 'n').unwrap_or(false)
+pub(super) fn is_newline(cur_char: char) -> bool {
+    cur_char == '\n'
 }
 
-pub(super) fn is_rev_newline(cur_char: char, next_char: Option<char>) -> bool {
-    cur_char == 'n' && next_char.map(|c| c == '\\').unwrap_or(false)
+pub(super) fn is_rev_newline(cur_char: char) -> bool {
+    cur_char == '\n'
 }
 
 pub(super) fn is_newline_as_whitespace(is_pre: bool, flag: &Option<CharFlags>) -> bool {
@@ -46,10 +44,8 @@ impl<'a> Iterator for RenderingCharIndices<'a> {
         let chars = &mut self.0;
         let v = chars.next();
         match v {
-            Some((i, ch)) if is_newline(ch, chars.peek().map(|(_, c)| *c)) => {
-                // skip 'n' char
-                chars.next();
-                Some((Some(CharFlags::Newline), i, ' ', NEWLINE_CHAR.len()))
+            Some((i, ch)) if is_newline(ch) => {
+                Some((Some(CharFlags::Newline), i, ' ', ch.to_string().len()))
             }
             _ => v.map(|t| (None, t.0, t.1, t.1.to_string().len())),
         }
@@ -77,10 +73,8 @@ impl<'a> Iterator for RevRenderingCharIndices<'a> {
         let chars = &mut self.0;
         let v = chars.next();
         match v {
-            Some((_, ch)) if is_rev_newline(ch, chars.peek().map(|(_, c)| *c)) => {
-                // skip 'n' char
-                chars.next();
-                Some((Some(CharFlags::Newline), " ".len(), ' ', NEWLINE_CHAR.len()))
+            Some((i, ch)) if is_rev_newline(ch) => {
+                Some((Some(CharFlags::Newline), i, ' ', ch.to_string().len()))
             }
             _ => v.map(|t| (None, t.0, t.1, t.1.to_string().len())),
         }

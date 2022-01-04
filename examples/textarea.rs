@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
     )?;
     textarea.push_text(" for ");
     textarea.push(
-        "Web\\nDeveloper!!!!!",
+        "Web\nDeveloper!!!!!",
         style::Style {
             color: style::Rgba([255, 0, 0, 255]),
             font_size: 100.,

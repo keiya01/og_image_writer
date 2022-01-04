@@ -271,7 +271,7 @@ mod tests {
         let height = 50u32;
         let context = Context::new(width, height);
 
-        let text = "Test\\nHello World, Hello\\nWorld";
+        let text = "Test\nHello World, Hello\nWorld";
         let font_size = 16.;
         let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
@@ -301,7 +301,7 @@ mod tests {
             )
             .unwrap();
 
-        let expects = ["Test\\n", "Hello World, ", "Hello\\n", "World"];
+        let expects = ["Test\n", "Hello World, ", "Hello\n", "World"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.range.clone()] {
@@ -320,7 +320,7 @@ mod tests {
         let height = 50u32;
         let context = Context::new(width, height);
 
-        let text = "Hello World,\\nHello\\nWorld";
+        let text = "Hello World,\nHello\nWorld";
         let font_size = 16.;
         let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
@@ -350,7 +350,7 @@ mod tests {
             )
             .unwrap();
 
-        let expects = ["Hello World,\\n", "Hello\\nWorld"];
+        let expects = ["Hello World,\n", "Hello\nWorld"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.range.clone()] {
@@ -369,7 +369,7 @@ mod tests {
         let height = 50u32;
         let context = Context::new(width, height);
 
-        let text = "Test\\nHello World, Hello\\nWorld";
+        let text = "Test\nHello World, Hello\nWorld";
         let font_size = 16.;
         let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
@@ -404,7 +404,7 @@ mod tests {
             )
             .unwrap();
 
-        let expects = ["Test\\n", "Hello World, ", "Hello\\n", "World"];
+        let expects = ["Test\n", "Hello World, ", "Hello\n", "World"];
 
         for (i, line) in line_breaker.lines.iter().enumerate() {
             if expects[i] != &text[line.range.clone()] {

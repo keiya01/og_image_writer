@@ -2,7 +2,7 @@ use og_image_writer::{style, writer::OGImageWriter};
 use std::path::Path;
 
 fn main() -> anyhow::Result<()> {
-    let text = "Test\\nHello World Text,\\nHello World";
+    let text = "Test\nHello World Text,\nHello World";
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
         width: 1024,
