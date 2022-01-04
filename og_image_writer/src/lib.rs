@@ -131,6 +131,7 @@ pub use context::ImageOutputFormat;
 pub use error::Error;
 pub use layout::TextArea;
 
+mod char;
 mod context;
 mod error;
 mod glyph;

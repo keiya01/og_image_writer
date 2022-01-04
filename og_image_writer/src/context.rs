@@ -1,4 +1,5 @@
-use super::font::{is_newline, is_newline_as_whitespace, whitespace_width};
+use super::char::{CharFlags, RenderingCharIndices};
+use super::font::whitespace_width;
 use super::img::ImageInputFormat;
 use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
@@ -38,15 +39,11 @@ impl Context {
         font: PxScaleFont<&FontArc>,
         setting: &FontSetting,
     ) -> FontMetrics {
-        let mut chars = text.chars().peekable();
+        let mut chars = RenderingCharIndices::from_str(text);
         let mut width = 0.;
-        while let Some(cur_char) = chars.next() {
-            let peek_char = chars.peek().copied();
-            let metrics = self.char_extents(cur_char, peek_char, font, setting);
+        while let Some((flags, _, ch, _)) = chars.next() {
+            let metrics = self.char_extents(ch, chars.peek_char(), &flags, font, setting);
             width += metrics.width;
-            if is_newline(cur_char, peek_char) {
-                chars.next();
-            }
         }
 
         FontMetrics {
@@ -59,6 +56,7 @@ impl Context {
         &self,
         cur_char: char,
         next_char: Option<char>,
+        flags: &Option<CharFlags>,
         font: PxScaleFont<&FontArc>,
         setting: &FontSetting,
     ) -> FontMetrics {
@@ -66,8 +64,7 @@ impl Context {
 
         let height = font.ascent() + font.descent();
 
-        if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, cur_char, next_char)
-        {
+        if cur_char.is_whitespace() {
             return FontMetrics {
                 height,
                 width: whitespace_width(setting.size),
@@ -78,7 +75,7 @@ impl Context {
             height,
             width: match rect {
                 Some(rect) => {
-                    calculate_text_width(cur_char, next_char, &font, &rect, setting) as f32
+                    calculate_text_width(cur_char, next_char, flags, &font, &rect, setting) as f32
                 }
                 None => 0.,
             },
