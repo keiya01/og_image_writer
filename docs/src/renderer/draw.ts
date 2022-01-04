@@ -163,7 +163,7 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
         const textarea = TextArea.new();
         elm.area.forEach((data) => {
           const style = getStyle(data.style);
-          textarea.push(data.text, style, data.font);
+          textarea.push(data.text.replaceAll("\\n", "\n"), style, data.font);
         });
         const style = getStyle(elm.style);
         imgWriter.set_textarea(textarea, style, elm.font);
