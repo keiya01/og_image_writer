@@ -1,7 +1,8 @@
 use super::textarea::{SplitText, TextArea};
+use crate::char::{CharFlags, RevRenderingCharIndices};
 use crate::context::FontMetrics;
 use crate::element::{Element, Line, LineMetrics, Rect, Text};
-use crate::font::{match_font_family, whitespace_width, NEWLINE_CHAR};
+use crate::font::{match_font_family, whitespace_width};
 use crate::line_breaker::LineBreaker;
 use crate::renderer::FontSetting;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
@@ -213,19 +214,20 @@ impl OGImageWriter {
 
         let mut total_char_width = 0.;
         let mut split_index = 0;
-        let mut chars = text.char_indices().rev().peekable();
-        while let Some((i, ch)) = chars.next() {
-            let peek_char = chars.peek().map(|(_, c)| *c);
-            let is_newline = ch == 'n' && peek_char.map(|c| c == '\\').unwrap_or(false);
-            let (split_text, _) = textarea.get_glyphs_from_char_range(i..i + ch.to_string().len());
+        let mut chars = RevRenderingCharIndices::from_str(text);
+        while let Some((flags, i, ch, len)) = chars.next() {
+            let peek_char = chars.peek_char();
+            let is_newline = matches!(flags, Some(CharFlags::Newline));
+            let (split_text, _) = textarea.get_glyphs_from_char_range(i..i + len);
             let extents = match font {
                 Some(font) if match_font_family(ch, font) => {
                     rev_char_extents(is_newline, style.font_size, split_text, || {
                         textarea.char_extents(
                             ch,
                             peek_char,
+                            &flags,
                             font,
-                            i..i + ch.to_string().len(),
+                            i..i + len,
                             &self.context,
                             &self.font_context,
                             &setting,
@@ -239,8 +241,9 @@ impl OGImageWriter {
                             textarea.char_extents(
                                 ch,
                                 peek_char,
+                                &flags,
                                 font,
-                                i..i + ch.to_string().len(),
+                                i..i + len,
                                 &self.context,
                                 &self.font_context,
                                 &setting,
@@ -248,14 +251,6 @@ impl OGImageWriter {
                         })
                     })?
                 }
-            };
-
-            let i = if is_newline {
-                // skip 'n' char
-                chars.next();
-                i + NEWLINE_CHAR.len()
-            } else {
-                i
             };
 
             total_char_width += extents.width;

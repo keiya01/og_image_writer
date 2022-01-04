@@ -1,4 +1,5 @@
-use super::font::{is_newline, is_newline_as_whitespace, whitespace_width};
+use super::char::{is_newline_as_whitespace, CharFlags, RenderingCharIndices};
+use super::font::whitespace_width;
 use super::style::KernSetting;
 use ab_glyph::{point as ab_point, Font, FontArc, Glyph, PxScaleFont, Rect, ScaleFont};
 use conv::ValueInto;
@@ -28,16 +29,17 @@ impl Default for FontSetting {
     }
 }
 
-pub fn calculate_text_width(
+pub(crate) fn calculate_text_width(
     cur_char: char,
     next_char: Option<char>,
+    flags: &Option<CharFlags>,
     font: &PxScaleFont<&FontArc>,
     rect: &Rect,
     setting: &FontSetting,
 ) -> i32 {
     let glyph_id = font.glyph_id(cur_char);
 
-    if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, cur_char, next_char) {
+    if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, flags) {
         return whitespace_width(setting.size) as i32 + setting.letter_spacing;
     }
 
@@ -87,20 +89,13 @@ pub fn draw_text_mut<'a, C>(
 {
     let mut current_x = 0;
     let scaled_font = font.as_scaled(setting.size);
-    let mut chars = text.char_indices().peekable();
+    let mut chars = RenderingCharIndices::from_str(text);
     let whitespace = whitespace_width(setting.size) as i32;
-    while let Some((_, ch)) = chars.next() {
-        let peek_char = chars.peek().map(|(_, ch)| *ch);
+    while let Some((flags, _, ch, _)) = chars.next() {
+        let peek_char = chars.peek_char();
 
         if ch.is_whitespace() {
-            current_x += whitespace + setting.letter_spacing;
-            continue;
-        }
-
-        if is_newline(ch, peek_char) {
-            // skip 'n' char
-            chars.next();
-            if chars.peek().is_some() {
+            if peek_char.is_some() {
                 current_x += whitespace + setting.letter_spacing;
             }
             continue;
@@ -132,7 +127,7 @@ pub fn draw_text_mut<'a, C>(
                 }
             });
 
-            current_x += calculate_text_width(ch, peek_char, &scaled_font, &bb, setting);
+            current_x += calculate_text_width(ch, peek_char, &flags, &scaled_font, &bb, setting);
         }
     }
 }

@@ -2,7 +2,6 @@ use super::Error;
 use ab_glyph::{Font, FontArc};
 
 pub const WHITESPACE_EM: f32 = 0.2;
-pub const NEWLINE_CHAR: &str = "\\n";
 
 pub fn create_font(data: Vec<u8>) -> Result<FontArc, Error> {
     match FontArc::try_from_vec(data) {
@@ -128,18 +127,6 @@ impl FontContext {
 
 pub(super) fn match_font_family(ch: char, font: &FontArc) -> bool {
     font.glyph_id(ch).0 != 0
-}
-
-pub(super) fn is_newline(cur_char: char, next_char: Option<char>) -> bool {
-    cur_char == '\\' && next_char.map(|c| c == 'n').unwrap_or(false)
-}
-
-pub(super) fn is_newline_as_whitespace(
-    is_pre: bool,
-    cur_char: char,
-    next_char: Option<char>,
-) -> bool {
-    !is_pre && is_newline(cur_char, next_char)
 }
 
 pub(super) fn whitespace_width(size: f32) -> f32 {

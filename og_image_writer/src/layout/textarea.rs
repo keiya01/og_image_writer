@@ -1,3 +1,4 @@
+use crate::char::CharFlags;
 use crate::context::{Context, FontMetrics};
 use crate::font::{create_font, match_font_family, FontContext, FontIndex, FontIndexStore};
 use crate::glyph::Glyph;
@@ -244,6 +245,7 @@ impl TextArea {
         &self,
         cur_char: char,
         next_char: Option<char>,
+        flags: &Option<CharFlags>,
         parent_font: &FontArc,
         range: Range<usize>,
         context: &Context,
@@ -266,6 +268,7 @@ impl TextArea {
                         context.char_extents(
                             cur_char,
                             next_char,
+                            flags,
                             font.as_scaled(setting.size),
                             &setting,
                         )
@@ -273,6 +276,7 @@ impl TextArea {
                     FontIndexStore::Parent(_) => context.char_extents(
                         cur_char,
                         next_char,
+                        flags,
                         parent_font.as_scaled(setting.size),
                         &setting,
                     ),
@@ -280,6 +284,7 @@ impl TextArea {
                         Some(font) => context.char_extents(
                             cur_char,
                             next_char,
+                            flags,
                             font.as_scaled(setting.size),
                             &setting,
                         ),

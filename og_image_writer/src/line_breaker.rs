@@ -1,9 +1,7 @@
+use super::char::{CharFlags, RenderingCharIndices};
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
-use crate::font::{
-    is_newline, is_newline_as_whitespace, match_font_family, whitespace_width, FontContext,
-    NEWLINE_CHAR,
-};
+use crate::font::{match_font_family, whitespace_width, FontContext};
 use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
 use crate::Error;
@@ -44,18 +42,14 @@ impl<'a> LineBreaker<'a> {
         textarea: &TextArea,
         font_context: &FontContext,
     ) -> Result<(), Error> {
-        let chars = self.title.char_indices();
-
         let mut last_whitespace_idx = 0;
         // Space between whitespace and whitespace
         let mut word_width = 0.;
         let mut range = 0..0;
         let mut line_height = 0.;
         let mut line_width = 0.;
-        let mut chars = chars.into_iter().peekable();
-        while let Some((i, ch)) = chars.next() {
-            let ch_len = ch.to_string().len();
-
+        let mut chars = RenderingCharIndices::from_str(self.title);
+        while let Some((flags, i, ch, ch_len)) = chars.next() {
             let setting = match textarea.get_glyphs_from_char_range(i..i + ch_len) {
                 (Some(split_text), _) => {
                     let style = split_text.style.as_ref().unwrap_or(style);
@@ -75,10 +69,13 @@ impl<'a> LineBreaker<'a> {
             };
             let whitespace_width = whitespace_width(setting.size);
 
+            let peek_char = chars.peek_char();
+
             let extents = match font {
                 Some(font) if match_font_family(ch, font) => textarea.char_extents(
                     ch,
-                    chars.peek().map(|(_, c)| *c),
+                    peek_char,
+                    &flags,
                     font,
                     i..i + ch_len,
                     context,
@@ -90,7 +87,8 @@ impl<'a> LineBreaker<'a> {
                     font_context.with(&idx, |font| {
                         textarea.char_extents(
                             ch,
-                            chars.peek().map(|(_, c)| *c),
+                            peek_char,
+                            &flags,
                             font,
                             i..i + ch_len,
                             context,
@@ -102,15 +100,12 @@ impl<'a> LineBreaker<'a> {
             };
 
             let ch_width = extents.width;
-            let is_newline = is_newline(ch, chars.peek().map(|(_, p)| *p));
+            let is_newline = matches!(flags, Some(CharFlags::Newline));
 
             if setting.is_pre && is_newline {
-                // skip 'n' char
-                chars.next();
-
-                let start = range.end + NEWLINE_CHAR.len();
+                let start = range.end + ch_len;
                 self.lines.push(Line {
-                    range: range.start..range.end + NEWLINE_CHAR.len(),
+                    range: range.start..range.end + ch_len,
                     height: line_height,
                     width: line_width,
                 });
@@ -159,20 +154,12 @@ impl<'a> LineBreaker<'a> {
                 }
             }
 
-            if ch.is_whitespace() {
+            if setting.is_pre && is_newline {
+                word_width = 0.;
+            } else if ch.is_whitespace() {
                 range.end = i + ch_len;
                 line_width += whitespace_width;
                 last_whitespace_idx = i + ch_len;
-                word_width = 0.;
-            } else if is_newline_as_whitespace(setting.is_pre, ch, chars.peek().map(|(_, c)| *c)) {
-                // skip 'n' char
-                chars.next();
-
-                range.end = i + NEWLINE_CHAR.len();
-                line_width += whitespace_width;
-                last_whitespace_idx = i + NEWLINE_CHAR.len();
-                word_width = 0.;
-            } else if is_newline {
                 word_width = 0.;
             } else {
                 range.end = i + ch_len;
@@ -387,11 +374,17 @@ mod tests {
         let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
 
         let mut textarea = TextArea::new();
-        textarea.push(text, Style {
-            font_size,
-            white_space: WhiteSpace::PreLine,
-            ..Style::default()
-        }, None).unwrap();
+        textarea
+            .push(
+                text,
+                Style {
+                    font_size,
+                    white_space: WhiteSpace::PreLine,
+                    ..Style::default()
+                },
+                None,
+            )
+            .unwrap();
 
         let font_context = FontContext::new();
 
