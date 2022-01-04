@@ -36,6 +36,6 @@
     "vite-plugin-wasm-pack": "^0.1.7"
   },
   "dependencies": {
-    "og_image_writer": "^0.0.17"
+    "og_image_writer": "^0.0.18"
   }
 }
