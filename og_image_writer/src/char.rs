@@ -21,6 +21,8 @@ pub(crate) enum CharFlags {
     Newline,
 }
 
+type RenderingCharIndicesItem = (Option<CharFlags>, usize, char, usize);
+
 // This is used as wrapper for CharIndices.
 // If you want to consider newline or other character,
 // you should wrap with RenderingCharIndices.
@@ -38,7 +40,7 @@ impl<'a> RenderingCharIndices<'a> {
 }
 
 impl<'a> Iterator for RenderingCharIndices<'a> {
-    type Item = (Option<CharFlags>, usize, char, usize);
+    type Item = RenderingCharIndicesItem;
 
     fn next(&mut self) -> Option<Self::Item> {
         let chars = &mut self.0;
@@ -67,7 +69,7 @@ impl<'a> RevRenderingCharIndices<'a> {
 }
 
 impl<'a> Iterator for RevRenderingCharIndices<'a> {
-    type Item = (Option<CharFlags>, usize, char, usize);
+    type Item = RenderingCharIndicesItem;
 
     fn next(&mut self) -> Option<Self::Item> {
         let chars = &mut self.0;
@@ -78,5 +80,39 @@ impl<'a> Iterator for RevRenderingCharIndices<'a> {
             }
             _ => v.map(|t| (None, t.0, t.1, t.1.to_string().len())),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn assert_chars<I: Iterator<Item = RenderingCharIndicesItem>>(input: &str, chars: I) {
+        for (flags, i, ch, len) in chars {
+            let expected = &input[i..i + len];
+            let actual = ch.to_string();
+            if expected != actual {
+                if matches!(flags, Some(CharFlags::Newline)) && actual == " " {
+                    continue;
+                }
+                panic!("actual = '{}', expect = '{}'", actual, expected);
+            }
+        }
+    }
+
+    #[test]
+    fn test_rendering_char_indices() {
+        let input = "Hello\nWorld Test";
+        let chars = RenderingCharIndices::from_str(input);
+
+        assert_chars(input, chars);
+    }
+
+    #[test]
+    fn test_rev_rendering_char_indices() {
+        let input = "Hello\nWorld Test";
+        let chars = RevRenderingCharIndices::from_str(input);
+
+        assert_chars(input, chars);
     }
 }
