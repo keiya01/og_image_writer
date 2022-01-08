@@ -2,6 +2,7 @@
 members = [
   "og_image_writer",
   "wasm",
+  "dev",
   "examples",
 ]
 resolver = "2"
