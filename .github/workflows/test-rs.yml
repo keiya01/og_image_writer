@@ -27,3 +27,8 @@ jobs:
         run: cargo test --verbose
       - name: Build
         run: cargo build --verbose
+      - name: Setup wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Build wasm
+        working-directory: wasm
+        run: wasm-pack build --target web
