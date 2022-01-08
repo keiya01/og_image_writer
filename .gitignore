@@ -1,3 +1,5 @@
 /target
 Cargo.lock
 /examples/dist
+/examples/output_*.png
+/examples/output_*.jpg
