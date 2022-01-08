@@ -50,7 +50,7 @@ fn main() -> anyhow::Result<()> {
         font,
     )?;
 
-    let out_dir = "./examples/assets";
+    let out_dir = "./examples";
     let out_filename = "output_background_color.png";
 
     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
@@ -61,11 +61,11 @@ fn main() -> anyhow::Result<()> {
 
 When you pass the following the template image,
 
-![example template image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/og_template.png)
+![example template image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/assets/og_template.png)
 
 this code generate the following image.
 
-![example output image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/examples/assets/output_background_image.png)
+![example output image](https://raw.githubusercontent.com/keiya01/og_image_writer/main/dev/snapshots/output_background_image.png)
 
 And you can also set `background-color` instead of passing the template image.
 
