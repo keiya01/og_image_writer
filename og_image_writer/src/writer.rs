@@ -1,5 +1,5 @@
 use crate::Error;
-use image::ImageError;
+use image::{ImageError, RgbaImage};
 
 use super::context::{Context, ImageOutputFormat};
 use super::element::{Element, Img, Line, Text};
@@ -172,6 +172,10 @@ impl OGImageWriter {
     /// Return the raw image data.
     pub fn into_vec(self) -> Result<Vec<u8>, Error> {
         self.context.into_vec()
+    }
+
+    pub fn into_rgba(self) -> Result<RgbaImage, Error> {
+        self.context.into_rgba()
     }
 
     /// Return the encoded raw image data.
