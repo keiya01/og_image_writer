@@ -20,7 +20,7 @@
 //!             justify_content: style::JustifyContent::Center,
 //!             ..style::WindowStyle::default()
 //!         },
-//!         include_bytes!("../../examples/assets/og_template.png"),
+//!         include_bytes!("../../assets/og_template.png"),
 //!         ImageInputFormat::Png,
 //!     )?;
 //!
@@ -40,7 +40,7 @@
 //!         Some(font),
 //!     )?;
 //!
-//!     let out_dir = "../examples/assets";
+//!     let out_dir = "../examples";
 //!     let out_filename = "output_background_image.png";
 //!
 //!     writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
@@ -110,7 +110,7 @@
 //!        Some(Vec::from(include_bytes!("../../fonts/OpenSansCondensed-Light.ttf") as &[u8])),
 //!    )?;
 //!
-//!    let out_dir = "../examples/assets";
+//!    let out_dir = "../examples";
 //!    let out_filename = "font_context.png";
 //!
 //!    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
