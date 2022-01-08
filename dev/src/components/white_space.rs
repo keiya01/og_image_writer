@@ -39,7 +39,7 @@ pub fn white_space() -> Result<OGImageWriter, Error> {
             text_align: style::TextAlign::Center,
             ..style::Style::default()
         },
-        Some(font.clone()),
+        Some(font),
     )?;
 
     Ok(writer)

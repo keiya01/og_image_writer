@@ -39,6 +39,7 @@ impl SplitText {
 
         let mut current_range_end = *current_range_start;
 
+        #[allow(unused_assignments)]
         let mut font_index_store: Option<FontIndexStore> = None;
         let mut prev_font_index_store: Option<FontIndexStore> = None;
 
@@ -241,6 +242,7 @@ impl TextArea {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn char_extents(
         &self,
         cur_char: char,
@@ -252,7 +254,7 @@ impl TextArea {
         font_context: &FontContext,
         setting: &FontSetting,
     ) -> Result<FontMetrics, Error> {
-        let extents = match self.get_glyphs_from_char_range(range.clone()) {
+        let extents = match self.get_glyphs_from_char_range(range) {
             (Some(split_text), Some(glyph)) => {
                 let setting = match &split_text.style {
                     Some(style) => FontSetting {
