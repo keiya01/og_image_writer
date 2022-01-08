@@ -1,6 +1,10 @@
 use super::Error;
 use ab_glyph::{Font, FontArc};
 
+// trait Font {
+
+// }
+
 pub const WHITESPACE_EM: f32 = 0.2;
 
 pub fn create_font(data: Vec<u8>) -> Result<FontArc, Error> {

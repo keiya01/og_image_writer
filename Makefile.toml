@@ -1,6 +1,12 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
+[tasks.fmt]
+script = "cargo clippy -- -D warnings && cargo fmt --all -- --check"
+
+[tasks.fmt-fix]
+script = "cargo clippy --fix && cargo fmt --all"
+
 [tasks.snapshots]
 workspace = false
 script = "cargo test --test update_snapshots -- --ignored"

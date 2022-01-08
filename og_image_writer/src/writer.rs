@@ -267,13 +267,13 @@ impl OGImageWriter {
                     match current_glyph {
                         Some(glyph) => match &glyph.font_index_store {
                             FontIndexStore::Global(idx) => {
-                                let mut context = &mut self.context;
+                                let context = &mut self.context;
                                 self.font_context.with(idx, |font| {
                                     render_text(
                                         text,
                                         &mut range,
                                         font,
-                                        &mut context,
+                                        context,
                                         &mut current_width,
                                         style,
                                         line,

@@ -283,7 +283,7 @@ impl OGImageWriter {
             }
 
             line.range = line.range.start..split_index + ellipsis.len();
-            let mut next_text = text[0..split_index].to_string().clone();
+            let mut next_text = text[0..split_index].to_string();
             next_text.push_str(ellipsis);
             textarea.push_text_with_glyphs(ellipsis, font, &self.font_context)?;
 
