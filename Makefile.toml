@@ -1,0 +1,7 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.snapshots]
+workspace = false
+script = "cargo test --test update_snapshots -- --ignored"
+env = { "CARGO_MAKE_PROJECT_NAME" = "dev" }
