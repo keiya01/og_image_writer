@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 og_image_writer = { path = "../og_image_writer" }
+dev = { path = "../dev" }
 anyhow = "1.0"
 image = "0.23"
 

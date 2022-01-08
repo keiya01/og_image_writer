@@ -142,6 +142,13 @@ impl Context {
         }
     }
 
+    pub(super) fn into_rgba(mut self) -> Result<RgbaImage, Error> {
+        match self.image.take() {
+            None => Err(Error::NullElement),
+            Some(img) => Ok(img),
+        }
+    }
+
     pub(super) fn encode(mut self, f: ImageOutputFormat) -> Result<Vec<u8>, Error> {
         match self.image.take() {
             None => Err(Error::NullElement),
