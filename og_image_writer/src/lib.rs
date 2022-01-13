@@ -111,7 +111,7 @@
 //!    )?;
 //!
 //!    let out_dir = "../examples";
-//!    let out_filename = "font_context.png";
+//!    let out_filename = "output_font_context.png";
 //!
 //!    writer.generate(Path::new(&format!("{}/{}", out_dir, out_filename)))?;
 //!
