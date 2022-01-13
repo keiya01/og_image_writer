@@ -18,7 +18,7 @@
         item.font = new Uint8Array(buf);
       });
     }
-    item.style = style;
+    item.style = hasStyle ? style : undefined;
   }
 </script>
 
