@@ -2,7 +2,7 @@ use crate::Error;
 use image::{ImageError, RgbaImage};
 
 use super::context::{Context, ImageOutputFormat};
-use super::element::{Element, Img, Fragment, Text};
+use super::element::{Element, Fragment, Img, Text};
 use super::font::{create_font, FontContext, FontIndexStore};
 use super::font_trait::Font;
 use super::glyph::Glyph;
