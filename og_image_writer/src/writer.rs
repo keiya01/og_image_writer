@@ -2,14 +2,14 @@ use crate::Error;
 use image::{ImageError, RgbaImage};
 
 use super::context::{Context, ImageOutputFormat};
-use super::element::{Element, Img, Line, Text};
+use super::element::{Element, Fragment, Img, Text};
 use super::font::{create_font, FontContext, FontIndexStore};
+use super::font_trait::Font;
 use super::glyph::Glyph;
 use super::img::ImageInputFormat;
 use super::layout::{SplitText, TextArea};
 use super::renderer::FontSetting;
 use super::style::{Style, WindowStyle};
-use ab_glyph::{Font, FontArc};
 use std::{cell::RefCell, ops::Range, path::Path, str};
 
 #[derive(Default)]
@@ -191,11 +191,11 @@ impl OGImageWriter {
         fn render_text(
             text: &str,
             range: &mut Range<usize>,
-            font: &FontArc,
+            font: &dyn Font,
             context: &mut Context,
             current_width: &mut u32,
             style: &Style,
-            line: &Line,
+            fragment: &Fragment,
         ) -> Result<(), Error> {
             let next_text = &text[range.clone()];
 
@@ -208,17 +208,15 @@ impl OGImageWriter {
 
             context.draw_text(
                 style.color.as_image_rgba(),
-                line.rect.x + *current_width,
-                line.rect.y,
+                fragment.rect.x + *current_width,
+                fragment.rect.y,
                 font,
                 &setting,
                 next_text,
             )?;
 
             *range = range.end..range.end;
-            *current_width += context
-                .text_extents(next_text, font.as_scaled(style.font_size), &setting)
-                .width as u32;
+            *current_width += context.text_extents(next_text, font, &setting).width as u32;
 
             Ok(())
         }
@@ -226,14 +224,14 @@ impl OGImageWriter {
         let style = text_elm.style;
         let mut current_split_text: Option<&SplitText> = None;
         let mut current_glyph: Option<&Glyph> = None;
-        for line in &text_elm.lines {
-            let text = &text_elm.text[line.range.clone()];
+        for fragment in &text_elm.fragments {
+            let text = &text_elm.text[fragment.range.clone()];
             let mut range = 0..0;
             let mut current_width = 0;
             for (i, ch) in text.char_indices() {
                 let ch_len = ch.to_string().len();
                 let (split_text, glyph) = text_elm.textarea.get_glyphs_from_char_range(
-                    line.range.start + i..line.range.start + i + ch_len,
+                    fragment.range.start + i..fragment.range.start + i + ch_len,
                 );
                 let contained = match (split_text, glyph) {
                     (Some(split_text), Some(glyph)) => {
@@ -276,7 +274,7 @@ impl OGImageWriter {
                                         context,
                                         &mut current_width,
                                         style,
-                                        line,
+                                        fragment,
                                     )
                                 })?;
                             }
@@ -292,7 +290,7 @@ impl OGImageWriter {
                                     &mut self.context,
                                     &mut current_width,
                                     style,
-                                    line,
+                                    fragment,
                                 )?;
                             }
                             FontIndexStore::Child(_) => match current_split_text {
@@ -304,7 +302,7 @@ impl OGImageWriter {
                                         &mut self.context,
                                         &mut current_width,
                                         style,
-                                        line,
+                                        fragment,
                                     )?,
                                     None => return Err(Error::NotFoundSpecifiedFontFamily),
                                 },
@@ -340,7 +338,7 @@ impl OGImageWriter {
                                     context,
                                     &mut current_width,
                                     style,
-                                    line,
+                                    fragment,
                                 )
                             })?;
                         }
@@ -356,7 +354,7 @@ impl OGImageWriter {
                                 &mut self.context,
                                 &mut current_width,
                                 style,
-                                line,
+                                fragment,
                             )?;
                         }
                         FontIndexStore::Child(_) => match current_split_text {
@@ -369,7 +367,7 @@ impl OGImageWriter {
                                         &mut self.context,
                                         &mut current_width,
                                         style,
-                                        line,
+                                        fragment,
                                     )?;
                                 }
                                 None => return Err(Error::NotFoundSpecifiedFontFamily),

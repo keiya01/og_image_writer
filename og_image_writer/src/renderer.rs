@@ -1,7 +1,8 @@
 use super::char::{is_newline_as_whitespace, CharFlags, RenderingCharIndices};
 use super::font::whitespace_width;
+use super::font_trait::Font;
 use super::style::KernSetting;
-use ab_glyph::{point as ab_point, Font, FontArc, Glyph, PxScaleFont, Rect, ScaleFont};
+use ab_glyph::{point as ab_point, Glyph, Rect};
 use conv::ValueInto;
 use image::Pixel;
 use imageproc::definitions::Clamp;
@@ -33,7 +34,7 @@ pub(crate) fn calculate_text_width(
     cur_char: char,
     next_char: Option<char>,
     flags: &Option<CharFlags>,
-    font: &PxScaleFont<&FontArc>,
+    font: &dyn Font,
     rect: &Rect,
     setting: &FontSetting,
 ) -> i32 {
@@ -44,31 +45,27 @@ pub(crate) fn calculate_text_width(
     }
 
     let width = match setting.kern_setting {
-        KernSetting::Normal => font.h_advance(glyph_id) as i32,
+        KernSetting::Normal => font.h_advance(glyph_id, setting.size) as i32,
         KernSetting::Optical => rect.width() as i32,
         KernSetting::Metrics => match next_char {
             Some(next) => {
-                let kern = font.kern(glyph_id, font.glyph_id(next));
+                let kern = font.kern(glyph_id, font.glyph_id(next), setting.size);
                 if kern == 0. {
-                    font.h_advance(glyph_id) as i32
+                    font.h_advance(glyph_id, setting.size) as i32
                 } else {
                     (rect.width() + kern) as i32
                 }
             }
-            None => font.h_advance(glyph_id) as i32,
+            None => font.h_advance(glyph_id, setting.size) as i32,
         },
     };
     width + setting.letter_spacing
 }
 
-pub fn get_glyph_rect(
-    ch: char,
-    font: &PxScaleFont<&FontArc>,
-    setting: &FontSetting,
-) -> Option<Rect> {
+pub fn get_glyph_rect(ch: char, font: &dyn Font, setting: &FontSetting) -> Option<Rect> {
     let glyph_id = font.glyph_id(ch);
     let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, ab_point(0., 0.));
-    if let Some(q) = font.outline_glyph(q_glyph) {
+    if let Some(q) = font.outline_glyph(q_glyph, setting.size) {
         return Some(q.px_bounds());
     }
     None
@@ -80,7 +77,7 @@ pub fn draw_text_mut<'a, C>(
     color: C::Pixel,
     x: u32,
     y: u32,
-    font: &'a FontArc,
+    font: &'a dyn Font,
     setting: &FontSetting,
     text: &'a str,
 ) where
@@ -88,7 +85,6 @@ pub fn draw_text_mut<'a, C>(
     <C::Pixel as Pixel>::Subpixel: ValueInto<f32> + Clamp<f32>,
 {
     let mut current_x = 0;
-    let scaled_font = font.as_scaled(setting.size);
     let mut chars = RenderingCharIndices::from_str(text);
     let whitespace = whitespace_width(setting.size) as i32;
     while let Some((flags, _, ch, _)) = chars.next() {
@@ -101,9 +97,9 @@ pub fn draw_text_mut<'a, C>(
             continue;
         }
 
-        let glyph_id = scaled_font.glyph_id(ch);
+        let glyph_id = font.glyph_id(ch);
         let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, ab_point(0., 0.));
-        if let Some(q) = scaled_font.outline_glyph(q_glyph) {
+        if let Some(q) = font.outline_glyph(q_glyph, setting.size) {
             let bb = q.px_bounds();
             q.draw(|gx, gy, gv| {
                 let mut gx = gx as i32 + current_x;
@@ -111,7 +107,7 @@ pub fn draw_text_mut<'a, C>(
                     gx += bb.min.x as i32;
                 }
 
-                let y_bearing = (bb.min.y + scaled_font.ascent()) as i32;
+                let y_bearing = (bb.min.y + font.ascent(setting.size)) as i32;
                 let gy = gy as i32 + y_bearing;
 
                 let image_x = gx + x as i32;
@@ -127,7 +123,7 @@ pub fn draw_text_mut<'a, C>(
                 }
             });
 
-            current_x += calculate_text_width(ch, peek_char, &flags, &scaled_font, &bb, setting);
+            current_x += calculate_text_width(ch, peek_char, &flags, font, &bb, setting);
         }
     }
 }

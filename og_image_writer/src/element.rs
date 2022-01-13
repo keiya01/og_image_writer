@@ -1,6 +1,6 @@
+use super::font::FontArc;
 use super::layout::TextArea;
 use super::style::{Margin, Position, Style};
-use ab_glyph::FontArc;
 use image::{ImageBuffer, Rgba};
 use std::ops::Range;
 
@@ -61,14 +61,14 @@ impl Img {
 }
 
 #[derive(Debug)]
-pub struct Line {
+pub struct Fragment {
     pub(super) range: Range<usize>,
     pub(super) rect: Rect,
 }
 
-impl Line {
+impl Fragment {
     pub fn new(range: Range<usize>, rect: Rect) -> Self {
-        Line { range, rect }
+        Fragment { range, rect }
     }
 }
 
@@ -93,7 +93,7 @@ impl LineMetrics {
 pub struct Text {
     pub(super) text: String,
     pub(super) metrics: LineMetrics,
-    pub(super) lines: Vec<Line>,
+    pub(super) fragments: Vec<Fragment>,
     pub(super) style: Style,
     // TODO: optimize static lifetime
     pub(super) font: Option<FontArc>,
@@ -103,7 +103,7 @@ pub struct Text {
 impl Text {
     pub fn new(
         text: String,
-        lines: Vec<Line>,
+        fragments: Vec<Fragment>,
         metrics: LineMetrics,
         style: Style,
         font: Option<FontArc>,
@@ -111,7 +111,7 @@ impl Text {
     ) -> Self {
         Text {
             text,
-            lines,
+            fragments,
             metrics,
             style,
             font,

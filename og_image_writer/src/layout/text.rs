@@ -1,14 +1,13 @@
 use super::textarea::{SplitText, TextArea};
 use crate::char::{CharFlags, RevRenderingCharIndices};
 use crate::context::FontMetrics;
-use crate::element::{Element, Line, LineMetrics, Rect, Text};
-use crate::font::{match_font_family, whitespace_width};
+use crate::element::{Element, Fragment, LineMetrics, Rect, Text};
+use crate::font::{match_font_family, whitespace_width, FontArc};
 use crate::line_breaker::LineBreaker;
 use crate::renderer::FontSetting;
 use crate::style::{FlexDirection, Margin, Position, Style, TextOverflow};
 use crate::writer::OGImageWriter;
 use crate::Error;
-use ab_glyph::{Font, FontArc};
 use std::cell::RefCell;
 use std::str;
 
@@ -59,7 +58,7 @@ impl OGImageWriter {
         let max_line_height = line_breaker.max_line_height;
         let max_line_width = line_breaker.max_line_width;
 
-        let mut lines: Vec<Line> = vec![];
+        let mut lines: Vec<Fragment> = vec![];
 
         // Calculate line position
         let mut total_height = 0.;
@@ -84,7 +83,7 @@ impl OGImageWriter {
 
             if lines_len == 1 {
                 total_height = next_height;
-                lines.push(Line::new(
+                lines.push(Fragment::new(
                     line.range,
                     Rect::new(0, 0, line.width as u32, line.height as u32),
                 ));
@@ -99,7 +98,7 @@ impl OGImageWriter {
             };
 
             total_height = next_height;
-            lines.push(Line::new(
+            lines.push(Fragment::new(
                 line.range,
                 Rect::new(0, pos_y as u32, line.width as u32, line.height as u32),
             ));
@@ -148,7 +147,7 @@ impl OGImageWriter {
     fn set_ellipsis(
         &mut self,
         text: &str,
-        lines: &mut Vec<Line>,
+        fragments: &mut Vec<Fragment>,
         style: &Style,
         font: &Option<FontArc>,
         textarea: &mut TextArea,
@@ -198,16 +197,12 @@ impl OGImageWriter {
 
         let ellipsis_width = match font {
             Some(font) if match_font_family('.', font) => {
-                self.context
-                    .text_extents(ellipsis, font.as_scaled(style.font_size), &setting)
-                    .width
+                self.context.text_extents(ellipsis, font, &setting).width
             }
             _ => {
                 let idx = self.font_context.select_font_family('.')?;
                 self.font_context.with(&idx, |font| {
-                    self.context
-                        .text_extents(ellipsis, font.as_scaled(style.font_size), &setting)
-                        .width
+                    self.context.text_extents(ellipsis, font, &setting).width
                 })
             }
         };
@@ -260,7 +255,7 @@ impl OGImageWriter {
             }
         }
 
-        if let Some(line) = lines.last_mut() {
+        if let Some(fragment) = fragments.last_mut() {
             // shape TextArea with ellipsis
             while let Some(mut split_text) = textarea.0.pop() {
                 if split_text.range.start <= split_index && split_index <= split_text.range.end {
@@ -282,7 +277,7 @@ impl OGImageWriter {
                 }
             }
 
-            line.range = line.range.start..split_index + ellipsis.len();
+            fragment.range = fragment.range.start..split_index + ellipsis.len();
             let mut next_text = text[0..split_index].to_string();
             next_text.push_str(ellipsis);
             textarea.push_text_with_glyphs(ellipsis, font, &self.font_context)?;
