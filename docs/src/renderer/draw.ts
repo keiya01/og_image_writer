@@ -162,7 +162,7 @@ export const drawImg = (writer: Writer, w: number, h: number) => {
       case "textarea": {
         const textarea = TextArea.new();
         elm.area.forEach((data) => {
-          const style = getStyle(data.style);
+          const style = data.style ? getStyle(data.style) : undefined;
           textarea.push(data.text.replaceAll("\\n", "\n"), style, data.font);
         });
         const style = getStyle(elm.style);
