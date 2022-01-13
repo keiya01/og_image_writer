@@ -108,7 +108,7 @@ impl OGImageWriter {
                 // Because ab_glyph draw text that include line_height.
                 let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
-                for line in &mut text.lines {
+                for fragment in &mut text.fragments {
                     let logical_inline = match &self.window.align_items {
                         AlignItems::Start => margin_left,
                         AlignItems::Center => {
@@ -123,27 +123,27 @@ impl OGImageWriter {
                     let content_box_inline = match text.style.text_align {
                         TextAlign::Start => 0,
                         TextAlign::Center => {
-                            line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                            line_metrics.max_line_width as i32 / 2 - fragment.rect.width as i32 / 2
                         }
                         TextAlign::End => {
-                            line_metrics.max_line_width as i32 - line.rect.width as i32
+                            line_metrics.max_line_width as i32 - fragment.rect.width as i32
                         }
                     } + logical_inline;
 
-                    line.rect.x += content_box_inline as u32;
+                    fragment.rect.x += content_box_inline as u32;
                     if is_end {
-                        line.rect.y +=
+                        fragment.rect.y +=
                             (*current_y - line_metrics.total_height as i32 - margin_bottom) as u32
                                 - system_line_height;
                     } else {
-                        line.rect.y += (*current_y + margin_top) as u32;
+                        fragment.rect.y += (*current_y + margin_top) as u32;
                     }
 
                     if matches!(self.window.justify_content, JustifyContent::Center) {
-                        if line.rect.y >= system_line_height {
-                            line.rect.y -= system_line_height;
+                        if fragment.rect.y >= system_line_height {
+                            fragment.rect.y -= system_line_height;
                         } else {
-                            line.rect.y = 0;
+                            fragment.rect.y = 0;
                             system_line_height = 0;
                         }
                     }
@@ -196,7 +196,7 @@ impl OGImageWriter {
                 // Because ab_glyph draw text that include line_height.
                 let mut system_line_height = line_metrics.max_line_height as u32 / 2;
 
-                for line in &mut text.lines {
+                for fragment in &mut text.fragments {
                     let logical_block = match &self.window.align_items {
                         AlignItems::Start => margin_top,
                         AlignItems::Center => {
@@ -211,30 +211,30 @@ impl OGImageWriter {
                         }
                     };
 
-                    line.rect.y += logical_block as u32;
+                    fragment.rect.y += logical_block as u32;
 
-                    line.rect.x += match text.style.text_align {
+                    fragment.rect.x += match text.style.text_align {
                         TextAlign::Start => 0,
                         TextAlign::Center => {
-                            line_metrics.max_line_width as i32 / 2 - line.rect.width as i32 / 2
+                            line_metrics.max_line_width as i32 / 2 - fragment.rect.width as i32 / 2
                         }
                         TextAlign::End => {
-                            line_metrics.max_line_width as i32 - line.rect.width as i32
+                            line_metrics.max_line_width as i32 - fragment.rect.width as i32
                         }
                     } as u32;
 
                     if is_end {
-                        line.rect.x +=
+                        fragment.rect.x +=
                             (*current_x - line_metrics.max_line_width as i32 - margin_right) as u32;
                     } else {
-                        line.rect.x += (*current_x + margin_left) as u32;
+                        fragment.rect.x += (*current_x + margin_left) as u32;
                     }
 
                     if matches!(self.window.align_items, AlignItems::Center) {
-                        if line.rect.y >= system_line_height {
-                            line.rect.y -= system_line_height;
+                        if fragment.rect.y >= system_line_height {
+                            fragment.rect.y -= system_line_height;
                         } else {
-                            line.rect.y = 0;
+                            fragment.rect.y = 0;
                             system_line_height = 0;
                         }
                     }
@@ -276,8 +276,8 @@ impl OGImageWriter {
 
                 let line_metrics = &text.metrics;
 
-                for line in &mut text.lines {
-                    line.rect.x += match (text.style.left, text.style.right) {
+                for fragment in &mut text.fragments {
+                    fragment.rect.x += match (text.style.left, text.style.right) {
                         (Some(left), _) => left + margin_left,
                         (None, Some(right)) => {
                             self.window.width as i32
@@ -287,7 +287,7 @@ impl OGImageWriter {
                         }
                         (None, None) => margin_left,
                     } as u32;
-                    line.rect.y += match (text.style.top, text.style.bottom) {
+                    fragment.rect.y += match (text.style.top, text.style.bottom) {
                         (Some(top), _) => top + margin_top,
                         (None, Some(bottom)) => {
                             let system_line_height = line_metrics.max_line_height as u32 / 2;
