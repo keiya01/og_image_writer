@@ -124,6 +124,7 @@
 
 pub mod element;
 pub mod font;
+pub mod font_trait;
 pub mod img;
 pub mod style;
 pub mod writer;

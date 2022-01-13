@@ -4,12 +4,12 @@ use image::{ImageError, RgbaImage};
 use super::context::{Context, ImageOutputFormat};
 use super::element::{Element, Img, Line, Text};
 use super::font::{create_font, FontContext, FontIndexStore};
+use super::font_trait::Font;
 use super::glyph::Glyph;
 use super::img::ImageInputFormat;
 use super::layout::{SplitText, TextArea};
 use super::renderer::FontSetting;
 use super::style::{Style, WindowStyle};
-use ab_glyph::{Font, FontArc};
 use std::{cell::RefCell, ops::Range, path::Path, str};
 
 #[derive(Default)]
@@ -191,7 +191,7 @@ impl OGImageWriter {
         fn render_text(
             text: &str,
             range: &mut Range<usize>,
-            font: &FontArc,
+            font: &dyn Font,
             context: &mut Context,
             current_width: &mut u32,
             style: &Style,
@@ -216,9 +216,7 @@ impl OGImageWriter {
             )?;
 
             *range = range.end..range.end;
-            *current_width += context
-                .text_extents(next_text, font.as_scaled(style.font_size), &setting)
-                .width as u32;
+            *current_width += context.text_extents(next_text, font, &setting).width as u32;
 
             Ok(())
         }

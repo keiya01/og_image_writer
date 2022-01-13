@@ -2,16 +2,28 @@ use super::char::{CharFlags, RenderingCharIndices};
 use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
 use crate::font::{match_font_family, whitespace_width, FontContext};
+use crate::font_trait::Font;
 use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
 use crate::Error;
-use ab_glyph::FontArc;
 use std::ops::Range;
 
 pub(super) struct Line {
     pub(super) range: Range<usize>,
     pub(super) width: f32,
     pub(super) height: f32,
+}
+
+impl Line {
+    fn new(range: Range<usize>, width: f32, height: f32) -> Self {
+        assert!(!range.is_empty());
+
+        Line {
+            range,
+            width,
+            height,
+        }
+    }
 }
 
 pub(super) struct LineBreaker<'a> {
@@ -38,7 +50,7 @@ impl<'a> LineBreaker<'a> {
         context: &Context,
         width: f32,
         style: &Style,
-        font: &Option<FontArc>,
+        font: &Option<impl Font>,
         textarea: &TextArea,
         font_context: &FontContext,
     ) -> Result<(), Error> {
@@ -104,11 +116,11 @@ impl<'a> LineBreaker<'a> {
 
             if setting.is_pre && is_newline {
                 let start = range.end + ch_len;
-                self.lines.push(Line {
-                    range: range.start..range.end + ch_len,
-                    height: line_height,
-                    width: line_width,
-                });
+                self.lines.push(Line::new(
+                    range.start..range.end + ch_len,
+                    line_width,
+                    line_height,
+                ));
                 self.set_max_line_size(FontMetrics {
                     height: line_height,
                     width: line_width,
@@ -123,11 +135,12 @@ impl<'a> LineBreaker<'a> {
                     WordBreak::Normal => {
                         let end = range.end;
                         line_width -= word_width + whitespace_width;
-                        self.lines.push(Line {
-                            range: range.start..last_whitespace_idx,
-                            height: line_height,
-                            width: line_width,
-                        });
+                        // TODO: support overflow text when text can not be broken.
+                        self.lines.push(Line::new(
+                            range.start..last_whitespace_idx,
+                            line_width,
+                            line_height,
+                        ));
                         self.set_max_line_size(FontMetrics {
                             height: line_height,
                             width: line_width,
@@ -138,11 +151,7 @@ impl<'a> LineBreaker<'a> {
                     }
                     WordBreak::BreakAll => {
                         let start = range.end;
-                        self.lines.push(Line {
-                            range,
-                            height: line_height,
-                            width: line_width,
-                        });
+                        self.lines.push(Line::new(range, line_width, line_height));
                         self.set_max_line_size(FontMetrics {
                             height: line_height,
                             width: line_width,
@@ -175,11 +184,7 @@ impl<'a> LineBreaker<'a> {
         }
 
         if !range.is_empty() {
-            self.lines.push(Line {
-                range,
-                height: line_height,
-                width: line_width,
-            });
+            self.lines.push(Line::new(range, line_width, line_height));
             self.set_max_line_size(FontMetrics {
                 height: line_height,
                 width: line_width,
@@ -212,20 +217,21 @@ impl<'a> LineBreaker<'a> {
 mod tests {
     use super::*;
     use crate::context::Context;
+    use crate::font::test_utils::FontMock;
     use crate::font::FontContext;
     use crate::layout::TextArea;
     use crate::style::WhiteSpace;
-    use ab_glyph::FontArc;
 
     #[test]
     fn test_break_test_with_whitespace() {
-        let width = 80u32;
+        let width = 130u32;
         let height = 50u32;
         let context = Context::new(width, height);
 
         let text = "Hello World, Hello World";
-        let font_size = 16.;
-        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font_size = 10.;
+
+        let font = FontMock;
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -267,13 +273,13 @@ mod tests {
 
     #[test]
     fn test_break_test_with_pre_line() {
-        let width = 80u32;
+        let width = 130u32;
         let height = 50u32;
         let context = Context::new(width, height);
 
         let text = "Test\nHello World, Hello\nWorld";
-        let font_size = 16.;
-        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font_size = 10.;
+        let font = FontMock;
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -316,13 +322,13 @@ mod tests {
 
     #[test]
     fn test_break_with_newline_as_whitespace() {
-        let width = 80u32;
+        let width = 130u32;
         let height = 50u32;
         let context = Context::new(width, height);
 
         let text = "Hello World,\nHello\nWorld";
-        let font_size = 16.;
-        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font_size = 10.;
+        let font = FontMock;
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -365,13 +371,13 @@ mod tests {
 
     #[test]
     fn test_break_with_split_text_newline() {
-        let width = 80u32;
+        let width = 130u32;
         let height = 50u32;
         let context = Context::new(width, height);
 
         let text = "Test\nHello World, Hello\nWorld";
-        let font_size = 16.;
-        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font_size = 10.;
+        let font = FontMock;
 
         let mut textarea = TextArea::new();
         textarea
@@ -427,7 +433,7 @@ mod tests {
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
-        let font = FontArc::try_from_slice(include_bytes!("../../fonts/Mplus1-Black.ttf")).unwrap();
+        let font = FontMock;
 
         let font_context = FontContext::new();
 
@@ -441,7 +447,7 @@ mod tests {
                 &context,
                 width as f32,
                 &Style {
-                    font_size: 16.,
+                    font_size: 10.,
                     word_break: WordBreak::BreakAll,
                     ..Style::default()
                 },

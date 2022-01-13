@@ -1,9 +1,9 @@
 use super::char::{CharFlags, RenderingCharIndices};
 use super::font::whitespace_width;
+use super::font_trait::Font;
 use super::img::ImageInputFormat;
 use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
 use crate::Error;
-use ab_glyph::{FontArc, PxScaleFont, ScaleFont};
 use image::imageops::overlay;
 use image::{load_from_memory_with_format, DynamicImage, ImageBuffer, Rgba, RgbaImage};
 use imageproc::map::map_colors;
@@ -33,12 +33,7 @@ impl Context {
         })
     }
 
-    pub fn text_extents(
-        &self,
-        text: &str,
-        font: PxScaleFont<&FontArc>,
-        setting: &FontSetting,
-    ) -> FontMetrics {
+    pub fn text_extents(&self, text: &str, font: &dyn Font, setting: &FontSetting) -> FontMetrics {
         let mut chars = RenderingCharIndices::from_str(text);
         let mut width = 0.;
         while let Some((flags, _, ch, _)) = chars.next() {
@@ -47,7 +42,7 @@ impl Context {
         }
 
         FontMetrics {
-            height: font.ascent() + font.descent(),
+            height: font.ascent(setting.size) + font.descent(setting.size),
             width,
         }
     }
@@ -57,12 +52,12 @@ impl Context {
         cur_char: char,
         next_char: Option<char>,
         flags: &Option<CharFlags>,
-        font: PxScaleFont<&FontArc>,
+        font: &dyn Font,
         setting: &FontSetting,
     ) -> FontMetrics {
-        let rect = get_glyph_rect(cur_char, &font, setting);
+        let rect = get_glyph_rect(cur_char, font, setting);
 
-        let height = font.ascent() + font.descent();
+        let height = font.ascent(setting.size) + font.descent(setting.size);
 
         if cur_char.is_whitespace() {
             return FontMetrics {
@@ -75,7 +70,7 @@ impl Context {
             height,
             width: match rect {
                 Some(rect) => {
-                    calculate_text_width(cur_char, next_char, flags, &font, &rect, setting) as f32
+                    calculate_text_width(cur_char, next_char, flags, font, &rect, setting) as f32
                 }
                 None => 0.,
             },
@@ -112,7 +107,7 @@ impl Context {
         color: Rgba<u8>,
         x: u32,
         y: u32,
-        font: &FontArc,
+        font: &dyn Font,
         setting: &FontSetting,
         text: &str,
     ) -> Result<(), Error> {

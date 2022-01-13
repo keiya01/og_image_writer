@@ -1,6 +1,6 @@
+use super::font::FontArc;
 use super::layout::TextArea;
 use super::style::{Margin, Position, Style};
-use ab_glyph::FontArc;
 use image::{ImageBuffer, Rgba};
 use std::ops::Range;
 
