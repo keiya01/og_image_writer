@@ -1,7 +1,6 @@
 use crate::char::{CharFlags, RenderingCharIndices};
-use crate::font::{
-    create_font, match_font_family, FontArc, FontContext, FontIndex, FontIndexStore, FontMetrics,
-};
+use crate::font::{create_font, match_font_family, FontArc, FontMetrics};
+use crate::font_context::{FontContext, FontIndex, FontIndexStore};
 use crate::font_trait::Font;
 use crate::glyph::Glyph;
 use crate::renderer::FontSetting;

@@ -1,6 +1,7 @@
 use super::char::{CharFlags, RenderingCharIndices};
 use super::layout::TextArea;
-use crate::font::{match_font_family, whitespace_width, FontContext, FontMetrics};
+use crate::font::{match_font_family, whitespace_width, FontMetrics};
+use crate::font_context::FontContext;
 use crate::font_trait::Font;
 use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
@@ -213,7 +214,6 @@ impl<'a> LineBreaker<'a> {
 mod tests {
     use super::*;
     use crate::font::test_utils::FontMock;
-    use crate::font::FontContext;
     use crate::layout::TextArea;
     use crate::style::WhiteSpace;
 

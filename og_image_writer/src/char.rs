@@ -17,7 +17,7 @@ pub(super) fn is_newline_as_whitespace(is_pre: bool, flag: &Option<CharFlags>) -
             .unwrap_or(false)
 }
 
-pub enum CharFlags {
+pub(super) enum CharFlags {
     Newline,
 }
 
@@ -26,15 +26,15 @@ type RenderingCharIndicesItem = (Option<CharFlags>, usize, char, usize);
 // This is used as wrapper for CharIndices.
 // If you want to consider newline or other character,
 // you should wrap with RenderingCharIndices.
-pub(crate) struct RenderingCharIndices<'a>(Peekable<CharIndices<'a>>);
+pub(super) struct RenderingCharIndices<'a>(Peekable<CharIndices<'a>>);
 
 impl<'a> RenderingCharIndices<'a> {
-    pub(crate) fn from_str(s: &'a str) -> Self {
+    pub(super) fn from_str(s: &'a str) -> Self {
         let chars = s.char_indices().peekable();
         RenderingCharIndices(chars)
     }
 
-    pub(crate) fn peek_char(&mut self) -> Option<char> {
+    pub(super) fn peek_char(&mut self) -> Option<char> {
         self.0.peek().map(|(_, c)| *c)
     }
 }
@@ -55,15 +55,15 @@ impl<'a> Iterator for RenderingCharIndices<'a> {
 }
 
 // Reversed RenderingCharIndices.
-pub(crate) struct RevRenderingCharIndices<'a>(Peekable<Rev<CharIndices<'a>>>);
+pub(super) struct RevRenderingCharIndices<'a>(Peekable<Rev<CharIndices<'a>>>);
 
 impl<'a> RevRenderingCharIndices<'a> {
-    pub(crate) fn from_str(s: &'a str) -> Self {
+    pub(super) fn from_str(s: &'a str) -> Self {
         let chars = s.char_indices().rev().peekable();
         RevRenderingCharIndices(chars)
     }
 
-    pub(crate) fn peek_char(&mut self) -> Option<char> {
+    pub(super) fn peek_char(&mut self) -> Option<char> {
         self.0.peek().map(|(_, c)| *c)
     }
 }

@@ -1,4 +1,4 @@
-use og_image_writer::{font::FontContext, style, writer::OGImageWriter, Error, TextArea};
+use og_image_writer::{font_context::FontContext, style, writer::OGImageWriter, Error, TextArea};
 
 pub fn font_context() -> Result<OGImageWriter, Error> {
     let mut writer = OGImageWriter::new(style::WindowStyle {

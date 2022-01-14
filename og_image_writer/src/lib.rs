@@ -52,7 +52,7 @@
 //! You can also create custom image like bellow.
 //!
 //! ```rust
-//! use og_image_writer::{style, writer::OGImageWriter, TextArea, font::FontContext};
+//! use og_image_writer::{style, writer::OGImageWriter, TextArea, font_context::FontContext};
 //! use std::path::Path;
 //!
 //! fn main() -> anyhow::Result<()> {
@@ -123,8 +123,7 @@
 //!
 
 pub mod element;
-pub mod font;
-pub mod font_trait;
+pub mod font_context;
 pub mod img;
 pub mod style;
 pub mod writer;
@@ -135,6 +134,8 @@ pub use layout::TextArea;
 mod char;
 mod context;
 mod error;
+mod font;
+mod font_trait;
 mod glyph;
 mod layout;
 mod line_breaker;
