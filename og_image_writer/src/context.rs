@@ -1,8 +1,6 @@
-use super::char::{CharFlags, RenderingCharIndices};
-use super::font::whitespace_width;
 use super::font_trait::Font;
 use super::img::ImageInputFormat;
-use crate::renderer::{calculate_text_width, draw_text_mut, get_glyph_rect, FontSetting};
+use crate::renderer::{draw_text_mut, FontSetting};
 use crate::Error;
 use image::imageops::overlay;
 use image::{load_from_memory_with_format, DynamicImage, ImageBuffer, Rgba, RgbaImage};
@@ -10,11 +8,6 @@ use imageproc::map::map_colors;
 use std::path::Path;
 
 pub use image::ImageOutputFormat;
-
-pub(super) struct FontMetrics {
-    pub height: f32,
-    pub width: f32,
-}
 
 pub(super) struct Context {
     pub image: Option<RgbaImage>,
@@ -31,50 +24,6 @@ impl Context {
         Ok(Self {
             image: Some(image.into_rgba8()),
         })
-    }
-
-    pub fn text_extents(&self, text: &str, font: &dyn Font, setting: &FontSetting) -> FontMetrics {
-        let mut chars = RenderingCharIndices::from_str(text);
-        let mut width = 0.;
-        while let Some((flags, _, ch, _)) = chars.next() {
-            let metrics = self.char_extents(ch, chars.peek_char(), &flags, font, setting);
-            width += metrics.width;
-        }
-
-        FontMetrics {
-            height: font.ascent(setting.size) + font.descent(setting.size),
-            width,
-        }
-    }
-
-    pub fn char_extents(
-        &self,
-        cur_char: char,
-        next_char: Option<char>,
-        flags: &Option<CharFlags>,
-        font: &dyn Font,
-        setting: &FontSetting,
-    ) -> FontMetrics {
-        let rect = get_glyph_rect(cur_char, font, setting);
-
-        let height = font.ascent(setting.size) + font.descent(setting.size);
-
-        if cur_char.is_whitespace() {
-            return FontMetrics {
-                height,
-                width: whitespace_width(setting.size),
-            };
-        }
-
-        FontMetrics {
-            height,
-            width: match rect {
-                Some(rect) => {
-                    calculate_text_width(cur_char, next_char, flags, font, &rect, setting) as f32
-                }
-                None => 0.,
-            },
-        }
     }
 
     pub fn draw_background_color(&mut self, rgba: Rgba<u8>) -> Result<(), Error> {

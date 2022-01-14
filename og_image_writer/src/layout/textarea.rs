@@ -1,7 +1,6 @@
 use crate::char::{CharFlags, RenderingCharIndices};
-use crate::context::{Context, FontMetrics};
 use crate::font::{
-    create_font, match_font_family, FontArc, FontContext, FontIndex, FontIndexStore,
+    create_font, match_font_family, FontArc, FontContext, FontIndex, FontIndexStore, FontMetrics,
 };
 use crate::font_trait::Font;
 use crate::glyph::Glyph;
@@ -252,7 +251,6 @@ impl TextArea {
         flags: &Option<CharFlags>,
         parent_font: &dyn Font,
         range: Range<usize>,
-        context: &Context,
         font_context: &FontContext,
         setting: &FontSetting,
     ) -> Result<FontMetrics, Error> {
@@ -269,15 +267,13 @@ impl TextArea {
                 };
                 match &glyph.font_index_store {
                     FontIndexStore::Global(idx) => font_context.with(idx, |font| {
-                        context.char_extents(cur_char, next_char, flags, font, &setting)
+                        font.char_extents(cur_char, next_char, flags, &setting)
                     }),
                     FontIndexStore::Parent(_) => {
-                        context.char_extents(cur_char, next_char, flags, parent_font, &setting)
+                        parent_font.char_extents(cur_char, next_char, flags, &setting)
                     }
                     FontIndexStore::Child(_) => match &split_text.font {
-                        Some(font) => {
-                            context.char_extents(cur_char, next_char, flags, font, &setting)
-                        }
+                        Some(font) => font.char_extents(cur_char, next_char, flags, &setting),
                         None => return Err(Error::NotFoundSpecifiedFontFamily),
                     },
                 }

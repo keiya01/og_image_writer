@@ -17,7 +17,7 @@ pub(super) fn is_newline_as_whitespace(is_pre: bool, flag: &Option<CharFlags>) -
             .unwrap_or(false)
 }
 
-pub(crate) enum CharFlags {
+pub enum CharFlags {
     Newline,
 }
 

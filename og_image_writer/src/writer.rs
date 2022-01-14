@@ -216,7 +216,7 @@ impl OGImageWriter {
             )?;
 
             *range = range.end..range.end;
-            *current_width += context.text_extents(next_text, font, &setting).width as u32;
+            *current_width += font.text_extents(next_text, &setting).width as u32;
 
             Ok(())
         }
