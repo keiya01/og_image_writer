@@ -5,6 +5,11 @@ use ab_glyph::{
 };
 use std::boxed::Box;
 
+pub struct FontMetrics {
+    pub height: f32,
+    pub width: f32,
+}
+
 #[derive(Debug)]
 pub struct FontArc(AbFontArc);
 

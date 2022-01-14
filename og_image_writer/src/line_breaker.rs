@@ -1,7 +1,6 @@
 use super::char::{CharFlags, RenderingCharIndices};
-use super::context::{Context, FontMetrics};
 use super::layout::TextArea;
-use crate::font::{match_font_family, whitespace_width, FontContext};
+use crate::font::{match_font_family, whitespace_width, FontContext, FontMetrics};
 use crate::font_trait::Font;
 use crate::renderer::FontSetting;
 use crate::style::{Style, WordBreak};
@@ -47,7 +46,6 @@ impl<'a> LineBreaker<'a> {
     // TODO: support hyphenation
     pub(super) fn break_text(
         &mut self,
-        context: &Context,
         width: f32,
         style: &Style,
         font: &Option<impl Font>,
@@ -90,7 +88,6 @@ impl<'a> LineBreaker<'a> {
                     &flags,
                     font,
                     i..i + ch_len,
-                    context,
                     font_context,
                     &setting,
                 )?,
@@ -103,7 +100,6 @@ impl<'a> LineBreaker<'a> {
                             &flags,
                             font,
                             i..i + ch_len,
-                            context,
                             font_context,
                             &setting,
                         )
@@ -216,7 +212,6 @@ impl<'a> LineBreaker<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::context::Context;
     use crate::font::test_utils::FontMock;
     use crate::font::FontContext;
     use crate::layout::TextArea;
@@ -225,8 +220,7 @@ mod tests {
     #[test]
     fn test_break_test_with_whitespace() {
         let width = 130u32;
-        let height = 50u32;
-        let context = Context::new(width, height);
+        let _height = 50u32;
 
         let text = "Hello World, Hello World";
         let font_size = 10.;
@@ -245,7 +239,6 @@ mod tests {
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
-                &context,
                 width as f32,
                 &Style {
                     font_size,
@@ -274,8 +267,7 @@ mod tests {
     #[test]
     fn test_break_test_with_pre_line() {
         let width = 130u32;
-        let height = 50u32;
-        let context = Context::new(width, height);
+        let _height = 50u32;
 
         let text = "Test\nHello World, Hello\nWorld";
         let font_size = 10.;
@@ -293,7 +285,6 @@ mod tests {
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
-                &context,
                 width as f32,
                 &Style {
                     font_size,
@@ -323,8 +314,7 @@ mod tests {
     #[test]
     fn test_break_with_newline_as_whitespace() {
         let width = 130u32;
-        let height = 50u32;
-        let context = Context::new(width, height);
+        let _height = 50u32;
 
         let text = "Hello World,\nHello\nWorld";
         let font_size = 10.;
@@ -342,7 +332,6 @@ mod tests {
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
-                &context,
                 width as f32,
                 &Style {
                     font_size,
@@ -372,8 +361,7 @@ mod tests {
     #[test]
     fn test_break_with_split_text_newline() {
         let width = 130u32;
-        let height = 50u32;
-        let context = Context::new(width, height);
+        let _height = 50u32;
 
         let text = "Test\nHello World, Hello\nWorld";
         let font_size = 10.;
@@ -401,7 +389,6 @@ mod tests {
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
-                &context,
                 width as f32,
                 &Style::default(),
                 &Some(font),
@@ -426,8 +413,7 @@ mod tests {
     #[test]
     fn test_break_test_with_char() {
         let width = 90u32;
-        let height = 50u32;
-        let context = Context::new(width, height);
+        let _height = 50u32;
 
         let text = "こんにちは世界、こんにちは世界";
         let mut textarea = TextArea::new();
@@ -444,7 +430,6 @@ mod tests {
         let mut line_breaker = LineBreaker::new(text);
         line_breaker
             .break_text(
-                &context,
                 width as f32,
                 &Style {
                     font_size: 10.,

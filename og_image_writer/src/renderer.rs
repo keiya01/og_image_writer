@@ -1,8 +1,8 @@
-use super::char::{is_newline_as_whitespace, CharFlags, RenderingCharIndices};
+use super::char::RenderingCharIndices;
 use super::font::whitespace_width;
 use super::font_trait::Font;
 use super::style::KernSetting;
-use ab_glyph::{point as ab_point, Glyph, Rect};
+use ab_glyph::{point, Glyph};
 use conv::ValueInto;
 use image::Pixel;
 use imageproc::definitions::Clamp;
@@ -28,47 +28,6 @@ impl Default for FontSetting {
             is_pre: false,
         }
     }
-}
-
-pub(crate) fn calculate_text_width(
-    cur_char: char,
-    next_char: Option<char>,
-    flags: &Option<CharFlags>,
-    font: &dyn Font,
-    rect: &Rect,
-    setting: &FontSetting,
-) -> i32 {
-    let glyph_id = font.glyph_id(cur_char);
-
-    if cur_char.is_whitespace() || is_newline_as_whitespace(setting.is_pre, flags) {
-        return whitespace_width(setting.size) as i32 + setting.letter_spacing;
-    }
-
-    let width = match setting.kern_setting {
-        KernSetting::Normal => font.h_advance(glyph_id, setting.size) as i32,
-        KernSetting::Optical => rect.width() as i32,
-        KernSetting::Metrics => match next_char {
-            Some(next) => {
-                let kern = font.kern(glyph_id, font.glyph_id(next), setting.size);
-                if kern == 0. {
-                    font.h_advance(glyph_id, setting.size) as i32
-                } else {
-                    (rect.width() + kern) as i32
-                }
-            }
-            None => font.h_advance(glyph_id, setting.size) as i32,
-        },
-    };
-    width + setting.letter_spacing
-}
-
-pub fn get_glyph_rect(ch: char, font: &dyn Font, setting: &FontSetting) -> Option<Rect> {
-    let glyph_id = font.glyph_id(ch);
-    let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, ab_point(0., 0.));
-    if let Some(q) = font.outline_glyph(q_glyph, setting.size) {
-        return Some(q.px_bounds());
-    }
-    None
 }
 
 /// Draws colored text on an image in place. `scale` is augmented font scaling on both the x and y axis (in pixels). Note that this function *does not* support newlines, you must do this manually
@@ -98,7 +57,7 @@ pub fn draw_text_mut<'a, C>(
         }
 
         let glyph_id = font.glyph_id(ch);
-        let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, ab_point(0., 0.));
+        let q_glyph: Glyph = glyph_id.with_scale_and_position(setting.size, point(0., 0.));
         if let Some(q) = font.outline_glyph(q_glyph, setting.size) {
             let bb = q.px_bounds();
             q.draw(|gx, gy, gv| {
@@ -123,7 +82,7 @@ pub fn draw_text_mut<'a, C>(
                 }
             });
 
-            current_x += calculate_text_width(ch, peek_char, &flags, font, &bb, setting);
+            current_x += font.calculate_text_width(ch, peek_char, &flags, &bb, setting);
         }
     }
 }
