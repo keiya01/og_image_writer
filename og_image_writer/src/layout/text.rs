@@ -1,4 +1,5 @@
-use super::textarea::{SplitText, TextArea};
+use super::split_text::SplitText;
+use super::textarea::TextArea;
 use crate::char::{CharFlags, RevRenderingCharIndices};
 use crate::element::{Element, Fragment, LineMetrics, Rect, Text};
 use crate::font::{match_font_family, whitespace_width, FontArc, FontMetrics};
