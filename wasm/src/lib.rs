@@ -1,7 +1,8 @@
 mod style;
 
 use og_image_writer::{
-    font::FontContext, style::Style, writer::OGImageWriter, Error, ImageOutputFormat, TextArea,
+    font_context::FontContext, style::Style, writer::OGImageWriter, Error, ImageOutputFormat,
+    TextArea,
 };
 use std::panic;
 use std::path::Path;

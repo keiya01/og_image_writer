@@ -29,7 +29,7 @@ impl Element {
 }
 
 #[derive(Debug, Default)]
-pub struct Rect {
+pub(super) struct Rect {
     pub(super) x: u32,
     pub(super) y: u32,
     pub(super) width: u32,
@@ -48,7 +48,7 @@ impl Rect {
 }
 
 #[derive(Debug)]
-pub struct Img {
+pub(super) struct Img {
     pub(super) buf: ImageBuffer<Rgba<u8>, Vec<u8>>,
     pub(super) rect: Rect,
     pub(super) style: Style,
@@ -61,7 +61,7 @@ impl Img {
 }
 
 #[derive(Debug)]
-pub struct Fragment {
+pub(super) struct Fragment {
     pub(super) range: Range<usize>,
     pub(super) rect: Rect,
 }
@@ -73,7 +73,7 @@ impl Fragment {
 }
 
 #[derive(Debug, Default)]
-pub struct LineMetrics {
+pub(super) struct LineMetrics {
     pub total_height: u32,
     pub max_line_height: f32,
     pub max_line_width: f32,
@@ -90,7 +90,7 @@ impl LineMetrics {
 }
 
 #[derive(Debug)]
-pub struct Text {
+pub(super) struct Text {
     pub(super) text: String,
     pub(super) metrics: LineMetrics,
     pub(super) fragments: Vec<Fragment>,

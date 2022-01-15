@@ -4,7 +4,7 @@ use super::renderer::FontSetting;
 use crate::style::KernSetting;
 use ab_glyph::{point, Glyph, GlyphId, OutlinedGlyph, Rect};
 
-pub trait Font {
+pub(super) trait Font {
     fn glyph_id(&self, ch: char) -> GlyphId;
     fn ascent(&self, scale: f32) -> f32;
     fn descent(&self, scale: f32) -> f32;

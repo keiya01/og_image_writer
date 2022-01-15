@@ -31,7 +31,7 @@ impl Default for FontSetting {
 }
 
 /// Draws colored text on an image in place. `scale` is augmented font scaling on both the x and y axis (in pixels). Note that this function *does not* support newlines, you must do this manually
-pub fn draw_text_mut<'a, C>(
+pub(super) fn draw_text_mut<'a, C>(
     canvas: &'a mut C,
     color: C::Pixel,
     x: u32,
