@@ -56,12 +56,35 @@ pub(super) fn whitespace_width(size: f32) -> f32 {
 }
 
 #[cfg(test)]
-pub(super) mod test_utils {
+pub(crate) mod test_utils {
+    use std::collections::HashMap;
+
     use super::*;
     use ab_glyph::{Outline, Point, PxScaleFactor, Rect};
 
+    type GlyphTable = HashMap<String, GlyphId>;
+
     #[derive(Clone)]
-    pub(crate) struct FontMock;
+    pub(crate) struct FontMock {
+        glyph_table: Option<GlyphTable>,
+    }
+
+    impl FontMock {
+        pub(crate) fn new(text: Option<&str>) -> Self {
+            match text {
+                Some(text) => {
+                    let mut glyph_table: GlyphTable = HashMap::new();
+                    text.chars().enumerate().for_each(|(i, ch)| {
+                        glyph_table.insert(ch.to_string(), GlyphId(i as u16));
+                    });
+                    FontMock {
+                        glyph_table: Some(glyph_table),
+                    }
+                }
+                None => FontMock { glyph_table: None },
+            }
+        }
+    }
 
     impl Font for FontMock {
         fn glyph_id(&self, _ch: char) -> GlyphId {
