@@ -225,7 +225,7 @@ mod tests {
         let text = "Hello World, Hello World";
         let font_size = 10.;
 
-        let font = FontMock;
+        let font = FontMock::new(None);
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -271,7 +271,7 @@ mod tests {
 
         let text = "Test\nHello World, Hello\nWorld";
         let font_size = 10.;
-        let font = FontMock;
+        let font = FontMock::new(None);
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -318,7 +318,7 @@ mod tests {
 
         let text = "Hello World,\nHello\nWorld";
         let font_size = 10.;
-        let font = FontMock;
+        let font = FontMock::new(None);
 
         let mut textarea = TextArea::new();
         textarea.push_text(text);
@@ -365,7 +365,7 @@ mod tests {
 
         let text = "Test\nHello World, Hello\nWorld";
         let font_size = 10.;
-        let font = FontMock;
+        let font = FontMock::new(None);
 
         let mut textarea = TextArea::new();
         textarea
@@ -419,7 +419,7 @@ mod tests {
         let mut textarea = TextArea::new();
         textarea.push_text(text);
 
-        let font = FontMock;
+        let font = FontMock::new(None);
 
         let font_context = FontContext::new();
 

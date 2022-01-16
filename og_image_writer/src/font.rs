@@ -56,16 +56,47 @@ pub(super) fn whitespace_width(size: f32) -> f32 {
 }
 
 #[cfg(test)]
-pub(super) mod test_utils {
+pub(crate) mod test_utils {
+    use std::collections::HashMap;
+
     use super::*;
     use ab_glyph::{Outline, Point, PxScaleFactor, Rect};
 
-    #[derive(Clone)]
-    pub(crate) struct FontMock;
+    type GlyphTable = HashMap<String, GlyphId>;
+
+    #[derive(Clone, Debug)]
+    pub(crate) struct FontMock {
+        glyph_table: Option<GlyphTable>,
+    }
+
+    impl FontMock {
+        pub(crate) fn new(supported_glyphs: Option<&str>) -> Self {
+            match supported_glyphs {
+                Some(supported_glyphs) => {
+                    let mut glyph_table: GlyphTable = HashMap::new();
+                    supported_glyphs.chars().enumerate().for_each(|(i, ch)| {
+                        glyph_table.insert(ch.to_string(), GlyphId((i + 1) as u16));
+                    });
+                    FontMock {
+                        glyph_table: Some(glyph_table),
+                    }
+                }
+                None => FontMock { glyph_table: None },
+            }
+        }
+    }
 
     impl Font for FontMock {
-        fn glyph_id(&self, _ch: char) -> GlyphId {
-            GlyphId(1)
+        fn glyph_id(&self, ch: char) -> GlyphId {
+            let glyph_table = match &self.glyph_table {
+                Some(glyph_table) => glyph_table,
+                None => return GlyphId(1),
+            };
+
+            match glyph_table.get(&ch.to_string()[..]) {
+                Some(g) => g.clone(),
+                None => GlyphId(0),
+            }
         }
 
         fn ascent(&self, scale: f32) -> f32 {

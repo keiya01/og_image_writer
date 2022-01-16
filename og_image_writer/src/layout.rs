@@ -1,9 +1,10 @@
 mod container;
 mod img;
+mod split_text;
 mod text;
 mod textarea;
 
-pub(super) use textarea::SplitText;
+pub(super) use split_text::SplitText;
 pub use textarea::TextArea;
 
 use super::element::Element;

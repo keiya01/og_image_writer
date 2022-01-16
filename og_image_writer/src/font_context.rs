@@ -84,6 +84,13 @@ impl FontContext {
         Ok(())
     }
 
+    #[cfg(test)]
+    pub(crate) fn push_font(&mut self, font: Box<dyn Font>) {
+        let store = font_context_store::get_mut();
+        let mut store = store.borrow_mut();
+        store.0.push(font);
+    }
+
     pub fn clear(&self) {
         // Clear global memory cache
         font_context_store::clear();
