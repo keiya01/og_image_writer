@@ -299,7 +299,7 @@ impl OGImageWriter {
                                     Some(font) => render_text(
                                         text,
                                         &mut range,
-                                        font,
+                                        &**font,
                                         &mut self.context,
                                         &mut current_width,
                                         style,
@@ -364,7 +364,7 @@ impl OGImageWriter {
                                     render_text(
                                         text,
                                         &mut range,
-                                        font,
+                                        &**font,
                                         &mut self.context,
                                         &mut current_width,
                                         style,

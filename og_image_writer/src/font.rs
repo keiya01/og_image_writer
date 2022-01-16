@@ -64,18 +64,18 @@ pub(crate) mod test_utils {
 
     type GlyphTable = HashMap<String, GlyphId>;
 
-    #[derive(Clone)]
+    #[derive(Clone, Debug)]
     pub(crate) struct FontMock {
         glyph_table: Option<GlyphTable>,
     }
 
     impl FontMock {
-        pub(crate) fn new(text: Option<&str>) -> Self {
-            match text {
-                Some(text) => {
+        pub(crate) fn new(supported_glyphs: Option<&str>) -> Self {
+            match supported_glyphs {
+                Some(supported_glyphs) => {
                     let mut glyph_table: GlyphTable = HashMap::new();
-                    text.chars().enumerate().for_each(|(i, ch)| {
-                        glyph_table.insert(ch.to_string(), GlyphId(i as u16));
+                    supported_glyphs.chars().enumerate().for_each(|(i, ch)| {
+                        glyph_table.insert(ch.to_string(), GlyphId((i + 1) as u16));
                     });
                     FontMock {
                         glyph_table: Some(glyph_table),
@@ -87,8 +87,16 @@ pub(crate) mod test_utils {
     }
 
     impl Font for FontMock {
-        fn glyph_id(&self, _ch: char) -> GlyphId {
-            GlyphId(1)
+        fn glyph_id(&self, ch: char) -> GlyphId {
+            let glyph_table = match &self.glyph_table {
+                Some(glyph_table) => glyph_table,
+                None => return GlyphId(1),
+            };
+
+            match glyph_table.get(&ch.to_string()[..]) {
+                Some(g) => g.clone(),
+                None => GlyphId(0),
+            }
         }
 
         fn ascent(&self, scale: f32) -> f32 {

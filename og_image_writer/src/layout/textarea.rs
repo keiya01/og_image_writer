@@ -27,11 +27,11 @@ impl TextArea {
             None => 0,
         };
 
-        let font = match font {
-            Some(font) => Some(match create_font(font) {
-                Ok(font) => font,
+        let font: Option<Box<dyn Font>> = match font {
+            Some(font) => match create_font(font) {
+                Ok(font) => Some(Box::new(font)),
                 Err(_) => return Err(Error::InvalidFontBytes),
-            }),
+            },
             None => None,
         };
 

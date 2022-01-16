@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use super::char::{is_newline_as_whitespace, CharFlags, RenderingCharIndices};
 use super::font::{whitespace_width, FontMetrics};
 use super::renderer::FontSetting;
 use crate::style::KernSetting;
 use ab_glyph::{point, Glyph, GlyphId, OutlinedGlyph, Rect};
 
-pub(super) trait Font {
+pub(super) trait Font: Debug {
     fn glyph_id(&self, ch: char) -> GlyphId;
     fn ascent(&self, scale: f32) -> f32;
     fn descent(&self, scale: f32) -> f32;
