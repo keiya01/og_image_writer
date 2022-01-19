@@ -16,7 +16,7 @@ impl OGImageWriter {
         };
 
         // TODO: support border for image
-        round(&mut image, &mut style.border_radius.clone(), 0.);
+        round(&mut image, &mut style.border_radius.clone());
 
         let img = Element::Img(Some(Img::new(
             image,
