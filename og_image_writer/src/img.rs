@@ -82,7 +82,7 @@ fn border_radius(
     }
     let r0 = r;
 
-    // 16x antialiasing: 16x16 grid creates 256 possible shades, great for u8!
+    // 256x antialiasing: 16x16 grid creates 256 possible shades, great for u8!
     let r = 16 * r;
 
     let mut x = 0;
