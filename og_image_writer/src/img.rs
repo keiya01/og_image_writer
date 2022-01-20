@@ -89,8 +89,6 @@ fn border_radius(
     let mut y = r - 1;
     let mut p: i32 = 2 - r as i32;
 
-    // ...
-
     let mut alpha: u16 = 0;
     let mut skip_draw = true;
 
