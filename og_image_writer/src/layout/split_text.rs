@@ -150,7 +150,7 @@ mod test {
             .set_glyphs(&Some(parent_font), &mut current_range_start, &font_context)
             .unwrap();
 
-        assert!(split_text.glyphs.len() != 0);
+        assert!(!split_text.glyphs.is_empty());
         assert_eq!(current_range_start, 23);
 
         let mut glyphs_iter = split_text.glyphs.iter();

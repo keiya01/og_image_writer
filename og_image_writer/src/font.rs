@@ -94,7 +94,7 @@ pub(crate) mod test_utils {
             };
 
             match glyph_table.get(&ch.to_string()[..]) {
-                Some(g) => g.clone(),
+                Some(g) => *g,
                 None => GlyphId(0),
             }
         }
