@@ -15,6 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: rustup update stable && rustup default stable
       - name: Setup rustfmt
         run: rustup component add rustfmt
       - name: Run fmt
@@ -22,7 +23,7 @@ jobs:
       - name: Setup clippy
         run: rustup component add clippy
       - name: Run clippy
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-targets -- -D warnings
       - name: Run tests
         run: cargo test --verbose
       - name: Build
