@@ -15,7 +15,7 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 imageproc = "0.22"
 ab_glyph = "0.2.12"
 thiserror = "1.0"
-wasm-bindgen = { version = "0.2" }
+wasm-bindgen = { version = "=0.2.78" }
 conv = "0.3.3"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies.image]
