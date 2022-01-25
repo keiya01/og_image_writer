@@ -35,7 +35,7 @@ impl OGImageWriter {
         let ImageInfo(mut buf, size) = open_and_resize(src, width, height)?;
 
         // TODO: support border for image
-        round(&mut buf, &mut style.border_radius.clone(), 0.);
+        round(&mut buf, &mut style.border_radius.clone());
 
         let img = Element::Img(Some(Img::new(
             buf,
@@ -59,7 +59,7 @@ impl OGImageWriter {
         let ImageInfo(mut buf, size) = open_and_resize_with_data(data, width, height, format)?;
 
         // TODO: support border for image
-        round(&mut buf, &mut style.border_radius.clone(), 0.);
+        round(&mut buf, &mut style.border_radius.clone());
 
         let img = Element::Img(Some(Img::new(
             buf,
