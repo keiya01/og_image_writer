@@ -167,6 +167,8 @@ impl OGImageWriter {
             }
         }
 
+        self.font_context.clear();
+
         Ok(())
     }
 
