@@ -99,7 +99,7 @@
         </p>
         <Spacer marginTop={20} />
         <InlineFileInput bind:files multiple
-          >Select some global font file(.ttf).</InlineFileInput
+          >Select some global font file(.ttf or .otf).</InlineFileInput
         >
       </svelte:fragment>
     </FormSection>

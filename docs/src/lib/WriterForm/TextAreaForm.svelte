@@ -41,7 +41,7 @@
     <ChildList>
       <li>
         <InlineFileInput bind:files>
-          Select a parent font file(.ttf)
+          Select a parent font file(.ttf or .otf)
         </InlineFileInput>
       </li>
 
