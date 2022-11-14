@@ -1,6 +1,6 @@
 [package]
 name = "wasm"
-version = "0.0.21"
+version = "0.1.0"
 edition = "2018"
 license = "MIT"
 publish = false
