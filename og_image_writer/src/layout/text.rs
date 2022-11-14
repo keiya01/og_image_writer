@@ -147,7 +147,7 @@ impl OGImageWriter {
     fn set_ellipsis(
         &mut self,
         text: &str,
-        fragments: &mut Vec<Fragment>,
+        fragments: &mut [Fragment],
         style: &Style,
         font: &Option<FontArc>,
         textarea: &mut TextArea,
@@ -267,8 +267,7 @@ impl OGImageWriter {
 
                     let end = split_text.range.end - split_index;
                     split_text.range.end -= end;
-                    split_text.text =
-                        (&split_text.text[0..split_text.text.len() - end]).to_string();
+                    split_text.text = (split_text.text[0..split_text.text.len() - end]).to_string();
                     textarea.0.push(split_text);
                     break;
                 }

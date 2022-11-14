@@ -18,6 +18,9 @@ jobs:
       - run: rustup update stable && rustup default stable
       - name: Setup rustfmt
         run: rustup component add rustfmt
+      # TODO: cache
+      - name: Setup cargo-make
+        run: cargo install cargo-make
       - name: Run fmt
         run: cargo fmt --all -- --check
       - name: Setup clippy
@@ -26,6 +29,8 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: Run tests
         run: cargo test --verbose
+      - name: Run snapshot test
+        run: cargo make snapshots
       - name: Build
         run: cargo build --verbose
       - name: Setup wasm-pack

@@ -30,6 +30,7 @@ pub struct OGImageWriter {
     pub(super) window: WindowStyle,
     pub(super) content: Content,
     pub(super) font_context: FontContext,
+    pub(super) is_container: bool,
 }
 
 impl OGImageWriter {
@@ -43,6 +44,7 @@ impl OGImageWriter {
             window,
             content: Content::default(),
             font_context: FontContext::new(),
+            is_container: false,
         };
 
         this.process_background()?;
@@ -77,6 +79,7 @@ impl OGImageWriter {
             },
             content: Content::default(),
             font_context: FontContext::new(),
+            is_container: false,
         })
     }
 
@@ -142,6 +145,8 @@ impl OGImageWriter {
 
     /// Set generated image by [OGImageWriter](Self) on parent image
     pub fn set_container(&mut self, writer: &mut OGImageWriter, style: Style) -> Result<(), Error> {
+        writer.is_container = true;
+
         writer.paint()?;
 
         self.process_container(writer, style)?;
@@ -167,7 +172,9 @@ impl OGImageWriter {
             }
         }
 
-        self.font_context.clear();
+        if !self.is_container {
+            self.font_context.clear();
+        }
 
         Ok(())
     }
