@@ -1,6 +1,6 @@
 [package]
 name = "og_image_writer"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2021"
 license = "MIT"
 keywords = ["open-graphic", "image", "og", "canvas"]
