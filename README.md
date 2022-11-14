@@ -11,8 +11,8 @@ You can generate Open Graphic Image dynamically.
 ## Problem
 
 Currently, when you want to create OGP image dynamically, you may use canvas. But to use canvas, you need to open a browser and run some script.
-This is overhead, especially if you are using feature like the SSG.
-Therefore this lib is targeting a high performance API for all platform by using wasm.
+This has overhead for memory usage and rendering performance.
+Therefore this lib is targeting a high performance API for all platform(including the edge) by using wasm.
 
 ## Example
 
@@ -69,4 +69,4 @@ this code generate the following image.
 
 And you can also set `background-color` instead of passing the template image.
 
-For more examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
+For more complex examples, see [keiya01/og_image_writer/examples](https://github.com/keiya01/og_image_writer/tree/main/examples).
