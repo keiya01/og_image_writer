@@ -44,7 +44,7 @@ impl OGImageWriter {
             window,
             content: Content::default(),
             font_context: FontContext::new(),
-            is_container: false
+            is_container: false,
         };
 
         this.process_background()?;
@@ -79,7 +79,7 @@ impl OGImageWriter {
             },
             content: Content::default(),
             font_context: FontContext::new(),
-            is_container: false
+            is_container: false,
         })
     }
 

@@ -1,4 +1,4 @@
-use og_image_writer::{style, writer::OGImageWriter, Error, font_context::FontContext};
+use og_image_writer::{font_context::FontContext, style, writer::OGImageWriter, Error};
 
 pub fn container() -> Result<OGImageWriter, Error> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
@@ -14,7 +14,9 @@ pub fn container() -> Result<OGImageWriter, Error> {
         ..style::WindowStyle::default()
     })?;
 
-    font_context.push(Vec::from(include_bytes!("../../../fonts/Mplus1-Black.ttf") as &[u8]))?;
+    font_context.push(Vec::from(
+        include_bytes!("../../../fonts/Mplus1-Black.ttf") as &[u8]
+    ))?;
 
     container.set_text(
         text,

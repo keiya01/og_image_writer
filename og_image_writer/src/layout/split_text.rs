@@ -106,12 +106,9 @@ impl SplitText {
     }
 
     pub(crate) fn get_glyphs_from_char_range(&self, range: Range<usize>) -> Option<&Glyph> {
-        for glyph in &self.glyphs {
-            if glyph.range.start <= range.start && range.end <= glyph.range.end {
-                return Some(glyph);
-            }
-        }
-        None
+        self.glyphs
+            .iter()
+            .find(|&glyph| glyph.range.start <= range.start && range.end <= glyph.range.end)
     }
 }
 
