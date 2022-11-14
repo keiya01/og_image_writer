@@ -1,7 +1,9 @@
-use og_image_writer::{style, writer::OGImageWriter, Error};
+use og_image_writer::{style, writer::OGImageWriter, Error, font_context::FontContext};
 
 pub fn container() -> Result<OGImageWriter, Error> {
     let text = "This is Open Graphic Image Writer for Web Developer.";
+
+    let mut font_context = FontContext::new();
 
     let mut container = OGImageWriter::new(style::WindowStyle {
         width: 500,
@@ -12,7 +14,7 @@ pub fn container() -> Result<OGImageWriter, Error> {
         ..style::WindowStyle::default()
     })?;
 
-    let font = Vec::from(include_bytes!("../../../fonts/Mplus1-Black.ttf") as &[u8]);
+    font_context.push(Vec::from(include_bytes!("../../../fonts/Mplus1-Black.ttf") as &[u8]))?;
 
     container.set_text(
         text,
@@ -27,7 +29,7 @@ pub fn container() -> Result<OGImageWriter, Error> {
             max_height: Some(200),
             ..style::Style::default()
         },
-        Some(font),
+        None,
     )?;
 
     let mut writer = OGImageWriter::new(style::WindowStyle {
@@ -49,8 +51,6 @@ pub fn container() -> Result<OGImageWriter, Error> {
         },
     )?;
 
-    let font = Vec::from(include_bytes!("../../../fonts/Mplus1-Black.ttf") as &[u8]);
-
     writer.set_text(
         "Hello World",
         style::Style {
@@ -62,7 +62,7 @@ pub fn container() -> Result<OGImageWriter, Error> {
             text_align: style::TextAlign::Start,
             ..style::Style::default()
         },
-        Some(font),
+        None,
     )?;
 
     Ok(writer)
