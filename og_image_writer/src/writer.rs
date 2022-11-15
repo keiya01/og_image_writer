@@ -87,6 +87,14 @@ impl OGImageWriter {
         Tree(Vec::with_capacity(2))
     }
 
+    pub fn width(&self) -> u32 {
+        self.window.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.window.height
+    }
+
     /// Set text you want to write to image.
     /// And set the text element style. Text element act like CSS `inline-block`.
     pub fn set_text(

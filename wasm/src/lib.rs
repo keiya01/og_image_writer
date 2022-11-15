@@ -145,6 +145,14 @@ impl JsOGImageWriter {
         }
     }
 
+    pub fn width(&self) -> u32 {
+        self.writer.width()
+    }
+
+    pub fn height(&self) -> u32 {
+        self.writer.height()
+    }
+
     pub fn set_text(&mut self, text: String, style: JsStyle, font: Option<Vec<u8>>) {
         let style = from_js_style(style);
         self.writer.set_text(&text, style, font).unwrap();
