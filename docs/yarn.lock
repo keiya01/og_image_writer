@@ -1251,10 +1251,10 @@ object.assign@^4.1.2:
     has-symbols "^1.0.1"
     object-keys "^1.1.1"
 
-og_image_writer@^0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/og_image_writer/-/og_image_writer-0.0.21.tgz#bdf29847b5af67c505161a2ed748e3e9ac263d9d"
-  integrity sha512-ExLQzPowILGB45Nx+l2uxLt/mWzmTUkfCUo/l2Q/uX2Y0TiP+uAWh0lbk1ht4v/iTpxl/zl8rvOwY3e7XHwZNQ==
+og_image_writer@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/og_image_writer/-/og_image_writer-0.1.2.tgz#cc237546e5631fab706c1a5169ab83485f7abeb8"
+  integrity sha512-S6bwI8bOwrps1nQSczjX7YuJb8YKmJ0Vb6DLD83rdpKjZhJxWmXY4KMpotubEONkLpX79mp4qIh7EfgQLKsb3A==
 
 once@^1.3.0:
   version "1.4.0"
