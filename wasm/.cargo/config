@@ -1,0 +1,2 @@
+[build]
+target_arch = "wasm32"

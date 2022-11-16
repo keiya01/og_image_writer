@@ -4,9 +4,20 @@ use super::style::BorderRadius;
 use image::{
     load_from_memory_with_format, open, DynamicImage, ImageBuffer, ImageError, ImageFormat, Rgba,
 };
+
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 use wasm_bindgen::prelude::*;
 
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
+pub enum ImageInputFormat {
+    Png,
+    Jpeg,
+    // WebP,
+    // Avif,
+}
+
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
 pub enum ImageInputFormat {
     Png,
     Jpeg,
