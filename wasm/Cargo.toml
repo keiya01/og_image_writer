@@ -15,8 +15,8 @@ description = "Generate an Open Graphic Image using a CSS-like API."
 crate-type = ["cdylib"]
 
 [dependencies]
-og_image_writer = { path = "../og_image_writer" }
-wasm-bindgen = { version = "=0.2.78", features = ["serde-serialize"] }
+og_image_writer = { path = "../og_image_writer", features = ["web"] }
+wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
 cfg-if = "1.0.0"

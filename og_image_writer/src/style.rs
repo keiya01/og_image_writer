@@ -1,8 +1,18 @@
 pub use image::{Rgb, Rgba as ImageRgba};
 use std::marker::Copy;
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 use wasm_bindgen::prelude::*;
 
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum KernSetting {
+    Normal,
+    Metrics,
+    Optical,
+}
+
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
 #[derive(Debug, Copy, Clone)]
 pub enum KernSetting {
     Normal,
@@ -19,6 +29,7 @@ impl Rgba {
     }
 }
 
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
 #[derive(Debug, Copy, Clone)]
 pub enum WordBreak {
@@ -26,7 +37,22 @@ pub enum WordBreak {
     BreakAll,
 }
 
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
+#[derive(Debug, Copy, Clone)]
+pub enum WordBreak {
+    Normal,
+    BreakAll,
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum WhiteSpace {
+    Normal,
+    PreLine,
+}
+
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
 #[derive(Debug, Copy, Clone)]
 pub enum WhiteSpace {
     Normal,
@@ -49,6 +75,7 @@ pub struct Margin(pub i32, pub i32, pub i32, pub i32);
 pub struct BorderRadius(pub u32, pub u32, pub u32, pub u32);
 
 /// Adjust the horizontal position.
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
 #[derive(Debug, Copy, Clone)]
 pub enum AlignItems {
@@ -57,7 +84,17 @@ pub enum AlignItems {
     End,
 }
 
+/// Adjust the horizontal position.
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
+#[derive(Debug, Copy, Clone)]
+pub enum AlignItems {
+    Start,
+    Center,
+    End,
+}
+
 /// Adjust the vertical position.
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
 #[derive(Debug, Copy, Clone)]
 pub enum JustifyContent {
@@ -66,8 +103,26 @@ pub enum JustifyContent {
     End,
 }
 
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
+/// Adjust the vertical position.
+#[derive(Debug, Copy, Clone)]
+pub enum JustifyContent {
+    Start,
+    Center,
+    End,
+}
+
 /// Adjust the text horizontal position.
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum TextAlign {
+    Start,
+    Center,
+    End,
+}
+
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
 #[derive(Debug, Copy, Clone)]
 pub enum TextAlign {
     Start,
@@ -82,6 +137,7 @@ pub enum TextOverflow {
     Content(String),
 }
 
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
 #[derive(Debug, Copy, Clone)]
 pub enum Position {
@@ -89,7 +145,22 @@ pub enum Position {
     Absolute,
 }
 
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
+#[derive(Debug, Copy, Clone)]
+pub enum Position {
+    Static,
+    Absolute,
+}
+
+#[cfg(all(target_arch = "wasm32", feature = "web"))]
 #[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum FlexDirection {
+    Column,
+    Row,
+}
+
+#[cfg(not(all(target_arch = "wasm32", feature = "web")))]
 #[derive(Debug, Copy, Clone)]
 pub enum FlexDirection {
     Column,

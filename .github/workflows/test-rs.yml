@@ -26,15 +26,23 @@ jobs:
       - name: Setup clippy
         run: rustup component add clippy
       - name: Run clippy
-        run: cargo clippy --all-targets -- -D warnings
+        working-directory: og_image_writer
+        run: cargo clippy -- -D warnings
       - name: Run tests
+        working-directory: og_image_writer
         run: cargo test --verbose
       - name: Run snapshot test
         run: cargo make snapshots
       - name: Build
+        working-directory: og_image_writer
         run: cargo build --verbose
+      - name: Setup wasm32-wasi
+        run: rustup target add wasm32-wasi
+      - name: Build wasm for wasm runtime
+        working-directory: og_image_writer
+        run: cargo build --verbose --target wasm32-wasi
       - name: Setup wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      - name: Build wasm
+      - name: Build wasm for web
         working-directory: wasm
         run: wasm-pack build --target web
